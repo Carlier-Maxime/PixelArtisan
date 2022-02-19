@@ -4,7 +4,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public class CustomTextureCommand extends MyCommand{
@@ -30,6 +34,17 @@ public class CustomTextureCommand extends MyCommand{
                     new File(pathCustomTexture+"/"+nameSplit[0]+".png").delete();
                 } else if (!nameSplit[nameSplit.length-1].equals("png")) file.delete();
             }
+            list = dir.listFiles();
+            assert list != null;
+            for (File file : list){
+                String name = file.getName().split("\\.")[0];
+                int color = 0;
+                try {
+                    color = getAverageColor(ImageIO.read(file));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         sender.sendMessage("§2taking into account custom textures");
         return true;
@@ -38,5 +53,25 @@ public class CustomTextureCommand extends MyCommand{
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
         return null;
+    }
+
+    private static int getAverageColor(BufferedImage img){
+        int r=0;
+        int g=0;
+        int b=0;
+        int a=0;
+        int nb=0;
+        for (int i=0; i<img.getWidth(); i++){
+            for (int j=0; j<img.getHeight(); j++){
+                Color color = new Color(img.getRGB(i,j),true);
+                r+=color.getRed();
+                g+=color.getGreen();
+                b+=color.getBlue();
+                a+=color.getAlpha();
+                nb++;
+            }
+        }
+        if (nb==0) nb=1;
+        return new Color(r/nb,g/nb,b/nb,a/nb).getRGB();
     }
 }
