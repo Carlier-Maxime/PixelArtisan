@@ -3,6 +3,7 @@ package fr.metouais.pixelartisan;
 import fr.metouais.pixelartisan.Utils.ChatUtils;
 import fr.metouais.pixelartisan.commands.PixelArtisanCommand;
 import org.bukkit.Bukkit;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
@@ -12,7 +13,10 @@ public class PixelArtisan extends JavaPlugin {
     public void onEnable() {
         super.onEnable();
 
-        Objects.requireNonNull(getCommand("pa")).setExecutor(new PixelArtisanCommand());
+        PluginCommand pa = Objects.requireNonNull(getCommand("pa"));
+        PixelArtisanCommand paCmd = new PixelArtisanCommand();
+        pa.setExecutor(paCmd);
+        pa.setTabCompleter(paCmd);
 
         ChatUtils.sendConsoleMessage(
                 getDescription().getName()+" enable\n"+
