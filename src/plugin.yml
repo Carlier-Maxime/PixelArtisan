@@ -1,0 +1,5 @@
+  name: PixelArtisan
+  author: M_EtOuais
+  version: 0.0
+  description: a plugin for creating pixel art from images
+  main: fr.metouais.pixelartisan.PixelArtisan
