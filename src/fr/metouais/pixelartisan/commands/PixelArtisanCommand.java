@@ -19,7 +19,7 @@ public class PixelArtisanCommand extends MyCommand {
         if (subCmd!=null) subCmd.onCommand(sender, cmd, label, Arrays.copyOfRange(args, 1, args.length));
         else {
             sender.sendMessage("§csubCommand not exists !");
-            sender.sendMessage("§c/"+label+" [create]");
+            sender.sendMessage("§c/"+label+" [create|customTexture]");
         }
         return false;
     }
@@ -30,7 +30,8 @@ public class PixelArtisanCommand extends MyCommand {
         if (subCmd!=null) return subCmd.onTabComplete(sender, cmd, label, Arrays.copyOfRange(args, 1, args.length));
         else if (args.length>1) return null;
         return List.of(new String[]{
-                "create"
+                "create",
+                "customTexture"
         });
     }
 
@@ -38,6 +39,7 @@ public class PixelArtisanCommand extends MyCommand {
         if (args.length<=0) {subCmd=null; return;}
         switch (args[0]){
             case "create" -> subCmd=new CreateCommand();
+            case "customTexture" -> subCmd=new CustomTextureCommand();
             default -> subCmd=null;
         }
     }
