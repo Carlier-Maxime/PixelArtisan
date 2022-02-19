@@ -3,3 +3,9 @@
   version: 0.0
   description: a plugin for creating pixel art from images
   main: fr.metouais.pixelartisan.PixelArtisan
+  commands:
+    pa:
+      description: command for info
+      aliases:
+        - pixelArtisan
+        - PixelArtisan
