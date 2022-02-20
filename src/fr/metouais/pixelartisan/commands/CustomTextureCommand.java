@@ -10,10 +10,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
 
 public class CustomTextureCommand extends MyCommand{
     private CommandSender sender;
@@ -25,6 +23,7 @@ public class CustomTextureCommand extends MyCommand{
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         this.sender = sender;
+        sender.sendMessage("§everify custom_texture folder");
         String pathCustomTexture = "./plugins/PixelArtisan/custom_texture";
         File dir = new File(pathCustomTexture);
         File[] list = dir.listFiles();
@@ -52,15 +51,18 @@ public class CustomTextureCommand extends MyCommand{
             }
             sender.sendMessage("§e"+nbDelete+" files have been deleted");
 
+            sender.sendMessage("§edata processing...");
+            ArrayList<TreeMap<Integer,Short>> treeList = new ArrayList<>(6);
+            for (int i=0; i<6; i++) treeList.add(new TreeMap<>());
             list = dir.listFiles();
             assert list != null;
             int nbError=0;
             for (File file : list){
                 String name = file.getName().split("\\.")[0];
                 String mName = getMaterialName(name);
-                if (mName==null) nbError++;
+                if (mName==null) {nbError++; continue;}
                 byte face = getFace(name,mName);
-                if (face==-1) nbError++;
+                if (face==-1) {nbError++; continue;}
                 int color = 0;
                 try {
                     color = getAverageColor(ImageIO.read(file));
@@ -68,6 +70,12 @@ public class CustomTextureCommand extends MyCommand{
                     e.printStackTrace();
                 }
                 short mID = (short) Objects.requireNonNull(Material.matchMaterial(mName)).ordinal();
+
+                int[] faceGoods;
+                if (face==0) faceGoods = new int[]{0,1,2,3,4,5};
+                else if (face==7) faceGoods = new int[]{1,2,3,4};
+                else faceGoods = new int[]{face-1};
+                for (int i : faceGoods) treeList.get(i).putIfAbsent(color, mID);
             }
             if (nbError>0) sender.sendMessage("§cnbError = "+nbError);
         }
