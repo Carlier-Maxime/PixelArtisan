@@ -29,6 +29,7 @@ public class PixelArtisan extends JavaPlugin {
             Files.createDirectories(Path.of(s));
             Files.createDirectories(Path.of(s+"/custom_texture"));
             Files.createDirectories(Path.of(s+"/images"));
+            Files.createDirectories(Path.of(s+"/data"));
         } catch (IOException e) {
             e.printStackTrace();
         }

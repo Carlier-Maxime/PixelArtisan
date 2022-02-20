@@ -2,10 +2,14 @@ package fr.metouais.pixelartisan.Utils;
 
 import org.bukkit.command.CommandSender;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
@@ -70,9 +74,10 @@ public class DataManager {
 
     public void compareAndSave(CommandSender sender, ArrayList<TreeMap<Integer,Short>> data){
         try {
-            sender.sendMessage("§ecompare data with default data...");
+            sender.sendMessage("§ecompare data with default data..");
             int nbAdd=0;
             for (int i=0; i<6; i++) {
+                if (db==null) break;
                 if (i >= data.size() || data.get(i).size() >= db.get(i).size()) continue;
                 for (int key : db.get(i).keySet()){
                     boolean found = false;
@@ -89,13 +94,35 @@ public class DataManager {
                 }
             }
             sender.sendMessage("§e"+nbAdd+" missing data have been added");
-
+            saveCustomData(sender, data);
         } catch (Exception e){
             e.printStackTrace();
         }
     }
 
     private void saveCustomData(CommandSender sender, ArrayList<TreeMap<Integer,Short>> data){
-
+        // delete old custom data
+        File[] dataFiles = new File(path).listFiles();
+        if (dataFiles!=null){
+            for (File file : dataFiles) file.delete();
+        }
+        // save custom data
+        sender.sendMessage("§esave custom data...");
+        for (int i=0; i<6; i++){
+            try {
+                f = FileChannel.open(
+                        FileSystems.getDefault().getPath(path+"/custom"+i+".dat"),
+                        StandardOpenOption.READ,
+                        StandardOpenOption.WRITE,
+                        StandardOpenOption.CREATE
+                );
+                for (int k : data.get(i).keySet()){
+                    writeOneData(new Element(k,data.get(i).get(k)));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        sender.sendMessage("§adata saved");
     }
 }
