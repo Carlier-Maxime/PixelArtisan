@@ -2,6 +2,7 @@ package fr.metouais.pixelartisan.commands;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,11 +16,15 @@ public class PixelArtisanCommand extends MyCommand {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        updateSubCmd(args);
-        if (subCmd!=null) subCmd.onCommand(sender, cmd, label, Arrays.copyOfRange(args, 1, args.length));
-        else {
-            sender.sendMessage("§csubCommand not exists !");
-            sender.sendMessage("§c/"+label+" [create|customTexture]");
+        if (sender.isOp()){
+            updateSubCmd(args);
+            if (subCmd!=null) return subCmd.onCommand(sender, cmd, label, Arrays.copyOfRange(args, 1, args.length));
+            else {
+                sender.sendMessage("§csubCommand not exists !");
+                sender.sendMessage("§c/"+label+" [create|customTexture]");
+            }
+        } else {
+            sender.sendMessage("§cyou must be op");
         }
         return false;
     }
