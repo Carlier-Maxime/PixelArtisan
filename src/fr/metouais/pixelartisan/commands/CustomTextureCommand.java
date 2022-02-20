@@ -85,6 +85,9 @@ public class CustomTextureCommand extends MyCommand{
             dataManager.compareAndSave(treeList);
             sender.sendMessage("§eload custom data..");
             dataManager.loadData(true);
+            sender.sendMessage("§ecleanup of custom_texture fodler");
+            if (nbError==0) {clear(); sender.sendMessage("§acleanup finish");}
+            else sender.sendMessage("§6cleanup of custom_texture folder canceled because processing errors occurred");
         }
         sender.sendMessage("§2custom textures have been supported.");
         return true;
@@ -180,5 +183,13 @@ public class CustomTextureCommand extends MyCommand{
         sender.sendMessage("§c"+name+": suffix = "+suffix+" not found face correspondance !");
         return -1;*/
         return 0;
+    }
+
+    private void clear(){
+        File dir = new File("./plugins/PixelArtisan/custom_texture");
+        File[] list = dir.listFiles();
+        if (list!=null){
+            for (File file : list) file.delete();
+        }
     }
 }
