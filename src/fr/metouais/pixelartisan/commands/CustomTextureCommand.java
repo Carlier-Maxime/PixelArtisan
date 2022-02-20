@@ -81,7 +81,10 @@ public class CustomTextureCommand extends MyCommand{
             if (nbError>0) sender.sendMessage("§cnb error processing = "+nbError);
             else sender.sendMessage("§ano process error detected");
             sender.sendMessage("§ecompare and save...");
-            new DataManager().compareAndSave(sender,treeList);
+            DataManager dataManager = new DataManager(sender);
+            dataManager.compareAndSave(treeList);
+            sender.sendMessage("§eload custom data..");
+            dataManager.loadData(true);
         }
         sender.sendMessage("§2custom textures have been supported.");
         return true;

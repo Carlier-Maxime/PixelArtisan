@@ -1,9 +1,11 @@
 package fr.metouais.pixelartisan.Utils;
 
+import fr.metouais.pixelartisan.data.Acess;
 import org.bukkit.command.CommandSender;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.FileSystems;
@@ -31,8 +33,11 @@ public class DataManager {
 
     private FileChannel f;
     private ByteBuffer buf;
+    private CommandSender sender;
 
-    public DataManager() {
+    public DataManager(CommandSender sender) {
+        this.sender = sender;
+        if (db==null) loadData();
         this.f = null;
         this.buf = ByteBuffer.allocate(Element.BYTES);
     }
@@ -72,7 +77,7 @@ public class DataManager {
         return -1;
     }
 
-    public void compareAndSave(CommandSender sender, ArrayList<TreeMap<Integer,Short>> data){
+    public void compareAndSave(ArrayList<TreeMap<Integer,Short>> data){
         try {
             sender.sendMessage("§ecompare data with default data..");
             int nbAdd=0;
@@ -94,13 +99,13 @@ public class DataManager {
                 }
             }
             sender.sendMessage("§e"+nbAdd+" missing data have been added");
-            saveCustomData(sender, data);
+            saveCustomData(data);
         } catch (Exception e){
             e.printStackTrace();
         }
     }
 
-    private void saveCustomData(CommandSender sender, ArrayList<TreeMap<Integer,Short>> data){
+    private void saveCustomData(ArrayList<TreeMap<Integer,Short>> data){
         // delete old custom data
         File[] dataFiles = new File(path).listFiles();
         if (dataFiles!=null){
@@ -124,5 +129,37 @@ public class DataManager {
             }
         }
         sender.sendMessage("§adata saved");
+    }
+
+    public void loadData(boolean custom){
+        try {
+            db = new ArrayList<>();
+            for (int i=0; i<6; i++){
+                File file;
+                if (!custom) {
+                    URL url = Acess.class.getResource("data" + i + ".dat");
+                    if (url==null) {sender.sendMessage("§c[PixelArtisan] INTERNAL ERROR : file not found in the plugin !"); continue;}
+                    file = new File(url.toURI());
+                } else file = new File(path+"/custom"+i+".dat");
+                db.add(new TreeMap<>());
+                f = FileChannel.open(
+                        FileSystems.getDefault().getPath(file.getAbsolutePath()),
+                        StandardOpenOption.READ,
+                        StandardOpenOption.WRITE,
+                        StandardOpenOption.CREATE
+                );
+                f.position(0);
+                Element e;
+                while ((e=readOneData())!=null){
+                    db.get(i).put(e.color,e.mID);
+                }
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void loadData(){
+        loadData(false);
     }
 }
