@@ -6,7 +6,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,14 +22,12 @@ public class CreateCommand extends MyCommand{
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         this.sender = sender;
-        if (!argsIsValid(args)) sender.sendMessage("§c/pa create [direction] [filename] [size] (x) (y) (z)");
-        if (sender instanceof Player player){
-            Block block = player.getLocation().getBlock();
-            block.setType(Material.valueOf("AMETHYST_BLOCK"));
-            sender.sendMessage("§2"+Material.AMETHYST_BLOCK.name()+" placed");
-            return true;
+        if (!argsIsValid(args)) {
+            sender.sendMessage("§c/pa create [direction] [filename] [size] (x) (y) (z)");
+            return false;
         }
-        return false;
+        BufferedImage img = resizeImg("./plugins/PixelArtisan/images/"+args[1],Integer.parseInt(args[2]));
+        return true;
     }
 
     @Override
@@ -68,7 +70,10 @@ public class CreateCommand extends MyCommand{
         }
 
         try {
-            Integer.parseInt(args[2]);
+            int x = Integer.parseInt(args[2]);
+            if (x<=0){
+                sender.sendMessage("§csize must be positive");
+            }
         } catch (Exception e){
             sender.sendMessage("§csize must be an integer");
             return false;
@@ -111,5 +116,29 @@ public class CreateCommand extends MyCommand{
             return false;
         }
         return true;
+    }
+
+    private BufferedImage resizeImg(String originalImgPath, int size){
+        sender.sendMessage("§eimage recovery and resizing..");
+        try {
+            BufferedImage originalImg = ImageIO.read(new File(originalImgPath));
+            BufferedImage img;
+            if (originalImg.getHeight()> originalImg.getWidth()){
+                int w = (int) (originalImg.getWidth()*(size*1.0/originalImg.getHeight()));
+                if (w<=0) w=1;
+                img = new BufferedImage(w,size,BufferedImage.TYPE_INT_ARGB);
+            } else {
+                int h = (int) (originalImg.getHeight()*(size*1.0/originalImg.getWidth()));
+                if (h<=0) h=1;
+                img = new BufferedImage(size,h,BufferedImage.TYPE_INT_ARGB);
+            }
+            Graphics2D g2D = img.createGraphics();
+            g2D.drawImage(originalImg,0,0,img.getWidth(),img.getHeight(),null);
+            g2D.dispose();
+            return img;
+        } catch (IOException e) {
+            sender.sendMessage("§ccheck that the provided file is an image and that it is not corrupted");
+            return null;
+        }
     }
 }
