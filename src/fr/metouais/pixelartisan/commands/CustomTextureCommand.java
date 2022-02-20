@@ -15,7 +15,11 @@ import java.util.*;
 import java.util.List;
 
 public class CustomTextureCommand extends MyCommand{
+    private static final String pathCustomTexture = "./plugins/PixelArtisan/custom_texture";
     private CommandSender sender;
+    private File[] list;
+    private File dir;
+    private ArrayList<TreeMap<Integer,Short>> treeList;
 
     public CustomTextureCommand() {
         sender=null;
@@ -24,71 +28,17 @@ public class CustomTextureCommand extends MyCommand{
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         this.sender = sender;
-        sender.sendMessage("§everify custom_texture folder");
-        String pathCustomTexture = "./plugins/PixelArtisan/custom_texture";
-        File dir = new File(pathCustomTexture);
-        File[] list = dir.listFiles();
-        if (list==null || list.length<=0) {
-            sender.sendMessage("§ccustom_texture folder is empty ! (fill the folder and retry)");
-            if (sender instanceof Player){
-                String link = "https://github.com/Carlier-Maxime/PixelArtisan";
-                sender.sendMessage("§6For more information : "+link);
-            }
-            return false;
-        } else {
-            sender.sendMessage("§echecking texture and delete unnecessary files...");
-            int nbDelete=0;
-            for (File file : list){
-                if (!file.isFile()) {file.delete(); nbDelete++;};
-                String[] nameSplit = file.getName().split("\\.");
-                if (nameSplit[nameSplit.length-1].equals("mcmeta")){
-                    file.delete();
-                    new File(pathCustomTexture+"/"+nameSplit[0]+".png").delete();
-                    nbDelete+=2;
-                } else if (!nameSplit[nameSplit.length-1].equals("png")) {file.delete(); nbDelete++;};
-                for (String s : new String[]{"destroy","_plant","grass","end_portal","composter","debug","chorus","bamboo","farmland","campfire"}){
-                    if (nameSplit[0].contains(s)) {file.delete(); nbDelete++;}
-                }
-            }
-            sender.sendMessage("§e"+nbDelete+" files have been deleted");
-
-            sender.sendMessage("§edata processing...");
-            ArrayList<TreeMap<Integer,Short>> treeList = new ArrayList<>(6);
-            for (int i=0; i<6; i++) treeList.add(new TreeMap<>());
-            list = dir.listFiles();
-            assert list != null;
-            int nbError=0;
-            for (File file : list){
-                String name = file.getName().split("\\.")[0];
-                String mName = getMaterialName(name);
-                if (mName==null) {nbError++; continue;}
-                byte face = getFace(name,mName);
-                if (face==-1) {nbError++; continue;}
-                int color = 0;
-                try {
-                    color = getAverageColor(ImageIO.read(file));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                short mID = (short) Objects.requireNonNull(Material.matchMaterial(mName)).ordinal();
-
-                int[] faceGoods;
-                if (face==0) faceGoods = new int[]{0,1,2,3,4,5};
-                else if (face==7) faceGoods = new int[]{1,2,3,4};
-                else faceGoods = new int[]{face-1};
-                for (int i : faceGoods) treeList.get(i).putIfAbsent(color, mID);
-            }
-            if (nbError>0) sender.sendMessage("§cnb error processing = "+nbError);
-            else sender.sendMessage("§ano process error detected");
-            sender.sendMessage("§ecompare and save...");
-            DataManager dataManager = new DataManager(sender);
-            dataManager.compareAndSave(treeList);
-            sender.sendMessage("§eload custom data..");
-            dataManager.loadData(true);
-            sender.sendMessage("§ecleanup of custom_texture fodler");
-            if (nbError==0) {clear(); sender.sendMessage("§acleanup finish");}
-            else sender.sendMessage("§6cleanup of custom_texture folder canceled because processing errors occurred");
-        }
+        if(!verifyFolder()) return false;
+        checkAndDelUselessFile();
+        int nbError = dataProcessing();
+        sender.sendMessage("§ecompare and save...");
+        DataManager dataManager = new DataManager(sender);
+        dataManager.compareAndSave(treeList);
+        sender.sendMessage("§eload custom data..");
+        dataManager.loadData(true);
+        sender.sendMessage("§ecleanup of custom_texture fodler");
+        if (nbError==0) {clear(); sender.sendMessage("§acleanup finish");}
+        else sender.sendMessage("§6cleanup of custom_texture folder canceled because processing errors occurred");
         sender.sendMessage("§2custom textures have been supported.");
         return true;
     }
@@ -186,10 +136,74 @@ public class CustomTextureCommand extends MyCommand{
     }
 
     private void clear(){
-        File dir = new File("./plugins/PixelArtisan/custom_texture");
+        File dir = new File(pathCustomTexture);
         File[] list = dir.listFiles();
         if (list!=null){
             for (File file : list) file.delete();
         }
+    }
+
+    private boolean verifyFolder(){
+        sender.sendMessage("§everify custom_texture folder");
+        dir = new File(pathCustomTexture);
+        list = dir.listFiles();
+        if (list==null || list.length<=0) {
+            sender.sendMessage("§ccustom_texture folder is empty ! (fill the folder and retry)");
+            if (sender instanceof Player){
+                String link = "https://github.com/Carlier-Maxime/PixelArtisan";
+                sender.sendMessage("§6For more information : "+link);
+            }
+            return false;
+        } else return true;
+    }
+
+    private void checkAndDelUselessFile(){
+        sender.sendMessage("§echecking texture and delete unnecessary files...");
+        int nbDelete=0;
+        for (File file : list){
+            if (!file.isFile()) {file.delete(); nbDelete++;};
+            String[] nameSplit = file.getName().split("\\.");
+            if (nameSplit[nameSplit.length-1].equals("mcmeta")){
+                file.delete();
+                new File(pathCustomTexture+"/"+nameSplit[0]+".png").delete();
+                nbDelete+=2;
+            } else if (!nameSplit[nameSplit.length-1].equals("png")) {file.delete(); nbDelete++;};
+            for (String s : new String[]{"destroy","_plant","grass","end_portal","composter","debug","chorus","bamboo","farmland","campfire"}){
+                if (nameSplit[0].contains(s)) {file.delete(); nbDelete++;}
+            }
+        }
+        sender.sendMessage("§e"+nbDelete+" files have been deleted");
+    }
+
+    private int dataProcessing(){
+        sender.sendMessage("§edata processing...");
+        treeList = new ArrayList<>(6);
+        for (int i=0; i<6; i++) treeList.add(new TreeMap<>());
+        list = dir.listFiles();
+        assert list != null;
+        int nbError=0;
+        for (File file : list){
+            String name = file.getName().split("\\.")[0];
+            String mName = getMaterialName(name);
+            if (mName==null) {nbError++; continue;}
+            byte face = getFace(name,mName);
+            if (face==-1) {nbError++; continue;}
+            int color = 0;
+            try {
+                color = getAverageColor(ImageIO.read(file));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            short mID = (short) Objects.requireNonNull(Material.matchMaterial(mName)).ordinal();
+
+            int[] faceGoods;
+            if (face==0) faceGoods = new int[]{0,1,2,3,4,5};
+            else if (face==7) faceGoods = new int[]{1,2,3,4};
+            else faceGoods = new int[]{face-1};
+            for (int i : faceGoods) treeList.get(i).putIfAbsent(color, mID);
+        }
+        if (nbError>0) sender.sendMessage("§cnb error processing = "+nbError);
+        else sender.sendMessage("§ano process error detected");
+        return nbError;
     }
 }
