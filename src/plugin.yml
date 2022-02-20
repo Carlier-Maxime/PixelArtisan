@@ -6,7 +6,7 @@ main: fr.metouais.pixelartisan.PixelArtisan
 api-version: 1.18
 commands:
   pa:
-    description: command for info
+    description: PixelArtisan plugin command prefix
     aliases:
       - pixelArtisan
       - PixelArtisan
