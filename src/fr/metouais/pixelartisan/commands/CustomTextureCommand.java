@@ -1,5 +1,6 @@
 package fr.metouais.pixelartisan.commands;
 
+import fr.metouais.pixelartisan.Utils.DataManager;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -77,9 +78,12 @@ public class CustomTextureCommand extends MyCommand{
                 else faceGoods = new int[]{face-1};
                 for (int i : faceGoods) treeList.get(i).putIfAbsent(color, mID);
             }
-            if (nbError>0) sender.sendMessage("§cnbError = "+nbError);
+            if (nbError>0) sender.sendMessage("§cnb error processing = "+nbError);
+            else sender.sendMessage("§ano process error detected");
+            sender.sendMessage("§ecompare and save...");
+            new DataManager().compareAndSave(sender,treeList);
         }
-        sender.sendMessage("§2taking into account custom textures");
+        sender.sendMessage("§2custom textures have been supported.");
         return true;
     }
 
