@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class CustomTextureCommand extends MyCommand{
     private CommandSender sender;
@@ -58,7 +59,7 @@ public class CustomTextureCommand extends MyCommand{
                 String name = file.getName().split("\\.")[0];
                 String mName = getMaterialName(name);
                 if (mName==null) nbError++;
-                int face = getFace(name,mName);
+                byte face = getFace(name,mName);
                 if (face==-1) nbError++;
                 int color = 0;
                 try {
@@ -66,6 +67,7 @@ public class CustomTextureCommand extends MyCommand{
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                short mID = (short) Objects.requireNonNull(Material.matchMaterial(mName)).ordinal();
             }
             if (nbError>0) sender.sendMessage("§cnbError = "+nbError);
         }
@@ -139,14 +141,14 @@ public class CustomTextureCommand extends MyCommand{
         return m.name();
     }
 
-    private int getFace(String name, String mName){
+    private byte getFace(String name, String mName){
         String[] suffixs = name.split(mName.toLowerCase(Locale.ROOT));
         if (suffixs.length<=1) return 0;
         String suffix = suffixs[1];
         if (suffix.length()<=2) return 0;
         String[] faceSuffixs = new String[]{"_top","_front","$$$$","_back","$$$$","_bottom","_side"};
         for (int i=0; i<faceSuffixs.length; i++){
-            if (suffix.contains(faceSuffixs[i])) return i+1;
+            if (suffix.contains(faceSuffixs[i])) return (byte) (i+1);
         }
         if (suffix.contains("_inner")){
             if (mName.contains("CAULDRON")) return 1;
