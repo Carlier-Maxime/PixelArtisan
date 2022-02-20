@@ -12,13 +12,10 @@ public class CreateCommand extends MyCommand{
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (sender instanceof Player player){
-            if (player.isOp()){
-                Block block = player.getLocation().getBlock();
-                block.setType(Material.ACACIA_LOG);
-                return true;
-            } else {
-                sender.sendMessage("§cPermission denied for this operation !");
-            }
+            Block block = player.getLocation().getBlock();
+            block.setType(Material.valueOf("AMETHYST_BLOCK"));
+            sender.sendMessage("§2"+Material.AMETHYST_BLOCK.name()+" placed");
+            return true;
         }
         return false;
     }

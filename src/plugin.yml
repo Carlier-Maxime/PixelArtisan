@@ -3,6 +3,7 @@ author: M_EtOuais
 version: 0.0
 description: a plugin for creating pixel art from images
 main: fr.metouais.pixelartisan.PixelArtisan
+api-version: 1.18
 commands:
   pa:
     description: command for info

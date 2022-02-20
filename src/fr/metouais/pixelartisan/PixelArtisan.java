@@ -3,6 +3,7 @@ package fr.metouais.pixelartisan;
 import fr.metouais.pixelartisan.Utils.ChatUtils;
 import fr.metouais.pixelartisan.commands.PixelArtisanCommand;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -20,6 +21,8 @@ public class PixelArtisan extends JavaPlugin {
         PixelArtisanCommand paCmd = new PixelArtisanCommand();
         pa.setExecutor(paCmd);
         pa.setTabCompleter(paCmd);
+
+        ChatUtils.sendConsoleMessage("NB MATERIAL = "+ Material.values().length);
 
         try {
             String s = "./plugins/PixelArtisan";
