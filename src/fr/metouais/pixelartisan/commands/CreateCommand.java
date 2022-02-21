@@ -1,7 +1,6 @@
 package fr.metouais.pixelartisan.commands;
 
-import org.bukkit.Material;
-import org.bukkit.block.Block;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -13,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class CreateCommand extends MyCommand{
     private static final String[] direction = new String[]{"North","East","South","West","FlatNorthEast","FlatEastSouth","FlatSouthWest","FlatWestNorth"};
@@ -27,6 +27,10 @@ public class CreateCommand extends MyCommand{
             return false;
         }
         BufferedImage img = resizeImg("./plugins/PixelArtisan/images/"+args[1],Integer.parseInt(args[2]));
+        if (img==null) return false;
+        byte[] directionH = getDirectionH(args[0]);
+        byte[] directionW = getDirectionW(args[0]);
+        if (directionH==null || directionW==null) return false;
         return true;
     }
 
@@ -140,5 +144,38 @@ public class CreateCommand extends MyCommand{
             sender.sendMessage("§ccheck that the provided file is an image and that it is not corrupted");
             return null;
         }
+    }
+
+    private byte[] getDirectionH(String direction){
+        // "North","East","South","West","FlatNorthEast","FlatEastSouth","FlatSouthWest","FlatWestNorth"
+        for (int i=0; i<CreateCommand.direction.length; i++){
+            if (Objects.equals(CreateCommand.direction[i], direction)){
+                return switch (i) {
+                    case 0, 1, 2, 3 -> new byte[]{0, 1, 0};
+                    case 4 -> new byte[]{0, 0, -1};
+                    case 5 -> new byte[]{1, 0, 0};
+                    case 6 -> new byte[]{0, 0, 1};
+                    case 7 -> new byte[]{-1, 0, 0};
+                    default -> null;
+                };
+            }
+        }
+        return null;
+    }
+
+    private byte[] getDirectionW(String direction){
+        // "North","East","South","West","FlatNorthEast","FlatEastSouth","FlatSouthWest","FlatWestNorth"
+        for (int i=0; i<CreateCommand.direction.length; i++){
+            if (Objects.equals(CreateCommand.direction[i], direction)){
+                return switch (i) {
+                    case 0,4 -> new byte[]{1, 0, 0};
+                    case 1,5 -> new byte[]{0, 0, 1};
+                    case 2,6 -> new byte[]{-1, 0, 0};
+                    case 3,7 -> new byte[]{0, 0, -1};
+                    default -> null;
+                };
+            }
+        }
+        return null;
     }
 }
