@@ -1,8 +1,9 @@
 package fr.metouais.pixelartisan.commands;
 
+import fr.metouais.pixelartisan.Utils.DataManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -36,7 +37,19 @@ public class CreateCommand extends MyCommand{
         if (directionH==null || directionW==null) return false;
         Location startLocation = getStartLocation(args);
         if (startLocation==null) return false;
-        sender.sendMessage("§ecreate pixel art (soon..)");
+        sender.sendMessage("§ecreate pixel art... (soon..)");
+        DataManager dataManager = new DataManager(sender);
+        Location location = new Location(startLocation.getWorld(),startLocation.getBlockX(),startLocation.getBlockY(),startLocation.getBlockZ());
+        Location locH;
+        for (int i=0; i<img.getHeight(); i++){
+            locH = new Location(location.getWorld(),location.getBlockX(),location.getBlockY(),location.getBlockZ());
+            for (int j=0; j<img.getWidth(); j++){
+                location.getBlock().setType(Material.values()[dataManager.getBestMaterial(img.getRGB(j,i))]);
+                location.add(directionW[0],directionW[1],directionW[2]);
+            }
+            location = new Location(locH.getWorld(),locH.getBlockX(),locH.getBlockY(),locH.getBlockZ());
+            location.add(directionH[0],directionH[1],directionH[2]);
+        }
         return true;
     }
 

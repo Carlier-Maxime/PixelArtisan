@@ -162,4 +162,8 @@ public class DataManager {
     public void loadData(){
         loadData(false);
     }
+
+    public short getBestMaterial(int color){
+        return 350;
+    }
 }
