@@ -1,6 +1,8 @@
 package fr.metouais.pixelartisan.commands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -28,9 +30,13 @@ public class CreateCommand extends MyCommand{
         }
         BufferedImage img = resizeImg("./plugins/PixelArtisan/images/"+args[1],Integer.parseInt(args[2]));
         if (img==null) return false;
+        sender.sendMessage("§ecalculation of direction and position");
         byte[] directionH = getDirectionH(args[0]);
         byte[] directionW = getDirectionW(args[0]);
         if (directionH==null || directionW==null) return false;
+        Location startLocation = getStartLocation(args);
+        if (startLocation==null) return false;
+        sender.sendMessage("§ecreate pixel art (soon..)");
         return true;
     }
 
@@ -177,5 +183,50 @@ public class CreateCommand extends MyCommand{
             }
         }
         return null;
+    }
+
+    private Location getStartLocation(String[] args){
+        Player player;
+        if (sender instanceof Player){
+            player = (Player) sender;
+        } else player=null;
+        if (args.length<4){
+            if (player!=null) return player.getLocation();
+            else {
+                sender.sendMessage("§conly a player may not specify the starting position");
+                return null;
+            }
+        } else {
+            Integer x = getCoordinate(args[3], 0);
+            Integer y;
+            if (args.length<5) y=getCoordinate("~",1);
+            else y=getCoordinate(args[4], 1);
+            Integer z;
+            if (args.length<6) z=getCoordinate("~",2);
+            else z=getCoordinate(args[5], 2);
+            if (x==null || y==null || z==null) return null;
+            if (player==null) return new Location(Bukkit.getServer().getWorld("world"),x,y,z);
+            else return new Location(player.getWorld(), x,y,z);
+        }
+    }
+
+    private Integer getCoordinate(String co, int i){
+        int x=0;
+        if (co.contains("~")){
+            if (sender instanceof Player player){
+                switch (i){
+                    case 0 -> x+=player.getLocation().getBlockX();
+                    case 1 -> x+=player.getLocation().getBlockY();
+                    case 2 -> x+=player.getLocation().getBlockZ();
+                }
+            } else {
+                sender.sendMessage("§conly a player can use '~' in starting coordinates");
+                return null;
+            }
+        }
+        String[] split = co.split("~");
+        if (split.length<=1) return x;
+        x+=Integer.parseInt(split[1]);
+        return x;
     }
 }
