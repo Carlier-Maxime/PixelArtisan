@@ -185,7 +185,9 @@ public class DataManager {
         Color bestColor = new Color(tree.firstKey(),true);
         for (int clr : tree.keySet()){
             Color color = new Color(clr,true);
-            bestColor = getBestMatchColor(goal,bestColor,color);
+            Color tmp = getBestMatchColor(goal,bestColor,color);
+            if (!Material.values()[tree.get(tmp.getRGB())].isOccluding() && bestColor.getAlpha()==255) continue;
+            bestColor = tmp;
         }
         return tree.get(bestColor.getRGB());
     }
