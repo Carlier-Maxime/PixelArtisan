@@ -46,7 +46,7 @@ public class CreateCommand extends MyCommand{
         Location locH;
         for (int i=img.getHeight()-1; i>=0; i--){
             locH = new Location(location.getWorld(),location.getBlockX(),location.getBlockY(),location.getBlockZ());
-            for (int j=img.getWidth()-1; j>=0; j--){
+            for (int j=0; j<img.getWidth(); j++){
                 Material material = Material.values()[dataManager.getBestMaterial(img.getRGB(j,i),face, flat)];
                 location.getBlock().setType(material);
                 location.add(directionW[0],directionW[1],directionW[2]);
