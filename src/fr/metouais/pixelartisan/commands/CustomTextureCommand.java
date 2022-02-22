@@ -194,7 +194,9 @@ public class CustomTextureCommand extends MyCommand{
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            short mID = (short) Objects.requireNonNull(Material.matchMaterial(mName)).ordinal();
+            Material material = Material.matchMaterial(mName);
+            if (material==null || !material.isBlock()) continue;
+            short mID = (short) material.ordinal();
 
             int[] faceGoods;
             if (face==0) faceGoods = new int[]{0,1,2,3,4,5};

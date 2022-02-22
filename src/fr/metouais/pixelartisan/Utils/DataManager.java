@@ -1,11 +1,13 @@
 package fr.metouais.pixelartisan.Utils;
 
 import fr.metouais.pixelartisan.data.Acess;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.FileSystems;
@@ -34,12 +36,14 @@ public class DataManager {
     private FileChannel f;
     private ByteBuffer buf;
     private CommandSender sender;
+    private InputStream in;
 
     public DataManager(CommandSender sender) {
         this.sender = sender;
+        this.buf = ByteBuffer.allocate(Element.BYTES);
         if (db==null) loadData();
         this.f = null;
-        this.buf = ByteBuffer.allocate(Element.BYTES);
+        this.in = null;
     }
 
     private void writeOneData(Element e){
@@ -54,15 +58,21 @@ public class DataManager {
         }
     }
 
-    private Element readOneData(){
+    private Element readOneData(boolean custom){
         try {
+            byte[] buffer = new byte[Element.BYTES];
             buf.clear();
             while (buf.hasRemaining()){
-                if (f.read(buf)==-1) return null;
+                if (custom) {if (f.read(buf)==-1) return null;}
+                else{
+                    if (in.read(buffer)==-1) return null;
+                    buf.put(buffer);
+                }
             }
             buf.flip();
             return new Element(buf.getInt(), buf.getShort());
         } catch (Exception e){
+            sender.sendMessage("§cError in readOneData");
             e.printStackTrace();
         }
         return null;
@@ -82,7 +92,7 @@ public class DataManager {
             sender.sendMessage("§ecompare data with default data..");
             int nbAdd=0;
             for (int i=0; i<6; i++) {
-                if (db==null) break;
+                if (db==null || db.size()<6) break;
                 if (i >= data.size() || data.get(i).size() >= db.get(i).size()) continue;
                 for (int key : db.get(i).keySet()){
                     boolean found = false;
@@ -101,6 +111,7 @@ public class DataManager {
             sender.sendMessage("§e"+nbAdd+" missing data have been added");
             saveCustomData(data);
         } catch (Exception e){
+            sender.sendMessage("§cERROR in compareAndSave");
             e.printStackTrace();
         }
     }
@@ -121,9 +132,12 @@ public class DataManager {
                         StandardOpenOption.WRITE,
                         StandardOpenOption.CREATE
                 );
+                sender.sendMessage("size data custom = " + data.get(i).size());
                 for (int k : data.get(i).keySet()){
                     writeOneData(new Element(k,data.get(i).get(k)));
                 }
+                sender.sendMessage("file data size = "+f.size());
+                f.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -137,24 +151,26 @@ public class DataManager {
             for (int i=0; i<6; i++){
                 File file;
                 if (!custom) {
-                    URL url = Acess.class.getResource("data" + i + ".dat");
-                    if (url==null) {sender.sendMessage("§c[PixelArtisan] INTERNAL ERROR : file not found in the plugin !"); continue;}
-                    file = new File(url.toURI());
-                } else file = new File(path+"/custom"+i+".dat");
+                    in = Acess.class.getResourceAsStream("data" + i + ".dat");
+                    if (in==null) {sender.sendMessage("§1[PixelArtisan] §cINTERNAL ERROR : file not found in the plugin !"); continue;}
+                } else {
+                    file = new File(path+"/custom"+i+".dat");
+                    f = FileChannel.open(
+                            FileSystems.getDefault().getPath(file.getAbsolutePath()),
+                            StandardOpenOption.READ,
+                            StandardOpenOption.WRITE,
+                            StandardOpenOption.CREATE
+                    );
+                    f.position(0);
+                }
                 db.add(new TreeMap<>());
-                f = FileChannel.open(
-                        FileSystems.getDefault().getPath(file.getAbsolutePath()),
-                        StandardOpenOption.READ,
-                        StandardOpenOption.WRITE,
-                        StandardOpenOption.CREATE
-                );
-                f.position(0);
                 Element e;
-                while ((e=readOneData())!=null){
+                while ((e=readOneData(custom))!=null){
                     db.get(i).put(e.color,e.mID);
                 }
             }
         } catch (Exception e){
+            sender.sendMessage("§1[PixelArtisan] §cINTERNAL ERROR : load data failed !!");
             e.printStackTrace();
         }
     }
@@ -163,7 +179,30 @@ public class DataManager {
         loadData(false);
     }
 
-    public short getBestMaterial(int color){
-        return 350;
+    public short getBestMaterial(int colorObjectif, byte face){
+        TreeMap<Integer,Short> tree = db.get(face);
+        Color goal = new Color(colorObjectif,true);
+        Color bestColor = new Color(tree.firstKey(),true);
+        for (int clr : tree.keySet()){
+            Color color = new Color(clr,true);
+            bestColor = getBestMatchColor(goal,bestColor,color);
+        }
+        return tree.get(bestColor.getRGB());
+    }
+
+    private static Color getBestMatchColor(Color goal, Color c1, Color c2){
+        int a = goal.getAlpha();
+        float[] hsb = Color.RGBtoHSB(goal.getRed(),goal.getGreen(),goal.getBlue(),null);
+        float[] c1hsb = Color.RGBtoHSB(c1.getRed(),c1.getGreen(),c1.getBlue(),null);
+        float[] c2hsb = Color.RGBtoHSB(c2.getRed(),c2.getGreen(),c2.getBlue(),null);
+        if (Math.abs(c1.getAlpha()-a)<Math.abs(c2.getAlpha()-a)) return c1;
+        if (Math.abs(c1.getAlpha()-a)>Math.abs(c2.getAlpha()-a)) return c2;
+        else {
+            for (int i=0; i<3; i++){
+                if (Math.abs(c1hsb[i]-hsb[i])<Math.abs(c2hsb[i]-hsb[i])) return c1;
+                if (Math.abs(c1hsb[i]-hsb[i])>Math.abs(c2hsb[i]-hsb[i])) return c2;
+            }
+        }
+        return c1;
     }
 }

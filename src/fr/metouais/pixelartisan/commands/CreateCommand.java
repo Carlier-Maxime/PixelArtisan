@@ -31,25 +31,28 @@ public class CreateCommand extends MyCommand{
         }
         BufferedImage img = resizeImg("./plugins/PixelArtisan/images/"+args[1],Integer.parseInt(args[2]));
         if (img==null) return false;
-        sender.sendMessage("§ecalculation of direction and position");
+        sender.sendMessage("§ecalculation of direction, face and position");
         byte[] directionH = getDirectionH(args[0]);
         byte[] directionW = getDirectionW(args[0]);
         if (directionH==null || directionW==null) return false;
+        byte face = getFace(args[0]);
         Location startLocation = getStartLocation(args);
         if (startLocation==null) return false;
-        sender.sendMessage("§ecreate pixel art... (soon..)");
+        sender.sendMessage("§ecreate pixel art..");
         DataManager dataManager = new DataManager(sender);
         Location location = new Location(startLocation.getWorld(),startLocation.getBlockX(),startLocation.getBlockY(),startLocation.getBlockZ());
         Location locH;
-        for (int i=0; i<img.getHeight(); i++){
+        for (int i=img.getHeight()-1; i>=0; i--){
             locH = new Location(location.getWorld(),location.getBlockX(),location.getBlockY(),location.getBlockZ());
-            for (int j=0; j<img.getWidth(); j++){
-                location.getBlock().setType(Material.values()[dataManager.getBestMaterial(img.getRGB(j,i))]);
+            for (int j=img.getWidth()-1; j>=0; j--){
+                Material material = Material.values()[dataManager.getBestMaterial(img.getRGB(j,i),face)];
+                location.getBlock().setType(material);
                 location.add(directionW[0],directionW[1],directionW[2]);
             }
             location = new Location(locH.getWorld(),locH.getBlockX(),locH.getBlockY(),locH.getBlockZ());
             location.add(directionH[0],directionH[1],directionH[2]);
         }
+        sender.sendMessage("§2pixel art created !");
         return true;
     }
 
@@ -241,5 +244,16 @@ public class CreateCommand extends MyCommand{
         if (split.length<=1) return x;
         x+=Integer.parseInt(split[1]);
         return x;
+    }
+
+    private byte getFace(String direction){
+        // "North","East","South","West","FlatNorthEast","FlatEastSouth","FlatSouthWest","FlatWestNorth"
+        return switch (direction){
+            case "North" -> (byte) 1;
+            case "East" -> (byte) 2;
+            case "South" -> (byte) 3;
+            case "West" -> (byte) 4;
+            default -> (byte) 0;
+        };
     }
 }
