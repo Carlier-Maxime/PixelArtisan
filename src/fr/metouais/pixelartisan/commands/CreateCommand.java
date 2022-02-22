@@ -21,6 +21,7 @@ public class CreateCommand extends MyCommand{
     private static final String[] direction = new String[]{"North","East","South","West","FlatNorthEast","FlatEastSouth","FlatSouthWest","FlatWestNorth"};
 
     private CommandSender sender;
+    private boolean flat;
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -32,6 +33,7 @@ public class CreateCommand extends MyCommand{
         BufferedImage img = resizeImg("./plugins/PixelArtisan/images/"+args[1],Integer.parseInt(args[2]));
         if (img==null) return false;
         sender.sendMessage("§ecalculation of direction, face and position");
+        if (args[0].contains("Flat")) flat = true;
         byte[] directionH = getDirectionH(args[0]);
         byte[] directionW = getDirectionW(args[0]);
         if (directionH==null || directionW==null) return false;
@@ -45,7 +47,7 @@ public class CreateCommand extends MyCommand{
         for (int i=img.getHeight()-1; i>=0; i--){
             locH = new Location(location.getWorld(),location.getBlockX(),location.getBlockY(),location.getBlockZ());
             for (int j=img.getWidth()-1; j>=0; j--){
-                Material material = Material.values()[dataManager.getBestMaterial(img.getRGB(j,i),face)];
+                Material material = Material.values()[dataManager.getBestMaterial(img.getRGB(j,i),face, flat)];
                 location.getBlock().setType(material);
                 location.add(directionW[0],directionW[1],directionW[2]);
             }
@@ -53,6 +55,7 @@ public class CreateCommand extends MyCommand{
             location.add(directionH[0],directionH[1],directionH[2]);
         }
         sender.sendMessage("§2pixel art created !");
+        flat = false;
         return true;
     }
 
