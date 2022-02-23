@@ -1,5 +1,6 @@
 package fr.metouais.pixelartisan.commands;
 
+import fr.metouais.pixelartisan.PixelArtisan;
 import fr.metouais.pixelartisan.Utils.ChatUtils;
 import fr.metouais.pixelartisan.Utils.DataManager;
 import org.bukkit.Bukkit;
@@ -8,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -23,6 +25,7 @@ public class CreateCommand extends MyCommand{
 
     private CommandSender sender;
     private boolean flat;
+    private int blockPlaced;
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -45,18 +48,22 @@ public class CreateCommand extends MyCommand{
         DataManager dataManager = new DataManager(sender);
         Location location = new Location(startLocation.getWorld(),startLocation.getBlockX(),startLocation.getBlockY(),startLocation.getBlockZ());
         Location locH;
+        int nbBlock = img.getHeight()*img.getHeight();
+        blockPlaced=0;
         for (int i=img.getHeight()-1; i>=0; i--){
             locH = new Location(location.getWorld(),location.getBlockX(),location.getBlockY(),location.getBlockZ());
             for (int j=0; j<img.getWidth(); j++){
                 Material material = Material.values()[dataManager.getBestMaterial(img.getRGB(j,i),face, flat)];
                 location.getBlock().setType(material);
                 location.add(directionW[0],directionW[1],directionW[2]);
+                blockPlaced++;
             }
             location = new Location(locH.getWorld(),locH.getBlockX(),locH.getBlockY(),locH.getBlockZ());
             location.add(directionH[0],directionH[1],directionH[2]);
         }
-        ChatUtils.sendMessage(sender,"§2pixel art created !");
         flat = false;
+        ChatUtils.sendConsoleMessage("finish. ("+blockPlaced+" block placed)");
+        ChatUtils.sendMessage(sender,"§2pixel art created ! ("+blockPlaced+" block placed)");
         return true;
     }
 

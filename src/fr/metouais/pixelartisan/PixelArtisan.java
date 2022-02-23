@@ -13,10 +13,12 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 public class PixelArtisan extends JavaPlugin {
+    private static PixelArtisan instance;
+
     @Override
     public void onEnable() {
         super.onEnable();
-
+        instance = this;
         PluginCommand pa = Objects.requireNonNull(getCommand("pa"));
         PixelArtisanCommand paCmd = new PixelArtisanCommand();
         pa.setExecutor(paCmd);
@@ -46,5 +48,9 @@ public class PixelArtisan extends JavaPlugin {
     public void onDisable() {
         super.onDisable();
         ChatUtils.sendConsoleMessage("PixelArtisan disable");
+    }
+
+    public static PixelArtisan getInstance() {
+        return instance;
     }
 }
