@@ -72,7 +72,7 @@ public class DataManager {
             buf.flip();
             return new Element(buf.getInt(), buf.getShort());
         } catch (Exception e){
-            sender.sendMessage("§cError in readOneData");
+            ChatUtils.sendMessage(sender,"§cError in readOneData");
             e.printStackTrace();
         }
         return null;
@@ -89,7 +89,7 @@ public class DataManager {
 
     public void compareAndSave(ArrayList<TreeMap<Integer,Short>> data){
         try {
-            sender.sendMessage("§ecompare data with default data..");
+            ChatUtils.sendMessage(sender,"§ecompare data with default data..");
             int nbAdd=0;
             for (int i=0; i<6; i++) {
                 if (db==null || db.size()<6) break;
@@ -108,10 +108,10 @@ public class DataManager {
                     }
                 }
             }
-            sender.sendMessage("§e"+nbAdd+" missing data have been added");
+            ChatUtils.sendMessage(sender,"§e"+nbAdd+" missing data have been added");
             saveCustomData(data);
         } catch (Exception e){
-            sender.sendMessage("§cERROR in compareAndSave");
+            ChatUtils.sendMessage(sender,"§cERROR in compareAndSave");
             e.printStackTrace();
         }
     }
@@ -123,7 +123,7 @@ public class DataManager {
             for (File file : dataFiles) file.delete();
         }
         // save custom data
-        sender.sendMessage("§esave custom data...");
+        ChatUtils.sendMessage(sender,"§esave custom data...");
         for (int i=0; i<6; i++){
             try {
                 f = FileChannel.open(
@@ -140,7 +140,7 @@ public class DataManager {
                 e.printStackTrace();
             }
         }
-        sender.sendMessage("§adata saved");
+        ChatUtils.sendMessage(sender,"§adata saved");
     }
 
     public void loadData(boolean custom){
@@ -150,7 +150,7 @@ public class DataManager {
                 File file;
                 if (!custom) {
                     in = Acess.class.getResourceAsStream("data" + i + ".dat");
-                    if (in==null) {sender.sendMessage("§1[PixelArtisan] §cINTERNAL ERROR : file not found in the plugin !"); continue;}
+                    if (in==null) {ChatUtils.sendMessage(sender,"§cINTERNAL ERROR : file not found in the plugin !"); continue;}
                 } else {
                     file = new File(path+"/custom"+i+".dat");
                     f = FileChannel.open(
@@ -168,7 +168,7 @@ public class DataManager {
                 }
             }
         } catch (Exception e){
-            sender.sendMessage("§1[PixelArtisan] §cINTERNAL ERROR : load data failed !!");
+            ChatUtils.sendMessage(sender,"§cINTERNAL ERROR : load data failed !!");
             e.printStackTrace();
         }
     }

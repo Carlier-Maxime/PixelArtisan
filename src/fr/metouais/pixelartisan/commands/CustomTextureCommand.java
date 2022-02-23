@@ -1,5 +1,6 @@
 package fr.metouais.pixelartisan.commands;
 
+import fr.metouais.pixelartisan.Utils.ChatUtils;
 import fr.metouais.pixelartisan.Utils.DataManager;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -31,15 +32,15 @@ public class CustomTextureCommand extends MyCommand{
         if(!verifyFolder()) return false;
         checkAndDelUselessFile();
         int nbError = dataProcessing();
-        sender.sendMessage("§ecompare and save...");
+        ChatUtils.sendMessage(sender,"§ecompare and save...");
         DataManager dataManager = new DataManager(sender);
         dataManager.compareAndSave(treeList);
-        sender.sendMessage("§eload custom data..");
+        ChatUtils.sendMessage(sender,"§eload custom data..");
         dataManager.loadData(true);
-        sender.sendMessage("§ecleanup of custom_texture fodler");
-        if (nbError==0) {clear(); sender.sendMessage("§acleanup finish");}
-        else sender.sendMessage("§6cleanup of custom_texture folder canceled because processing errors occurred");
-        sender.sendMessage("§2custom textures have been supported.");
+        ChatUtils.sendMessage(sender,"§ecleanup of custom_texture fodler");
+        if (nbError==0) {clear(); ChatUtils.sendMessage(sender,"§acleanup finish");}
+        else ChatUtils.sendMessage(sender,"§6cleanup of custom_texture folder canceled because processing errors occurred");
+        ChatUtils.sendMessage(sender,"§2custom textures have been supported.");
         return true;
     }
 
@@ -103,7 +104,7 @@ public class CustomTextureCommand extends MyCommand{
         name = name.toUpperCase(Locale.ROOT);
         Material m = Material.matchMaterial(name);
         if (m==null) {
-            sender.sendMessage("§c"+textureName+" alias "+name+" not found correspondance !");
+            ChatUtils.sendMessage(sender,"§c"+textureName+" alias "+name+" not found correspondance !");
             return null;
         }
         return m.name();
@@ -130,7 +131,7 @@ public class CustomTextureCommand extends MyCommand{
         for (String faceSuffix : new String[]{"_lit","_down","_up","_stage","_overlay","_cracked","_on","_off","_save","_load","_data","_corner","_base","_inside","_outside","_lock"}) {
             if (suffix.contains(faceSuffix)) return 0;
         }
-        sender.sendMessage("§c"+name+": suffix = "+suffix+" not found face correspondance !");
+        ChatUtils.sendMessage(sender,"§c"+name+": suffix = "+suffix+" not found face correspondance !");
         return -1;*/
         return 0;
     }
@@ -144,21 +145,21 @@ public class CustomTextureCommand extends MyCommand{
     }
 
     private boolean verifyFolder(){
-        sender.sendMessage("§everify custom_texture folder");
+        ChatUtils.sendMessage(sender,"§everify custom_texture folder");
         dir = new File(pathCustomTexture);
         list = dir.listFiles();
         if (list==null || list.length<=0) {
-            sender.sendMessage("§ccustom_texture folder is empty ! (fill the folder and retry)");
+            ChatUtils.sendMessage(sender,"§ccustom_texture folder is empty ! (fill the folder and retry)");
             if (sender instanceof Player){
                 String link = "https://github.com/Carlier-Maxime/PixelArtisan";
-                sender.sendMessage("§6For more information : "+link);
+                ChatUtils.sendMessage(sender,"§6For more information : "+link);
             }
             return false;
         } else return true;
     }
 
     private void checkAndDelUselessFile(){
-        sender.sendMessage("§echecking texture and delete unnecessary files...");
+        ChatUtils.sendMessage(sender,"§echecking texture and delete unnecessary files...");
         int nbDelete=0;
         for (File file : list){
             if (!file.isFile()) {file.delete(); nbDelete++;};
@@ -172,11 +173,11 @@ public class CustomTextureCommand extends MyCommand{
                 if (nameSplit[0].contains(s)) {file.delete(); nbDelete++;}
             }
         }
-        sender.sendMessage("§e"+nbDelete+" files have been deleted");
+        ChatUtils.sendMessage(sender,"§e"+nbDelete+" files have been deleted");
     }
 
     private int dataProcessing(){
-        sender.sendMessage("§edata processing...");
+        ChatUtils.sendMessage(sender,"§edata processing...");
         treeList = new ArrayList<>(6);
         for (int i=0; i<6; i++) treeList.add(new TreeMap<>());
         list = dir.listFiles();
@@ -204,8 +205,8 @@ public class CustomTextureCommand extends MyCommand{
             else faceGoods = new int[]{face-1};
             for (int i : faceGoods) treeList.get(i).putIfAbsent(color, mID);
         }
-        if (nbError>0) sender.sendMessage("§cnb error processing = "+nbError);
-        else sender.sendMessage("§ano process error detected");
+        if (nbError>0) ChatUtils.sendMessage(sender,"§cnb error processing = "+nbError);
+        else ChatUtils.sendMessage(sender,"§ano process error detected");
         return nbError;
     }
 }

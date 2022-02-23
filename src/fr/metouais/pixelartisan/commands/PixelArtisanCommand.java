@@ -1,5 +1,6 @@
 package fr.metouais.pixelartisan.commands;
 
+import fr.metouais.pixelartisan.Utils.ChatUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -21,14 +22,14 @@ public class PixelArtisanCommand extends MyCommand {
             if (subCmd!=null) return subCmd.onCommand(sender, cmd, label, Arrays.copyOfRange(args, 1, args.length));
             else {
                 if (args.length>0 && Objects.equals(args[0], "debug")){
-                    sender.sendMessage("§bdebug for the dev");
+                    ChatUtils.sendMessage(sender,"§bdebug for the dev");
                 } else {
-                    sender.sendMessage("§csubCommand not exists !");
-                    sender.sendMessage("§c/"+label+" [create|customTexture]");
+                    ChatUtils.sendMessage(sender,"§csubCommand not exists !");
+                    ChatUtils.sendMessage(sender,"§c/"+label+" [create|customTexture]");
                 }
             }
         } else {
-            sender.sendMessage("§cyou must be op");
+            ChatUtils.sendMessage(sender,"§cyou must be op");
         }
         return false;
     }

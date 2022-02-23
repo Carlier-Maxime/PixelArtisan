@@ -45,6 +45,6 @@ public class PixelArtisan extends JavaPlugin {
     @Override
     public void onDisable() {
         super.onDisable();
-        Bukkit.getConsoleSender().sendMessage("PixelArtisan disable");
+        ChatUtils.sendConsoleMessage("PixelArtisan disable");
     }
 }

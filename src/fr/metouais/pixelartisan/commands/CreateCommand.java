@@ -1,5 +1,6 @@
 package fr.metouais.pixelartisan.commands;
 
+import fr.metouais.pixelartisan.Utils.ChatUtils;
 import fr.metouais.pixelartisan.Utils.DataManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -27,12 +28,12 @@ public class CreateCommand extends MyCommand{
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         this.sender = sender;
         if (!argsIsValid(args)) {
-            sender.sendMessage("§c/pa create [direction] [filename] [size] (x) (y) (z)");
+            ChatUtils.sendMessage(sender,"§c/pa create [direction] [filename] [size] (x) (y) (z)");
             return false;
         }
         BufferedImage img = resizeImg("./plugins/PixelArtisan/images/"+args[1],Integer.parseInt(args[2]));
         if (img==null) return false;
-        sender.sendMessage("§ecalculation of direction, face and position");
+        ChatUtils.sendMessage(sender,"§ecalculation of direction, face and position");
         if (args[0].contains("Flat")) flat = true;
         byte[] directionH = getDirectionH(args[0]);
         byte[] directionW = getDirectionW(args[0]);
@@ -40,7 +41,7 @@ public class CreateCommand extends MyCommand{
         byte face = getFace(args[0]);
         Location startLocation = getStartLocation(args);
         if (startLocation==null) return false;
-        sender.sendMessage("§ecreate pixel art..");
+        ChatUtils.sendMessage(sender,"§ecreate pixel art..");
         DataManager dataManager = new DataManager(sender);
         Location location = new Location(startLocation.getWorld(),startLocation.getBlockX(),startLocation.getBlockY(),startLocation.getBlockZ());
         Location locH;
@@ -54,7 +55,7 @@ public class CreateCommand extends MyCommand{
             location = new Location(locH.getWorld(),locH.getBlockX(),locH.getBlockY(),locH.getBlockZ());
             location.add(directionH[0],directionH[1],directionH[2]);
         }
-        sender.sendMessage("§2pixel art created !");
+        ChatUtils.sendMessage(sender,"§2pixel art created !");
         flat = false;
         return true;
     }
@@ -80,51 +81,51 @@ public class CreateCommand extends MyCommand{
 
     private boolean argsIsValid(String[] args){
         if (args.length<3) {
-            sender.sendMessage("§cmissing argument");
+            ChatUtils.sendMessage(sender,"§cmissing argument");
             return false;
         }
 
         if (!List.of(direction).contains(args[0])){
-            sender.sendMessage("§cdirection invalid");
+            ChatUtils.sendMessage(sender,"§cdirection invalid");
             return false;
         }
 
         String[] tab = new File("./plugins/PixelArtisan/images").list();
         if (tab==null) {
-            sender.sendMessage("§cno images are present in the images folder of the plugin");
+            ChatUtils.sendMessage(sender,"§cno images are present in the images folder of the plugin");
             return false;
         }
         else if (!List.of(tab).contains(args[1])){
-            sender.sendMessage("§cthe specified file can not be found");
+            ChatUtils.sendMessage(sender,"§cthe specified file can not be found");
         }
 
         try {
             int x = Integer.parseInt(args[2]);
             if (x<=0){
-                sender.sendMessage("§csize must be positive");
+                ChatUtils.sendMessage(sender,"§csize must be positive");
             }
         } catch (Exception e){
-            sender.sendMessage("§csize must be an integer");
+            ChatUtils.sendMessage(sender,"§csize must be an integer");
             return false;
         }
 
         if (args.length>=4){
             if (!verifyCoordinates(args[3])){
-                sender.sendMessage("§cinvalid abscissa (x)");
+                ChatUtils.sendMessage(sender,"§cinvalid abscissa (x)");
                 return false;
             }
         }
 
         if (args.length>=5){
             if (!verifyCoordinates(args[4])){
-                sender.sendMessage("§cinvalid ordinate (y)");
+                ChatUtils.sendMessage(sender,"§cinvalid ordinate (y)");
                 return false;
             }
         }
 
         if (args.length>=6){
             if (!verifyCoordinates(args[5])){
-                sender.sendMessage("§cinvalid dimension (z)");
+                ChatUtils.sendMessage(sender,"§cinvalid dimension (z)");
                 return false;
             }
         }
@@ -148,7 +149,7 @@ public class CreateCommand extends MyCommand{
     }
 
     private BufferedImage resizeImg(String originalImgPath, int size){
-        sender.sendMessage("§eimage recovery and resizing..");
+        ChatUtils.sendMessage(sender,"§eimage recovery and resizing..");
         try {
             BufferedImage originalImg = ImageIO.read(new File(originalImgPath));
             BufferedImage img;
@@ -166,7 +167,7 @@ public class CreateCommand extends MyCommand{
             g2D.dispose();
             return img;
         } catch (IOException e) {
-            sender.sendMessage("§ccheck that the provided file is an image and that it is not corrupted");
+            ChatUtils.sendMessage(sender,"§ccheck that the provided file is an image and that it is not corrupted");
             return null;
         }
     }
@@ -212,7 +213,7 @@ public class CreateCommand extends MyCommand{
         if (args.length<4){
             if (player!=null) return player.getLocation();
             else {
-                sender.sendMessage("§conly a player may not specify the starting position");
+                ChatUtils.sendMessage(sender,"§conly a player may not specify the starting position");
                 return null;
             }
         } else {
@@ -239,7 +240,7 @@ public class CreateCommand extends MyCommand{
                     case 2 -> x+=player.getLocation().getBlockZ();
                 }
             } else {
-                sender.sendMessage("§conly a player can use '~' in starting coordinates");
+                ChatUtils.sendMessage(sender,"§conly a player can use '~' in starting coordinates");
                 return null;
             }
         }
