@@ -2,10 +2,10 @@ package fr.metouais.pixelartisan.commands;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class PixelArtisanCommand extends MyCommand {
     MyCommand subCmd;
@@ -20,8 +20,12 @@ public class PixelArtisanCommand extends MyCommand {
             updateSubCmd(args);
             if (subCmd!=null) return subCmd.onCommand(sender, cmd, label, Arrays.copyOfRange(args, 1, args.length));
             else {
-                sender.sendMessage("§csubCommand not exists !");
-                sender.sendMessage("§c/"+label+" [create|customTexture]");
+                if (args.length>0 && Objects.equals(args[0], "debug")){
+                    sender.sendMessage("§bdebug for the dev");
+                } else {
+                    sender.sendMessage("§csubCommand not exists !");
+                    sender.sendMessage("§c/"+label+" [create|customTexture]");
+                }
             }
         } else {
             sender.sendMessage("§cyou must be op");
@@ -36,7 +40,7 @@ public class PixelArtisanCommand extends MyCommand {
         else if (args.length>1) return null;
         return List.of(new String[]{
                 "create",
-                "customTexture"
+                "customTexture",
         });
     }
 

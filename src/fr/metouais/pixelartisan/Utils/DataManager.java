@@ -132,11 +132,9 @@ public class DataManager {
                         StandardOpenOption.WRITE,
                         StandardOpenOption.CREATE
                 );
-                sender.sendMessage("size data custom = " + data.get(i).size());
                 for (int k : data.get(i).keySet()){
                     writeOneData(new Element(k,data.get(i).get(k)));
                 }
-                sender.sendMessage("file data size = "+f.size());
                 f.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -182,7 +180,6 @@ public class DataManager {
     public short getBestMaterial(int colorObjectif, byte face, boolean flat){
         TreeMap<Integer,Short> tree = db.get(face);
         Color goal = new Color(colorObjectif,true);
-        System.out.println("GOAL RGB="+goal.getRed()+","+goal.getGreen()+","+goal.getBlue());
         Color bestColor = new Color(tree.firstKey(),true);
         for (int clr : tree.keySet()){
             Color color = new Color(clr,true);
@@ -192,7 +189,6 @@ public class DataManager {
             if (flat && m.hasGravity()) continue;
             bestColor = tmp;
         }
-        System.out.println("BEST RGB="+bestColor.getRed()+","+bestColor.getGreen()+","+bestColor.getBlue());
         return tree.get(bestColor.getRGB());
     }
 

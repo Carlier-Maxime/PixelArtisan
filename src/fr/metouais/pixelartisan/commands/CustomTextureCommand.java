@@ -168,7 +168,7 @@ public class CustomTextureCommand extends MyCommand{
                 new File(pathCustomTexture+"/"+nameSplit[0]+".png").delete();
                 nbDelete+=2;
             } else if (!nameSplit[nameSplit.length-1].equals("png")) {file.delete(); nbDelete++;};
-            for (String s : new String[]{"destroy","_plant","grass","end_portal","composter","debug","chorus","bamboo","farmland","campfire"}){
+            for (String s : new String[]{"destroy","_plant","grass","end_portal","composter","debug","chorus","bamboo","farmland","campfire","shulker_box"}){
                 if (nameSplit[0].contains(s)) {file.delete(); nbDelete++;}
             }
         }
