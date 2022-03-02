@@ -27,6 +27,7 @@ public class CreateCommand extends MyCommand{
     private boolean flat;
     private int blockPlaced;
     private int nbThread;
+    int chunckCounter;
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -51,6 +52,8 @@ public class CreateCommand extends MyCommand{
         int nbBlock = img.getHeight()*img.getWidth();
         blockPlaced=0;
         int wait = 20;
+        int chunckBeforeMsg = 4;
+        chunckCounter=0;
         nbThread = 0;
         ChatUtils.sendMessage(sender,"paint size : "+img.getWidth()+" "+img.getHeight());
         for (int i=img.getHeight()-1; i>=0; i-=16){
@@ -79,9 +82,13 @@ public class CreateCommand extends MyCommand{
                             locBase = new Location(locH.getWorld(),locH.getBlockX(),locH.getBlockY(),locH.getBlockZ());
                             locBase.add(directionH[0],directionH[1],directionH[2]);
                         }
-                        double perc = (blockPlaced*1.0/nbBlock)*100;
-                        ChatUtils.sendConsoleMessage(perc+" %");
-                        ChatUtils.sendMessage(sender,perc+" % ("+blockPlaced+"/"+nbBlock+")");
+                        chunckCounter++;
+                        if (chunckCounter==chunckBeforeMsg){
+                            double perc = (blockPlaced*1.0/nbBlock)*100;
+                            ChatUtils.sendConsoleMessage(perc+" %");
+                            ChatUtils.sendMessage(sender,perc+" % ("+blockPlaced+"/"+nbBlock+")");
+                            chunckCounter=0;
+                        }
                         if (blockPlaced==nbBlock){
                             flat = false;
                             ChatUtils.sendConsoleMessage("finish. ("+blockPlaced+" block placed)");
