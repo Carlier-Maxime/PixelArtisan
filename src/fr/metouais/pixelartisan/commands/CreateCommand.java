@@ -26,6 +26,7 @@ public class CreateCommand extends MyCommand{
     private CommandSender sender;
     private boolean flat;
     private int blockPlaced;
+    private int nbThread;
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -47,23 +48,54 @@ public class CreateCommand extends MyCommand{
         ChatUtils.sendMessage(sender,"§ecreate pixel art..");
         DataManager dataManager = new DataManager(sender);
         Location location = new Location(startLocation.getWorld(),startLocation.getBlockX(),startLocation.getBlockY(),startLocation.getBlockZ());
-        Location locH;
-        int nbBlock = img.getHeight()*img.getHeight();
+        int nbBlock = img.getHeight()*img.getWidth();
         blockPlaced=0;
-        for (int i=img.getHeight()-1; i>=0; i--){
-            locH = new Location(location.getWorld(),location.getBlockX(),location.getBlockY(),location.getBlockZ());
-            for (int j=0; j<img.getWidth(); j++){
-                Material material = Material.values()[dataManager.getBestMaterial(img.getRGB(j,i),face, flat)];
-                location.getBlock().setType(material);
-                location.add(directionW[0],directionW[1],directionW[2]);
-                blockPlaced++;
+        int wait = 20;
+        nbThread = 0;
+        ChatUtils.sendMessage(sender,"paint size : "+img.getWidth()+" "+img.getHeight());
+        for (int i=img.getHeight()-1; i>=0; i-=16){
+            Location loc2 = new Location(location.getWorld(),location.getBlockX(),location.getBlockY(),location.getBlockZ());
+            for (int j=0; j<img.getWidth(); j+=16){
+                int finalI = i;
+                int finalJ = j;
+                final Location locC = location.clone();
+                new BukkitRunnable(){
+                    @Override
+                    public void run() {
+                        Location locBase = locC.clone();
+                        Location locH;
+                        ChatUtils.sendConsoleMessage("Final J : I = "+finalJ+" : "+finalI);
+                        for (int y = finalI; y > finalI -16; y--){
+                            if (y < 0) break;
+                            locH = new Location(locBase.getWorld(),locBase.getBlockX(),locBase.getBlockY(),locBase.getBlockZ());
+                            for (int x = finalJ; x< finalJ +16; x++){
+                                if (x >= img.getWidth()) break;
+                                ChatUtils.sendConsoleMessage("x : y = "+x+" : "+y);
+                                Material material = Material.values()[dataManager.getBestMaterial(img.getRGB(x, y),face, flat)];
+                                locBase.getBlock().setType(material);
+                                locBase.add(directionW[0],directionW[1],directionW[2]);
+                                blockPlaced++;
+                            }
+                            locBase = new Location(locH.getWorld(),locH.getBlockX(),locH.getBlockY(),locH.getBlockZ());
+                            locBase.add(directionH[0],directionH[1],directionH[2]);
+                        }
+                        double perc = (blockPlaced*1.0/nbBlock)*100;
+                        ChatUtils.sendConsoleMessage(perc+" %");
+                        ChatUtils.sendMessage(sender,perc+" % ("+blockPlaced+"/"+nbBlock+")");
+                        if (blockPlaced==nbBlock){
+                            flat = false;
+                            ChatUtils.sendConsoleMessage("finish. ("+blockPlaced+" block placed)");
+                            ChatUtils.sendMessage(sender,"§2pixel art created ! ("+blockPlaced+" block placed)");
+                        }
+                        nbThread--;
+                    }
+                }.runTaskLater(PixelArtisan.getInstance(), (long) wait*(nbThread+1));
+                nbThread++;
+                location.add(directionW[0]*16,directionW[1]*16,directionW[2]*16);
             }
-            location = new Location(locH.getWorld(),locH.getBlockX(),locH.getBlockY(),locH.getBlockZ());
-            location.add(directionH[0],directionH[1],directionH[2]);
+            location = new Location(loc2.getWorld(),loc2.getBlockX(),loc2.getBlockY(),loc2.getBlockZ());
+            location.add(directionH[0]*16,directionH[1]*16,directionH[2]*16);
         }
-        flat = false;
-        ChatUtils.sendConsoleMessage("finish. ("+blockPlaced+" block placed)");
-        ChatUtils.sendMessage(sender,"§2pixel art created ! ("+blockPlaced+" block placed)");
         return true;
     }
 
