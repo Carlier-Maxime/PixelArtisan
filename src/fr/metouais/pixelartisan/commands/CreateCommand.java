@@ -22,7 +22,7 @@ import java.util.Objects;
 
 public class CreateCommand extends MyCommand{
     private static final String[] direction = new String[]{"North","East","South","West","FlatNorthEast","FlatEastSouth","FlatSouthWest","FlatWestNorth"};
-    private static final int wait = 20;
+    private static final int waitDefault = 20;
     private static final int chunckBeforeMsg = 4;
 
     private CommandSender sender;
@@ -41,7 +41,7 @@ public class CreateCommand extends MyCommand{
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         this.sender = sender;
         if (!argsIsValid(args)) {
-            ChatUtils.sendMessage(sender,"§c/pa create [direction] [filename] [size] (x) (y) (z)");
+            ChatUtils.sendMessage(sender,"§c/pa create [direction] [filename] [size] (x) (y) (z) (speed)");
             return false;
         }
         img = resizeImg("./plugins/PixelArtisan/images/"+args[1],Integer.parseInt(args[2]));
@@ -54,6 +54,9 @@ public class CreateCommand extends MyCommand{
         face = getFace(args[0]);
         Location startLocation = getStartLocation(args);
         if (startLocation==null) return false;
+        int wait;
+        if (args.length>=7) wait = args[6].equals("normal") ? waitDefault : 0;
+        else wait = waitDefault;
         ChatUtils.sendMessage(sender,"§ecreate pixel art..");
         dataManager = new DataManager(sender);
         Location location = new Location(startLocation.getWorld(),startLocation.getBlockX(),startLocation.getBlockY(),startLocation.getBlockZ());
@@ -99,6 +102,9 @@ public class CreateCommand extends MyCommand{
             }
         }
         if (args.length==4) return List.of("~","~ ~","~ ~ ~");
+        if (args.length==5) return List.of("~","~ ~");
+        if (args.length==6) return List.of("~");
+        if (args.length==7) return List.of("normal","fast");
         return null;
     }
 
@@ -183,6 +189,17 @@ public class CreateCommand extends MyCommand{
             if (!verifyCoordinates(args[5])){
                 ChatUtils.sendMessage(sender,"§cinvalid dimension (z)");
                 return false;
+            }
+        }
+
+        if (args.length>=7){
+            switch (args[6]) {
+                case "normal":
+                case "fast":
+                    break;
+                default:
+                    ChatUtils.sendMessage(sender,"§cinvalid speed");
+                    return false;
             }
         }
 
