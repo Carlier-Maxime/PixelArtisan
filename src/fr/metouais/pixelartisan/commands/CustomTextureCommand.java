@@ -29,6 +29,27 @@ public class CustomTextureCommand extends MyCommand{
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         this.sender = sender;
+        if (args.length<1){
+            ChatUtils.sendMessage(sender,"§cmissing argument !");
+            ChatUtils.sendMessage(sender,"§c/pa create [generate|disable|enable]");
+            return false;
+        }
+        return switch (args[0]){
+            case "generate" -> generate();
+            case "disable" -> disable();
+            case "enable" -> enable();
+            default -> false;
+        };
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
+        this.sender = sender;
+        if (args.length==1) return List.of("generate","disable","enable");
+        else return null;
+    }
+
+    private boolean generate(){
         if(!verifyFolder()) return false;
         checkAndDelUselessFile();
         int nbError = dataProcessing();
@@ -37,17 +58,21 @@ public class CustomTextureCommand extends MyCommand{
         dataManager.compareAndSave(treeList);
         ChatUtils.sendMessage(sender,"§eload custom data..");
         dataManager.loadData(true);
-        ChatUtils.sendMessage(sender,"§ecleanup of custom_texture fodler");
+        ChatUtils.sendMessage(sender,"§ecleanup of custom_texture folder");
         if (nbError==0) {clear(); ChatUtils.sendMessage(sender,"§acleanup finish");}
         else ChatUtils.sendMessage(sender,"§6cleanup of custom_texture folder canceled because processing errors occurred");
         ChatUtils.sendMessage(sender,"§2custom textures have been supported.");
         return true;
     }
 
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
-        this.sender = sender;
-        return null;
+    private boolean disable(){
+        ChatUtils.sendMessage(sender,"§ccomming soon..");
+        return false;
+    }
+
+    private boolean enable(){
+        ChatUtils.sendMessage(sender,"§ccomming soon..");
+        return false;
     }
 
     private static int getAverageColor(BufferedImage img){
