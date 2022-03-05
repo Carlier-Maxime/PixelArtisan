@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.TreeMap;
 
 public class DataManager {
@@ -41,7 +42,10 @@ public class DataManager {
     public DataManager(CommandSender sender) {
         this.sender = sender;
         this.buf = ByteBuffer.allocate(Element.BYTES);
-        if (db==null) loadData();
+        if (db==null) {
+            ChatUtils.sendConsoleMessage("db is null !");
+            loadData();
+        }
         this.f = null;
         this.in = null;
     }
@@ -89,6 +93,9 @@ public class DataManager {
 
     public void compareAndSave(ArrayList<TreeMap<Integer,Short>> data){
         try {
+            ChatUtils.sendMessage(sender,"§eloading default data..");
+            loadData();
+            ChatUtils.sendMessage(sender,"§edefault data loaded");
             ChatUtils.sendMessage(sender,"§ecompare data with default data..");
             int nbAdd=0;
             for (int i=0; i<6; i++) {
@@ -97,7 +104,7 @@ public class DataManager {
                 for (int key : db.get(i).keySet()){
                     boolean found = false;
                     for (int k : data.get(i).keySet()){
-                        if (k==key){
+                        if (Objects.equals(db.get(i).get(k), db.get(i).get(key))){
                             found = true;
                             break;
                         }
