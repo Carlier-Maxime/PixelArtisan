@@ -111,13 +111,11 @@ public class CreateCommand extends MyCommand{
     private void buildChunck(Location loc, int i, int j){
         Location locBase = loc.clone();
         Location locH;
-        ChatUtils.sendConsoleMessage("Final J : I = "+j+" : "+i);
         for (int y = i; y > i -16; y--){
             if (y < 0) break;
             locH = new Location(locBase.getWorld(),locBase.getBlockX(),locBase.getBlockY(),locBase.getBlockZ());
             for (int x = j; x< j +16; x++){
                 if (x >= img.getWidth()) break;
-                ChatUtils.sendConsoleMessage("x : y = "+x+" : "+y);
                 Material material = Material.values()[dataManager.getBestMaterial(img.getRGB(x, y),face, flat)];
                 locBase.getBlock().setType(material);
                 locBase.add(directionW[0],directionW[1],directionW[2]);
