@@ -21,6 +21,7 @@ public class CustomTextureCommand extends MyCommand{
     private File[] list;
     private File dir;
     private ArrayList<TreeMap<Integer,Short>> treeList;
+    private DataManager dataManager;
 
     public CustomTextureCommand() {
         sender=null;
@@ -34,6 +35,7 @@ public class CustomTextureCommand extends MyCommand{
             ChatUtils.sendMessage(sender,"§c/pa create [generate|disable|enable]");
             return false;
         }
+        dataManager = new DataManager(sender);
         return switch (args[0]){
             case "generate" -> generate();
             case "disable" -> disable();
@@ -54,10 +56,8 @@ public class CustomTextureCommand extends MyCommand{
         checkAndDelUselessFile();
         int nbError = dataProcessing();
         ChatUtils.sendMessage(sender,"§ecompare and save...");
-        DataManager dataManager = new DataManager(sender);
         dataManager.compareAndSave(treeList);
-        ChatUtils.sendMessage(sender,"§eload custom data..");
-        dataManager.loadData(true);
+        enable();
         ChatUtils.sendMessage(sender,"§ecleanup of custom_texture folder");
         if (nbError==0) {clear(); ChatUtils.sendMessage(sender,"§acleanup finish");}
         else ChatUtils.sendMessage(sender,"§6cleanup of custom_texture folder canceled because processing errors occurred");
@@ -66,13 +66,17 @@ public class CustomTextureCommand extends MyCommand{
     }
 
     private boolean disable(){
-        ChatUtils.sendMessage(sender,"§ccomming soon..");
-        return false;
+        ChatUtils.sendMessage(sender,"§edisabling custom data..");
+        dataManager.loadData(false);
+        ChatUtils.sendMessage(sender,"§2disable.");
+        return true;
     }
 
     private boolean enable(){
-        ChatUtils.sendMessage(sender,"§ccomming soon..");
-        return false;
+        ChatUtils.sendMessage(sender,"§eenabling custom data..");
+        dataManager.loadData(true);
+        ChatUtils.sendMessage(sender,"§2enable.");
+        return true;
     }
 
     private static int getAverageColor(BufferedImage img){
