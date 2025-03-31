@@ -1,0 +1,25 @@
+plugins {
+    id "java"
+}
+
+group = 'fr.metouais.pixelartisan'
+version = '0.4.1'
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+}
+
+dependencies {
+    implementation 'org.spigotmc:spigot-api:1.18.1-R0.1-20220221.010756-80'
+}
+
+sourceSets.main {
+    java {
+        srcDirs = ['src/main/java']
+    }
+}
+
+jar {
+    from sourceSets.main.output
+}
