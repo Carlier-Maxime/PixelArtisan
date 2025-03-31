@@ -35,8 +35,8 @@ public class DataManager {
     private static ArrayList<TreeMap<Integer,Short>> db = null;
 
     private FileChannel f;
-    private ByteBuffer buf;
-    private CommandSender sender;
+    private final ByteBuffer buf;
+    private final CommandSender sender;
     private InputStream in;
 
     public DataManager(CommandSender sender) {

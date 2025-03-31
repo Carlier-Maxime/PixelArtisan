@@ -2,7 +2,6 @@ package fr.metouais.pixelartisan;
 
 import fr.metouais.pixelartisan.Utils.ChatUtils;
 import fr.metouais.pixelartisan.commands.PixelArtisanCommand;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;

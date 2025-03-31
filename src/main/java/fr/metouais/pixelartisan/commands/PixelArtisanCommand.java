@@ -3,6 +3,7 @@ package fr.metouais.pixelartisan.commands;
 import fr.metouais.pixelartisan.Utils.ChatUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +17,7 @@ public class PixelArtisanCommand extends MyCommand {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
         if (sender.isOp()){
             updateSubCmd(args);
             if (subCmd!=null) return subCmd.onCommand(sender, cmd, label, Arrays.copyOfRange(args, 1, args.length));
@@ -35,7 +36,7 @@ public class PixelArtisanCommand extends MyCommand {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
         updateSubCmd(args);
         if (subCmd!=null) return subCmd.onTabComplete(sender, cmd, label, Arrays.copyOfRange(args, 1, args.length));
         else if (args.length>1) return null;
@@ -46,7 +47,7 @@ public class PixelArtisanCommand extends MyCommand {
     }
 
     private void updateSubCmd(String[] args){
-        if (args.length<=0) {subCmd=null; return;}
+        if (args.length == 0) {subCmd=null; return;}
         switch (args[0]){
             case "create" -> subCmd=new CreateCommand();
             case "customTexture" -> subCmd=new CustomTextureCommand();

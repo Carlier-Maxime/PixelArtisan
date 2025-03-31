@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -28,7 +29,7 @@ public class CustomTextureCommand extends MyCommand{
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
         this.sender = sender;
         if (args.length<1){
             ChatUtils.sendMessage(sender,"§cmissing argument !");
@@ -45,7 +46,7 @@ public class CustomTextureCommand extends MyCommand{
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
         this.sender = sender;
         if (args.length==1) return List.of("generate","disable","enable");
         else return null;
@@ -177,7 +178,7 @@ public class CustomTextureCommand extends MyCommand{
         ChatUtils.sendMessage(sender,"§everify custom_texture folder");
         dir = new File(pathCustomTexture);
         list = dir.listFiles();
-        if (list==null || list.length<=0) {
+        if (list==null || list.length == 0) {
             ChatUtils.sendMessage(sender,"§ccustom_texture folder is empty ! (fill the folder and retry)");
             if (sender instanceof Player){
                 String link = "https://github.com/Carlier-Maxime/PixelArtisan";
@@ -191,13 +192,13 @@ public class CustomTextureCommand extends MyCommand{
         ChatUtils.sendMessage(sender,"§echecking texture and delete unnecessary files...");
         int nbDelete=0;
         for (File file : list){
-            if (!file.isFile()) {file.delete(); nbDelete++;};
+            if (!file.isFile()) {file.delete(); nbDelete++;}
             String[] nameSplit = file.getName().split("\\.");
             if (nameSplit[nameSplit.length-1].equals("mcmeta")){
                 file.delete();
                 new File(pathCustomTexture+"/"+nameSplit[0]+".png").delete();
                 nbDelete+=2;
-            } else if (!nameSplit[nameSplit.length-1].equals("png")) {file.delete(); nbDelete++;};
+            } else if (!nameSplit[nameSplit.length-1].equals("png")) {file.delete(); nbDelete++;}
             for (String s : new String[]{"destroy","_plant","grass","end_portal","composter","debug","chorus","bamboo","farmland","campfire","shulker_box","coral"}){
                 if (nameSplit[0].contains(s)) {file.delete(); nbDelete++;}
             }

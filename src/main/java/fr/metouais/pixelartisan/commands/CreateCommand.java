@@ -10,6 +10,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -38,7 +39,7 @@ public class CreateCommand extends MyCommand{
     private int nbBlock;
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
         this.sender = sender;
         if (!argsIsValid(args)) {
             ChatUtils.sendMessage(sender,"§c/pa create [direction] [filename] [size] (x) (y) (z) (speed)");
@@ -87,7 +88,7 @@ public class CreateCommand extends MyCommand{
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
         this.sender = sender;
         if (args.length<=1 && (args.length==0 || Arrays.stream(direction).noneMatch(val -> val.equals(args[0]))))
             return Arrays.asList(direction);
@@ -170,21 +171,21 @@ public class CreateCommand extends MyCommand{
         }
 
         if (args.length>=4){
-            if (!verifyCoordinates(args[3])){
+            if (isInvalidCoordinate(args[3])){
                 ChatUtils.sendMessage(sender,"§cinvalid abscissa (x)");
                 return false;
             }
         }
 
         if (args.length>=5){
-            if (!verifyCoordinates(args[4])){
+            if (isInvalidCoordinate(args[4])){
                 ChatUtils.sendMessage(sender,"§cinvalid ordinate (y)");
                 return false;
             }
         }
 
         if (args.length>=6){
-            if (!verifyCoordinates(args[5])){
+            if (isInvalidCoordinate(args[5])){
                 ChatUtils.sendMessage(sender,"§cinvalid dimension (z)");
                 return false;
             }
@@ -204,7 +205,11 @@ public class CreateCommand extends MyCommand{
         return true;
     }
 
-    private boolean verifyCoordinates(String x){
+    private boolean isInvalidCoordinate(String X){
+        return !isValidCoordinate(X);
+    }
+
+    private boolean isValidCoordinate(String x){
         String val;
         if (x.startsWith("~")){
             String[] split = x.split("~");
@@ -223,16 +228,7 @@ public class CreateCommand extends MyCommand{
         ChatUtils.sendMessage(sender,"§eimage recovery and resizing..");
         try {
             BufferedImage originalImg = ImageIO.read(new File(originalImgPath));
-            BufferedImage img;
-            if (originalImg.getHeight()> originalImg.getWidth()){
-                int w = (int) (originalImg.getWidth()*(size*1.0/originalImg.getHeight()));
-                if (w<=0) w=1;
-                img = new BufferedImage(w,size,BufferedImage.TYPE_INT_ARGB);
-            } else {
-                int h = (int) (originalImg.getHeight()*(size*1.0/originalImg.getWidth()));
-                if (h<=0) h=1;
-                img = new BufferedImage(size,h,BufferedImage.TYPE_INT_ARGB);
-            }
+            BufferedImage img = getBufferedImage(size, originalImg);
             Graphics2D g2D = img.createGraphics();
             g2D.drawImage(originalImg,0,0,img.getWidth(),img.getHeight(),null);
             g2D.dispose();
@@ -241,6 +237,20 @@ public class CreateCommand extends MyCommand{
             ChatUtils.sendMessage(sender,"§ccheck that the provided file is an image and that it is not corrupted");
             return null;
         }
+    }
+
+    private static BufferedImage getBufferedImage(int size, BufferedImage originalImg) {
+        BufferedImage img;
+        if (originalImg.getHeight()> originalImg.getWidth()){
+            int w = (int) (originalImg.getWidth()*(size *1.0/ originalImg.getHeight()));
+            if (w<=0) w=1;
+            img = new BufferedImage(w, size,BufferedImage.TYPE_INT_ARGB);
+        } else {
+            int h = (int) (originalImg.getHeight()*(size *1.0/ originalImg.getWidth()));
+            if (h<=0) h=1;
+            img = new BufferedImage(size,h,BufferedImage.TYPE_INT_ARGB);
+        }
+        return img;
     }
 
     private byte[] getDirectionH(String direction){
