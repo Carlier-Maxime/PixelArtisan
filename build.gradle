@@ -13,6 +13,7 @@ repositories {
 dependencies {
     implementation 'org.spigotmc:spigot-api:1.18.1-R0.1-20220221.010756-80'
     implementation 'org.jetbrains:annotations:24.0.1'
+    implementation 'org.slf4j:slf4j-api:2.0.17'
 }
 
 sourceSets.main {
