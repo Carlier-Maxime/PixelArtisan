@@ -38,10 +38,7 @@ public class DataManager {
     public DataManager(CommandSender sender) {
         this.sender = sender;
         this.buf = ByteBuffer.allocate(Element.BYTES);
-        if (db==null) {
-            ChatUtils.sendConsoleMessage("db is null !");
-            loadData();
-        }
+        if (db==null) loadData();
         this.f = null;
         this.in = null;
     }
