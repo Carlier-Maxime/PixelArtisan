@@ -3,6 +3,7 @@ package fr.metouais.pixelartisan.commands;
 import fr.metouais.pixelartisan.PixelArtisan;
 import fr.metouais.pixelartisan.Utils.ChatUtils;
 import fr.metouais.pixelartisan.Utils.DataManager;
+import fr.metouais.pixelartisan.Utils.FileUtils;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -12,16 +13,14 @@ import org.jetbrains.annotations.NotNull;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.*;
 import java.util.*;
 import java.util.List;
 
 public class CustomTextureCommand extends MyCommand{
-    private static final String pathCustomTexture = "./plugins/PixelArtisan/custom_texture";
     private CommandSender sender;
-    private File[] list;
-    private File dir;
+    private DirectoryStream<Path> list;
     private ArrayList<TreeMap<Integer,Short>> treeList;
     private DataManager dataManager;
 
@@ -54,14 +53,20 @@ public class CustomTextureCommand extends MyCommand{
     }
 
     private boolean generate(){
-        if(!verifyFolder()) return false;
+        if(!FileUtils.isFolderNotEmpty(PixelArtisan.PATH_CUSTOM_TEXTURE)) {
+            ChatUtils.sendMessage(sender, "§ccustom_texture folder is empty or invalid ! (fill the folder and retry)");
+            if (sender instanceof Player) {
+                ChatUtils.sendMessage(sender, "§6For more information: " + PixelArtisan.GIT_LINK);
+            }
+            return false;
+        }
         checkAndDelUselessFile();
         int nbError = dataProcessing();
         ChatUtils.sendMessage(sender,"§ecompare and save...");
         dataManager.compareAndSave(treeList);
         enable();
         ChatUtils.sendMessage(sender,"§ecleanup of custom_texture folder");
-        if (nbError==0) {clear(); ChatUtils.sendMessage(sender,"§acleanup finish");}
+        if (nbError==0) {FileUtils.tryDeleteContentOfFolder(PixelArtisan.PATH_CUSTOM_TEXTURE); ChatUtils.sendMessage(sender,"§acleanup finish");}
         else ChatUtils.sendMessage(sender,"§6cleanup of custom_texture folder canceled because processing errors occurred");
         ChatUtils.sendMessage(sender,"§2custom textures have been supported.");
         return true;
@@ -167,41 +172,19 @@ public class CustomTextureCommand extends MyCommand{
         return 0;
     }
 
-    private void clear(){
-        File dir = new File(pathCustomTexture);
-        File[] list = dir.listFiles();
-        if (list!=null){
-            for (File file : list) file.delete();
-        }
-    }
-
-    private boolean verifyFolder(){
-        ChatUtils.sendMessage(sender,"§everify custom_texture folder");
-        dir = new File(pathCustomTexture);
-        list = dir.listFiles();
-        if (list==null || list.length == 0) {
-            ChatUtils.sendMessage(sender,"§ccustom_texture folder is empty ! (fill the folder and retry)");
-            if (sender instanceof Player){
-                String link = "https://github.com/Carlier-Maxime/PixelArtisan";
-                ChatUtils.sendMessage(sender,"§6For more information : "+link);
-            }
-            return false;
-        } else return true;
-    }
-
     private void checkAndDelUselessFile(){
         ChatUtils.sendMessage(sender,"§echecking texture and delete unnecessary files...");
         int nbDelete=0;
-        for (File file : list){
-            if (!file.isFile()) {file.delete(); nbDelete++;}
-            String[] nameSplit = file.getName().split("\\.");
+        for (Path file : list){
+            if (!Files.isRegularFile(file)) {FileUtils.tryDelete(file); nbDelete++;}
+            String[] nameSplit = file.getFileName().toString().split("\\.");
             if (nameSplit[nameSplit.length-1].equals("mcmeta")){
-                file.delete();
-                new File(pathCustomTexture+"/"+nameSplit[0]+".png").delete();
+                FileUtils.tryDelete(file);
+                FileUtils.tryDelete(Path.of(PixelArtisan.PATH_CUSTOM_TEXTURE+"/"+nameSplit[0]+".png"));
                 nbDelete+=2;
-            } else if (!nameSplit[nameSplit.length-1].equals("png")) {file.delete(); nbDelete++;}
+            } else if (!nameSplit[nameSplit.length-1].equals("png")) {FileUtils.tryDelete(file); nbDelete++;}
             for (String s : new String[]{"destroy","_plant","grass","end_portal","composter","debug","chorus","bamboo","farmland","campfire","shulker_box","coral"}){
-                if (nameSplit[0].contains(s)) {file.delete(); nbDelete++;}
+                if (nameSplit[0].contains(s)) {FileUtils.tryDelete(file); nbDelete++;}
             }
         }
         ChatUtils.sendMessage(sender,"§e"+nbDelete+" files have been deleted");
@@ -211,18 +194,21 @@ public class CustomTextureCommand extends MyCommand{
         ChatUtils.sendMessage(sender,"§edata processing...");
         treeList = new ArrayList<>(6);
         for (int i=0; i<6; i++) treeList.add(new TreeMap<>());
-        list = dir.listFiles();
-        assert list != null;
+        try {
+            list = Files.newDirectoryStream(PixelArtisan.PATH_CUSTOM_TEXTURE);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         int nbError=0;
-        for (File file : list){
-            String name = file.getName().split("\\.")[0];
+        for (Path file : list){
+            String name = file.getFileName().toString().split("\\.")[0];
             String mName = getMaterialName(name);
             if (mName==null) {nbError++; continue;}
             byte face = getFace(name,mName);
             if (face==-1) {nbError++; continue;}
             int color = 0;
             try {
-                color = getAverageColor(ImageIO.read(file));
+                color = getAverageColor(ImageIO.read(file.toFile()));
             } catch (IOException e) {
                 PixelArtisan.LOGGER.error("Failed get average color of texture {}", mName, e);
             }

@@ -5,15 +5,11 @@ import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -31,7 +27,7 @@ public class DataManager {
         }
     }
 
-    private static final String path = "plugins/PixelArtisan/data";
+    private static final Path path = Path.of("plugins/PixelArtisan/data");
     private static ArrayList<TreeMap<Integer,Short>> db = null;
 
     private FileChannel f;
@@ -56,7 +52,7 @@ public class DataManager {
             buf.putInt(e.color);
             buf.putShort(e.mID);
             buf.flip();
-            while (buf.hasRemaining()) f.write(buf);
+            while (buf.hasRemaining()) if (f.write(buf) <= 0) throw new IOException("write failed");
         } catch (Exception exception){
             PixelArtisan.LOGGER.error("Failed write Element", exception);
         }
@@ -125,10 +121,7 @@ public class DataManager {
 
     private void saveCustomData(ArrayList<TreeMap<Integer,Short>> data){
         // delete old custom data
-        File[] dataFiles = new File(path).listFiles();
-        if (dataFiles!=null){
-            for (File file : dataFiles) file.delete();
-        }
+        FileUtils.tryDeleteContentOfFolder(path);
         // save custom data
         ChatUtils.sendMessage(sender,"§esave custom data...");
         for (int i=0; i<6; i++){
@@ -154,14 +147,14 @@ public class DataManager {
         try {
             db = new ArrayList<>();
             for (int i=0; i<6; i++){
-                File file;
+                Path file;
                 if (!custom) {
                     in = PixelArtisan.getInstance().getResource("data/data" + i + ".dat");
                     if (in==null) {ChatUtils.sendMessage(sender,"§cINTERNAL ERROR : file not found in the plugin !"); continue;}
                 } else {
-                    file = new File(path+"/custom"+i+".dat");
+                    file = Path.of(path+"/custom"+i+".dat");
                     f = FileChannel.open(
-                            FileSystems.getDefault().getPath(file.getAbsolutePath()),
+                            FileSystems.getDefault().getPath(file.toFile().getAbsolutePath()),
                             StandardOpenOption.READ,
                             StandardOpenOption.WRITE,
                             StandardOpenOption.CREATE

@@ -17,6 +17,8 @@ import java.util.Objects;
 public class PixelArtisan extends JavaPlugin {
     private static PixelArtisan instance;
     public static final Logger LOGGER = LoggerFactory.getLogger(PixelArtisan.class);
+    public static final Path PATH_CUSTOM_TEXTURE = Path.of("./plugins/PixelArtisan/custom_texture");
+    public static final String GIT_LINK = "https://github.com/Carlier-Maxime/PixelArtisan";
 
     @Override
     public void onEnable() {
@@ -32,7 +34,7 @@ public class PixelArtisan extends JavaPlugin {
         try {
             String s = "./plugins/PixelArtisan";
             Files.createDirectories(Path.of(s));
-            Files.createDirectories(Path.of(s+"/custom_texture"));
+            Files.createDirectories(PATH_CUSTOM_TEXTURE);
             Files.createDirectories(Path.of(s+"/images"));
             Files.createDirectories(Path.of(s+"/data"));
         } catch (IOException e) {
