@@ -128,8 +128,8 @@ public class CreateCommand extends MyCommand{
         chunckCounter++;
         if (chunckCounter==chunckBeforeMsg){
             double perc = (blockPlaced*1.0/nbBlock)*100;
-            ChatUtils.sendConsoleMessage(perc+" %");
-            ChatUtils.sendMessage(sender,perc+" % ("+blockPlaced+"/"+nbBlock+")");
+            ChatUtils.sendConsoleMessage(String.format("%.1f %%", perc));
+            ChatUtils.sendMessage(sender,String.format("%.1f %% (%d/%d)", perc, blockPlaced, nbBlock));
             chunckCounter=0;
         }
         if (blockPlaced==nbBlock){
