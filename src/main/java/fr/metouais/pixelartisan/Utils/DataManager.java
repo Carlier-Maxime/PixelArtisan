@@ -1,6 +1,6 @@
 package fr.metouais.pixelartisan.Utils;
 
-import fr.metouais.pixelartisan.data.Acess;
+import fr.metouais.pixelartisan.PixelArtisan;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 
@@ -156,7 +156,7 @@ public class DataManager {
             for (int i=0; i<6; i++){
                 File file;
                 if (!custom) {
-                    in = Acess.class.getResourceAsStream("data" + i + ".dat");
+                    in = PixelArtisan.getInstance().getResource("data/data" + i + ".dat");
                     if (in==null) {ChatUtils.sendMessage(sender,"§cINTERNAL ERROR : file not found in the plugin !"); continue;}
                 } else {
                     file = new File(path+"/custom"+i+".dat");
