@@ -78,15 +78,6 @@ public class DataManager {
         return null;
     }
 
-    private int getNbData(Path path){
-        try {
-            return (int) (Files.size(path)/Element.BYTES);
-        } catch (Exception e){
-            PixelArtisan.LOGGER.error("failed getNbData", e);
-        }
-        return -1;
-    }
-
     public void compareAndSave(ArrayList<TreeMap<Integer,Short>> data){
         try {
             ChatUtils.sendMessage(sender,"§eloading default data..");
@@ -194,7 +185,6 @@ public class DataManager {
 
     private static Color getBestMatchColor(Color goal, Color c1, Color c2){
         int a = goal.getAlpha();
-        // alpha comparaison
         if (Math.abs(c1.getAlpha()-a)<Math.abs(c2.getAlpha()-a)) return c1;
         if (Math.abs(c1.getAlpha()-a)>Math.abs(c2.getAlpha()-a)) return c2;
 
@@ -205,32 +195,6 @@ public class DataManager {
         double diffC2 = Math.sqrt(Math.pow((c2.getRed()-r),2)+Math.pow((c2.getGreen()-g),2)+Math.pow((c2.getBlue()-b),2));
         if (diffC1<diffC2) return c1;
         if (diffC1>diffC2) return c2;
-
-        /* hsv comparaison (h power)
-        int Hpower= 25;
-        float[] hsb = Color.RGBtoHSB(goal.getRed(),goal.getGreen(),goal.getBlue(),null);
-        float[] c1hsb = Color.RGBtoHSB(c1.getRed(),c1.getGreen(),c1.getBlue(),null);
-        float[] c2hsb = Color.RGBtoHSB(c2.getRed(),c2.getGreen(),c2.getBlue(),null);
-        double diffC1 = Math.sqrt(Math.pow((c1hsb[0]-hsb[0]),2)*Hpower+Math.pow((c1hsb[1]-hsb[1]),2)+Math.pow((c1hsb[2]-hsb[2]),2));
-        double diffC2 = Math.sqrt(Math.pow((c2hsb[0]-hsb[0]),2)*Hpower+Math.pow((c2hsb[1]-hsb[1]),2)+Math.pow((c2hsb[2]-hsb[2]),2));
-        if (diffC1<diffC2) return c1;
-        if (diffC1>diffC2) return c2;
-        */
-
-        /* hsb comparaison (h full priority)
-        float[] hsb = Color.RGBtoHSB(goal.getRed(),goal.getGreen(),goal.getBlue(),null);
-        float[] c1hsb = Color.RGBtoHSB(c1.getRed(),c1.getGreen(),c1.getBlue(),null);
-        float[] c2hsb = Color.RGBtoHSB(c2.getRed(),c2.getGreen(),c2.getBlue(),null);
-        else {
-            // teint comparaison
-            if (Math.abs(c1hsb[0]-hsb[0])<Math.abs(c2hsb[0]-hsb[0])) return c1;
-            if (Math.abs(c1hsb[0]-hsb[0])>Math.abs(c2hsb[0]-hsb[0])) return c2;
-            // other
-            float diffC1 = (Math.abs(c1hsb[1]-hsb[1])+Math.abs(c1hsb[2]-hsb[2]))/2;
-            float diffC2 = (Math.abs(c2hsb[1]-hsb[1])+Math.abs(c2hsb[2]-hsb[2]))/2;
-            if (diffC1<diffC2) return c1;
-            if (diffC1>diffC2) return c2;
-        }*/
         return c1;
     }
 }
