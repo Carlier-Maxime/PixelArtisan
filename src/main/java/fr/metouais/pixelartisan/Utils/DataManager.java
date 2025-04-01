@@ -58,7 +58,7 @@ public class DataManager {
             buf.flip();
             while (buf.hasRemaining()) f.write(buf);
         } catch (Exception exception){
-            exception.printStackTrace();
+            PixelArtisan.LOGGER.error("Failed write Element", exception);
         }
     }
 
@@ -77,7 +77,7 @@ public class DataManager {
             return new Element(buf.getInt(), buf.getShort());
         } catch (Exception e){
             ChatUtils.sendMessage(sender,"§cError in readOneData");
-            e.printStackTrace();
+            PixelArtisan.LOGGER.error("Failed readOneData", e);
         }
         return null;
     }
@@ -86,7 +86,7 @@ public class DataManager {
         try {
             return (int) (Files.size(path)/Element.BYTES);
         } catch (Exception e){
-            e.printStackTrace();
+            PixelArtisan.LOGGER.error("failed getNbData", e);
         }
         return -1;
     }
@@ -119,7 +119,7 @@ public class DataManager {
             saveCustomData(data);
         } catch (Exception e){
             ChatUtils.sendMessage(sender,"§cERROR in compareAndSave");
-            e.printStackTrace();
+            PixelArtisan.LOGGER.error("Failed compare and save", e);
         }
     }
 
@@ -144,7 +144,7 @@ public class DataManager {
                 }
                 f.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                PixelArtisan.LOGGER.error("Failed save custom data of face {}", i, e);
             }
         }
         ChatUtils.sendMessage(sender,"§adata saved");
@@ -176,7 +176,7 @@ public class DataManager {
             }
         } catch (Exception e){
             ChatUtils.sendMessage(sender,"§cINTERNAL ERROR : load data failed !!");
-            e.printStackTrace();
+            PixelArtisan.LOGGER.error("Failed load data", e);
         }
     }
 

@@ -1,5 +1,6 @@
 package fr.metouais.pixelartisan.commands;
 
+import fr.metouais.pixelartisan.PixelArtisan;
 import fr.metouais.pixelartisan.Utils.ChatUtils;
 import fr.metouais.pixelartisan.Utils.DataManager;
 import org.bukkit.Material;
@@ -223,7 +224,7 @@ public class CustomTextureCommand extends MyCommand{
             try {
                 color = getAverageColor(ImageIO.read(file));
             } catch (IOException e) {
-                e.printStackTrace();
+                PixelArtisan.LOGGER.error("Failed get average color of texture {}", mName, e);
             }
             Material material = Material.matchMaterial(mName);
             if (material==null || !material.isBlock()) continue;

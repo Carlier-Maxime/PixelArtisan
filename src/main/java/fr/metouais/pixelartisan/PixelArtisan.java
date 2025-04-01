@@ -6,6 +6,9 @@ import org.bukkit.Material;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,6 +16,7 @@ import java.util.Objects;
 
 public class PixelArtisan extends JavaPlugin {
     private static PixelArtisan instance;
+    public static final Logger LOGGER = LoggerFactory.getLogger(PixelArtisan.class);
 
     @Override
     public void onEnable() {
@@ -32,7 +36,7 @@ public class PixelArtisan extends JavaPlugin {
             Files.createDirectories(Path.of(s+"/images"));
             Files.createDirectories(Path.of(s+"/data"));
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Failed creation folder of PixelArtisan", e);
         }
 
         ChatUtils.sendConsoleMessage(
