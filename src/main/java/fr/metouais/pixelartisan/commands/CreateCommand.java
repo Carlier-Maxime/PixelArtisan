@@ -20,14 +20,13 @@ import java.util.Objects;
 
 public class CreateCommand extends MyCommand{
     private static final String[] direction = new String[]{"North","East","South","West","FlatNorthEast","FlatEastSouth","FlatSouthWest","FlatWestNorth"};
-    private static final int waitDefault = 20;
     private CommandSender sender;
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
         this.sender = sender;
         if (!argsIsValid(args)) {
-            ChatUtils.sendMessage(sender,"§c/pa create [direction] [filename] [size] (x) (y) (z) (speed)");
+            ChatUtils.sendMessage(sender,"§c/pa create [direction] [filename] [size] (x) (y) (z)");
             return false;
         }
         ChatUtils.sendMessage(sender,"§ecalculation of direction, face and position");
@@ -37,12 +36,11 @@ public class CreateCommand extends MyCommand{
         byte face = getFace(args[0]);
         Location startLocation = getStartLocation(args);
         if (startLocation==null) return false;
-        int wait = (args.length>=7 && !args[6].equals("normal")) ? 0 : waitDefault;
         BufferedImage img = resizeImg(PixelArtisan.PATH_IMAGES+"/"+args[1],Integer.parseInt(args[2]));
         if (img==null) return false;
         ChatUtils.sendMessage(sender,"§ecreate pixel art..");
         ChatUtils.sendMessage(sender,"paint size : "+img.getWidth()+" "+img.getHeight());
-        PixelArtisan.getInstance().getExecutorService().submit(new CreateCommandInstance(sender, startLocation, dirH, dirW, face, img, wait));
+        PixelArtisan.getInstance().getExecutorService().submit(new CreateCommandInstance(sender, startLocation, dirH, dirW, face, img));
         return true;
     }
 
@@ -64,7 +62,6 @@ public class CreateCommand extends MyCommand{
         if (args.length==4) return List.of("~","~ ~","~ ~ ~");
         if (args.length==5) return List.of("~","~ ~");
         if (args.length==6) return List.of("~");
-        if (args.length==7) return List.of("normal","fast");
         return null;
     }
 
@@ -116,17 +113,6 @@ public class CreateCommand extends MyCommand{
             if (isInvalidCoordinate(args[5])){
                 ChatUtils.sendMessage(sender,"§cinvalid dimension (z)");
                 return false;
-            }
-        }
-
-        if (args.length>=7){
-            switch (args[6]) {
-                case "normal":
-                case "fast":
-                    break;
-                default:
-                    ChatUtils.sendMessage(sender,"§cinvalid speed");
-                    return false;
             }
         }
 

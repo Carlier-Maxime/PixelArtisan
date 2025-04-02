@@ -1,12 +1,11 @@
 package fr.metouais.pixelartisan.commands;
 
-import fr.metouais.pixelartisan.PixelArtisan;
 import fr.metouais.pixelartisan.Utils.ChatUtils;
 import fr.metouais.pixelartisan.Utils.DataManager;
+import fr.metouais.pixelartisan.Utils.TaskUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.image.BufferedImage;
@@ -15,9 +14,8 @@ public class CreateCommandInstance implements Runnable{
     private static final int chunckBeforeMsg = 4;
 
     private final CommandSender sender;
-    private boolean flat;
+    private final boolean flat;
     private int blockPlaced;
-    private int nbThread;
     private int chunckCounter;
     private Location location;
     private final byte[] directionW;
@@ -26,9 +24,8 @@ public class CreateCommandInstance implements Runnable{
     private final BufferedImage img;
     private final byte face;
     private int nbBlock;
-    private final int wait;
 
-    public CreateCommandInstance(@NotNull CommandSender sender, Location start, byte[] dirH, byte[] dirW, byte face, BufferedImage img, int wait) {
+    public CreateCommandInstance(@NotNull CommandSender sender, Location start, byte[] dirH, byte[] dirW, byte face, BufferedImage img) {
         this.sender = sender;
         dataManager = new DataManager(sender);
         location = start.clone();
@@ -36,7 +33,7 @@ public class CreateCommandInstance implements Runnable{
         directionH = dirH;
         this.face = face;
         this.img = img;
-        this.wait = wait;
+        this.flat = dirH[1]==0 && dirW[1]==0;
     }
 
     @Override
@@ -44,25 +41,22 @@ public class CreateCommandInstance implements Runnable{
         nbBlock = img.getHeight()*img.getWidth();
         blockPlaced=0;
         chunckCounter=0;
-        nbThread = 0;
         for (int i=img.getHeight()-1; i>=0; i-=16){
             Location loc2 = new Location(location.getWorld(),location.getBlockX(),location.getBlockY(),location.getBlockZ());
             for (int j=0; j<img.getWidth(); j+=16){
                 int finalI = i;
                 int finalJ = j;
                 final Location locC = location.clone();
-                new BukkitRunnable(){
-                    @Override
-                    public void run() {
-                        buildChunck(locC,finalI,finalJ);
-                    }
-                }.runTaskLater(PixelArtisan.getInstance(), (long) wait*(nbThread+1));
-                nbThread++;
+                TaskUtils.runTaskInMainThreadAndWait(() -> buildChunck(locC,finalI,finalJ));
                 location.add(directionW[0]*16,directionW[1]*16,directionW[2]*16);
             }
             location = new Location(loc2.getWorld(),loc2.getBlockX(),loc2.getBlockY(),loc2.getBlockZ());
             location.add(directionH[0]*16,directionH[1]*16,directionH[2]*16);
         }
+        TaskUtils.runTaskInMainThreadAndWait(() -> {
+            ChatUtils.sendConsoleMessage("finish. ("+blockPlaced+" block placed)");
+            ChatUtils.sendMessage(sender,"§2pixel art created ! ("+blockPlaced+" block placed)");
+        });
     }
 
     private void buildChunck(Location loc, int i, int j){
@@ -88,11 +82,5 @@ public class CreateCommandInstance implements Runnable{
             ChatUtils.sendMessage(sender,String.format("%.1f %% (%d/%d)", perc, blockPlaced, nbBlock));
             chunckCounter=0;
         }
-        if (blockPlaced==nbBlock){
-            flat = false;
-            ChatUtils.sendConsoleMessage("finish. ("+blockPlaced+" block placed)");
-            ChatUtils.sendMessage(sender,"§2pixel art created ! ("+blockPlaced+" block placed)");
-        }
-        nbThread--;
     }
 }

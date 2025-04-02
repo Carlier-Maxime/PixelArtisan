@@ -12,7 +12,7 @@ It allows to create a pixel art on minecraft from an image. <br>
 
 **prefix command** : /pa ...
 
-### 1. /pa create [direction] [filename] [size] (x) (y) (z) (speed)
+### 1. /pa create [direction] [filename] [size] (x) (y) (z)
 
 **this command creates a pixel art from the provided image.** <br>
 **filename** : name of the image present in the images folder of the plugin (*server*/plugins/PixelArtisan/images) <br>
@@ -28,7 +28,6 @@ It allows to create a pixel art on minecraft from an image. <br>
 
 **size** : number of blocks for the larger side of the image, the other side is automatically calculated <br>
 **x**,**y**,**z** : coordinates of the lower left corner of the image, by default: this is the position of the player executing the command. (args is optional) <br>
-**speed** : the speed of pixel art creation, the normal speed prevented from being disconnected from the server during the construction of large pixel art, but it is much longer. while fast speed allows to be much faster, but you risk getting disconnected while building great pixel art. (default: normal)
 
 ### 2. /pa customTexture
 
