@@ -13,12 +13,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class PixelArtisan extends JavaPlugin {
     private static PixelArtisan instance;
     public static final Logger LOGGER = LoggerFactory.getLogger(PixelArtisan.class);
     public static final Path PATH_CUSTOM_TEXTURE = Path.of("./plugins/PixelArtisan/custom_texture");
+    public static final Path PATH_IMAGES = Path.of("./plugins/PixelArtisan/images");
     public static final String GIT_LINK = "https://github.com/Carlier-Maxime/PixelArtisan";
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     @Override
     public void onEnable() {
@@ -52,7 +56,12 @@ public class PixelArtisan extends JavaPlugin {
     @Override
     public void onDisable() {
         super.onDisable();
+        executorService.shutdownNow();
         ChatUtils.sendConsoleMessage("PixelArtisan disable");
+    }
+
+    public ExecutorService getExecutorService() {
+        return executorService;
     }
 
     public static PixelArtisan getInstance() {

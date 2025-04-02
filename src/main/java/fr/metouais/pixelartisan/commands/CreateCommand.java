@@ -2,14 +2,11 @@ package fr.metouais.pixelartisan.commands;
 
 import fr.metouais.pixelartisan.PixelArtisan;
 import fr.metouais.pixelartisan.Utils.ChatUtils;
-import fr.metouais.pixelartisan.Utils.DataManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
@@ -24,19 +21,7 @@ import java.util.Objects;
 public class CreateCommand extends MyCommand{
     private static final String[] direction = new String[]{"North","East","South","West","FlatNorthEast","FlatEastSouth","FlatSouthWest","FlatWestNorth"};
     private static final int waitDefault = 20;
-    private static final int chunckBeforeMsg = 4;
-
     private CommandSender sender;
-    private boolean flat;
-    private int blockPlaced;
-    private int nbThread;
-    private int chunckCounter;
-    private byte[] directionW;
-    private byte[] directionH;
-    private DataManager dataManager;
-    private BufferedImage img;
-    private byte face;
-    private int nbBlock;
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
@@ -45,45 +30,19 @@ public class CreateCommand extends MyCommand{
             ChatUtils.sendMessage(sender,"§c/pa create [direction] [filename] [size] (x) (y) (z) (speed)");
             return false;
         }
-        img = resizeImg("./plugins/PixelArtisan/images/"+args[1],Integer.parseInt(args[2]));
-        if (img==null) return false;
         ChatUtils.sendMessage(sender,"§ecalculation of direction, face and position");
-        if (args[0].contains("Flat")) flat = true;
-        directionH = getDirectionH(args[0]);
-        directionW = getDirectionW(args[0]);
-        if (directionH==null || directionW==null) return false;
-        face = getFace(args[0]);
+        byte[] dirH = getDirectionH(args[0]);
+        byte[] dirW = getDirectionW(args[0]);
+        if (dirH==null || dirW==null) return false;
+        byte face = getFace(args[0]);
         Location startLocation = getStartLocation(args);
         if (startLocation==null) return false;
-        int wait;
-        if (args.length>=7) wait = args[6].equals("normal") ? waitDefault : 0;
-        else wait = waitDefault;
+        int wait = (args.length>=7 && !args[6].equals("normal")) ? 0 : waitDefault;
+        BufferedImage img = resizeImg(PixelArtisan.PATH_IMAGES+"/"+args[1],Integer.parseInt(args[2]));
+        if (img==null) return false;
         ChatUtils.sendMessage(sender,"§ecreate pixel art..");
-        dataManager = new DataManager(sender);
-        Location location = new Location(startLocation.getWorld(),startLocation.getBlockX(),startLocation.getBlockY(),startLocation.getBlockZ());
-        nbBlock = img.getHeight()*img.getWidth();
-        blockPlaced=0;
-        chunckCounter=0;
-        nbThread = 0;
         ChatUtils.sendMessage(sender,"paint size : "+img.getWidth()+" "+img.getHeight());
-        for (int i=img.getHeight()-1; i>=0; i-=16){
-            Location loc2 = new Location(location.getWorld(),location.getBlockX(),location.getBlockY(),location.getBlockZ());
-            for (int j=0; j<img.getWidth(); j+=16){
-                int finalI = i;
-                int finalJ = j;
-                final Location locC = location.clone();
-                new BukkitRunnable(){
-                    @Override
-                    public void run() {
-                        buildChunck(locC,finalI,finalJ);
-                    }
-                }.runTaskLater(PixelArtisan.getInstance(), (long) wait*(nbThread+1));
-                nbThread++;
-                location.add(directionW[0]*16,directionW[1]*16,directionW[2]*16);
-            }
-            location = new Location(loc2.getWorld(),loc2.getBlockX(),loc2.getBlockY(),loc2.getBlockZ());
-            location.add(directionH[0]*16,directionH[1]*16,directionH[2]*16);
-        }
+        PixelArtisan.getInstance().getExecutorService().submit(new CreateCommandInstance(sender, startLocation, dirH, dirW, face, img, wait));
         return true;
     }
 
@@ -93,7 +52,7 @@ public class CreateCommand extends MyCommand{
         if (args.length<=1 && (args.length==0 || Arrays.stream(direction).noneMatch(val -> val.equals(args[0]))))
             return Arrays.asList(direction);
         if (args.length<=2){
-            String[] list = new File("./plugins/PixelArtisan/images").list();
+            String[] list = PixelArtisan.PATH_IMAGES.toFile().list();
             if (args.length==2 && list!=null){
                 List<String> l = List.of(list);
                 if (!l.contains(args[1])) return l;
@@ -109,37 +68,6 @@ public class CreateCommand extends MyCommand{
         return null;
     }
 
-    private void buildChunck(Location loc, int i, int j){
-        Location locBase = loc.clone();
-        Location locH;
-        for (int y = i; y > i -16; y--){
-            if (y < 0) break;
-            locH = new Location(locBase.getWorld(),locBase.getBlockX(),locBase.getBlockY(),locBase.getBlockZ());
-            for (int x = j; x< j +16; x++){
-                if (x >= img.getWidth()) break;
-                Material material = Material.values()[dataManager.getBestMaterial(img.getRGB(x, y),face, flat)];
-                locBase.getBlock().setType(material);
-                locBase.add(directionW[0],directionW[1],directionW[2]);
-                blockPlaced++;
-            }
-            locBase = new Location(locH.getWorld(),locH.getBlockX(),locH.getBlockY(),locH.getBlockZ());
-            locBase.add(directionH[0],directionH[1],directionH[2]);
-        }
-        chunckCounter++;
-        if (chunckCounter==chunckBeforeMsg){
-            double perc = (blockPlaced*1.0/nbBlock)*100;
-            ChatUtils.sendConsoleMessage(String.format("%.1f %%", perc));
-            ChatUtils.sendMessage(sender,String.format("%.1f %% (%d/%d)", perc, blockPlaced, nbBlock));
-            chunckCounter=0;
-        }
-        if (blockPlaced==nbBlock){
-            flat = false;
-            ChatUtils.sendConsoleMessage("finish. ("+blockPlaced+" block placed)");
-            ChatUtils.sendMessage(sender,"§2pixel art created ! ("+blockPlaced+" block placed)");
-        }
-        nbThread--;
-    }
-
     private boolean argsIsValid(String[] args){
         if (args.length<3) {
             ChatUtils.sendMessage(sender,"§cmissing argument");
@@ -151,7 +79,7 @@ public class CreateCommand extends MyCommand{
             return false;
         }
 
-        String[] tab = new File("./plugins/PixelArtisan/images").list();
+        String[] tab = PixelArtisan.PATH_IMAGES.toFile().list();
         if (tab==null) {
             ChatUtils.sendMessage(sender,"§cno images are present in the images folder of the plugin");
             return false;
