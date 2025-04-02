@@ -3,6 +3,7 @@ package fr.metouais.pixelartisan.commands;
 import fr.metouais.pixelartisan.Utils.ChatUtils;
 import fr.metouais.pixelartisan.Utils.DataManager;
 import fr.metouais.pixelartisan.Utils.TaskUtils;
+import fr.metouais.pixelartisan.Utils.TimeUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -38,6 +39,7 @@ public class CreateCommandInstance implements Runnable{
 
     @Override
     public void run() {
+        long startTime = System.nanoTime();
         nbBlock = img.getHeight()*img.getWidth();
         blockPlaced=0;
         chunckCounter=0;
@@ -53,9 +55,10 @@ public class CreateCommandInstance implements Runnable{
             location = new Location(loc2.getWorld(),loc2.getBlockX(),loc2.getBlockY(),loc2.getBlockZ());
             location.add(directionH[0]*16,directionH[1]*16,directionH[2]*16);
         }
+        String duration = TimeUtils.formatDuration(System.nanoTime() - startTime);
         TaskUtils.runTaskInMainThreadAndWait(() -> {
-            ChatUtils.sendConsoleMessage("finish. ("+blockPlaced+" block placed)");
-            ChatUtils.sendMessage(sender,"§2pixel art created ! ("+blockPlaced+" block placed)");
+            ChatUtils.sendConsoleMessage("finish in "+duration+". ("+blockPlaced+" block placed)");
+            ChatUtils.sendMessage(sender,"§2pixel art created in "+duration+"! ("+blockPlaced+" block placed)");
         });
     }
 
