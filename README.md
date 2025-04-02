@@ -4,9 +4,8 @@
 
 PixelArtisan is plugin minecraft for spigot server. <br>
 It allows to create a pixel art on minecraft from an image. <br>
-**Plugin Version** : 0.4 <br>
-**Minecraft Version** : 1.18.* <br>
-**Librairie Version** : *[1.18.1-R0.1-SNAPSHOT](https://hub.spigotmc.org/nexus/content/repositories/snapshots/org/spigotmc/spigot-api/1.18.1-R0.1-SNAPSHOT/spigot-api-1.18.1-R0.1-20220218.224135-74.jar)*
+**Plugin Version** : 0.4.1 <br>
+**Minecraft Version** : 1.18.1 <br>
 
 ## Commands
 
@@ -33,7 +32,7 @@ It allows to create a pixel art on minecraft from an image. <br>
 
 **takes custom textures instead of default textures** <br>
 she retrieves the custom textures present in the custom_texture folder of the plugin (server/plugins/PixelArtisan/custom_texture) <br>
-is performs different processing to obtain the necessary data and saves them in the data folder of the plugin (server/plugins/PixelArtisan/data). <br>
+is performing different processing to obtain the necessary data and saves them in the data folder of the plugin (server/plugins/PixelArtisan/data). <br>
 then deletes the texture present in the texture folder of the plugin and loads the custom data. <br>
 **WARNING** : drop only vanilla block textures 1.18 ! (otherwise errors may occur.)
 
