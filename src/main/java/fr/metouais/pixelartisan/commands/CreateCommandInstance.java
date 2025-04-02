@@ -12,12 +12,12 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.image.BufferedImage;
 
 public class CreateCommandInstance implements Runnable{
-    private static final int chunckBeforeMsg = 4;
+    private static final long timeBetweenMsg = 5_000_000_000L;
 
     private final CommandSender sender;
     private final boolean flat;
     private int blockPlaced;
-    private int chunckCounter;
+    private long timeForMsg;
     private Location location;
     private final byte[] directionW;
     private final byte[] directionH;
@@ -42,7 +42,7 @@ public class CreateCommandInstance implements Runnable{
         long startTime = System.nanoTime();
         nbBlock = img.getHeight()*img.getWidth();
         blockPlaced=0;
-        chunckCounter=0;
+        timeForMsg = System.nanoTime() + timeBetweenMsg;
         for (int i=img.getHeight()-1; i>=0; i-=16){
             Location loc2 = new Location(location.getWorld(),location.getBlockX(),location.getBlockY(),location.getBlockZ());
             for (int j=0; j<img.getWidth(); j+=16){
@@ -78,12 +78,12 @@ public class CreateCommandInstance implements Runnable{
             locBase = new Location(locH.getWorld(),locH.getBlockX(),locH.getBlockY(),locH.getBlockZ());
             locBase.add(directionH[0],directionH[1],directionH[2]);
         }
-        chunckCounter++;
-        if (chunckCounter==chunckBeforeMsg){
+        long time = System.nanoTime();
+        if (time > timeForMsg){
             double perc = (blockPlaced*1.0/nbBlock)*100;
             ChatUtils.sendConsoleMessage(String.format("%.1f %%", perc));
             ChatUtils.sendMessage(sender,String.format("%.1f %% (%d/%d)", perc, blockPlaced, nbBlock));
-            chunckCounter=0;
+            timeForMsg = System.nanoTime() + timeBetweenMsg;
         }
     }
 }
