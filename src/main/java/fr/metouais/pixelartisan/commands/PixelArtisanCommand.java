@@ -1,6 +1,6 @@
 package fr.metouais.pixelartisan.commands;
 
-import fr.metouais.pixelartisan.Utils.ChatUtils;
+import fr.metouais.pixelartisan.utils.ChatUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;

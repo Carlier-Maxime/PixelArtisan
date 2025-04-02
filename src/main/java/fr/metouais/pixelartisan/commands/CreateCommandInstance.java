@@ -1,9 +1,9 @@
 package fr.metouais.pixelartisan.commands;
 
-import fr.metouais.pixelartisan.Utils.ChatUtils;
-import fr.metouais.pixelartisan.Utils.DataManager;
-import fr.metouais.pixelartisan.Utils.TaskUtils;
-import fr.metouais.pixelartisan.Utils.TimeUtils;
+import fr.metouais.pixelartisan.utils.ChatUtils;
+import fr.metouais.pixelartisan.data.DataManager;
+import fr.metouais.pixelartisan.utils.TaskUtils;
+import fr.metouais.pixelartisan.utils.TimeUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;

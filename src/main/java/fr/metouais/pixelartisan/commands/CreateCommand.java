@@ -1,7 +1,7 @@
 package fr.metouais.pixelartisan.commands;
 
 import fr.metouais.pixelartisan.PixelArtisan;
-import fr.metouais.pixelartisan.Utils.ChatUtils;
+import fr.metouais.pixelartisan.utils.ChatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;

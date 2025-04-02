@@ -1,4 +1,4 @@
-package fr.metouais.pixelartisan.Utils;
+package fr.metouais.pixelartisan.utils;
 
 import fr.metouais.pixelartisan.PixelArtisan;
 import org.bukkit.scheduler.BukkitRunnable;

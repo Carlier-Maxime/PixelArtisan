@@ -1,4 +1,4 @@
-package fr.metouais.pixelartisan.Utils;
+package fr.metouais.pixelartisan.utils;
 
 import java.time.Duration;
 
