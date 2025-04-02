@@ -20,7 +20,6 @@ import java.util.List;
 
 public class CustomTextureCommand extends MyCommand{
     private CommandSender sender;
-    private DirectoryStream<Path> list;
     private ArrayList<TreeMap<Integer,Short>> treeList;
     private DataManager dataManager;
 
@@ -175,17 +174,21 @@ public class CustomTextureCommand extends MyCommand{
     private void checkAndDelUselessFile(){
         ChatUtils.sendMessage(sender,"§echecking texture and delete unnecessary files...");
         int nbDelete=0;
-        for (Path file : list){
-            if (!Files.isRegularFile(file)) {FileUtils.tryDelete(file); nbDelete++;}
-            String[] nameSplit = file.getFileName().toString().split("\\.");
-            if (nameSplit[nameSplit.length-1].equals("mcmeta")){
-                FileUtils.tryDelete(file);
-                FileUtils.tryDelete(Path.of(PixelArtisan.PATH_CUSTOM_TEXTURE+"/"+nameSplit[0]+".png"));
-                nbDelete+=2;
-            } else if (!nameSplit[nameSplit.length-1].equals("png")) {FileUtils.tryDelete(file); nbDelete++;}
-            for (String s : new String[]{"destroy","_plant","grass","end_portal","composter","debug","chorus","bamboo","farmland","campfire","shulker_box","coral"}){
-                if (nameSplit[0].contains(s)) {FileUtils.tryDelete(file); nbDelete++;}
+        try (DirectoryStream<Path>list = Files.newDirectoryStream(PixelArtisan.PATH_CUSTOM_TEXTURE)) {
+            for (Path file : list){
+                if (!Files.isRegularFile(file)) {FileUtils.tryDelete(file); nbDelete++;}
+                String[] nameSplit = file.getFileName().toString().split("\\.");
+                if (nameSplit[nameSplit.length-1].equals("mcmeta")){
+                    FileUtils.tryDelete(file);
+                    FileUtils.tryDelete(Path.of(PixelArtisan.PATH_CUSTOM_TEXTURE+"/"+nameSplit[0]+".png"));
+                    nbDelete+=2;
+                } else if (!nameSplit[nameSplit.length-1].equals("png")) {FileUtils.tryDelete(file); nbDelete++;}
+                for (String s : new String[]{"destroy","_plant","grass","end_portal","composter","debug","chorus","bamboo","farmland","campfire","shulker_box","coral"}){
+                    if (nameSplit[0].contains(s)) {FileUtils.tryDelete(file); nbDelete++;}
+                }
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         ChatUtils.sendMessage(sender,"§e"+nbDelete+" files have been deleted");
     }
@@ -194,33 +197,32 @@ public class CustomTextureCommand extends MyCommand{
         ChatUtils.sendMessage(sender,"§edata processing...");
         treeList = new ArrayList<>(6);
         for (int i=0; i<6; i++) treeList.add(new TreeMap<>());
-        try {
-            list = Files.newDirectoryStream(PixelArtisan.PATH_CUSTOM_TEXTURE);
+        int nbError=0;
+        try (DirectoryStream<Path> list = Files.newDirectoryStream(PixelArtisan.PATH_CUSTOM_TEXTURE)) {
+            for (Path file : list){
+                String name = file.getFileName().toString().split("\\.")[0];
+                String mName = getMaterialName(name);
+                if (mName==null) {nbError++; continue;}
+                byte face = getFace(name,mName);
+                if (face==-1) {nbError++; continue;}
+                int color = 0;
+                try {
+                    color = getAverageColor(ImageIO.read(file.toFile()));
+                } catch (IOException e) {
+                    PixelArtisan.LOGGER.error("Failed get average color of texture {}", mName, e);
+                }
+                Material material = Material.matchMaterial(mName);
+                if (material==null || !material.isBlock()) continue;
+                short mID = (short) material.ordinal();
+
+                int[] faceGoods;
+                if (face==0) faceGoods = new int[]{0,1,2,3,4,5};
+                else if (face==7) faceGoods = new int[]{1,2,3,4};
+                else faceGoods = new int[]{face-1};
+                for (int i : faceGoods) treeList.get(i).putIfAbsent(color, mID);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-        int nbError=0;
-        for (Path file : list){
-            String name = file.getFileName().toString().split("\\.")[0];
-            String mName = getMaterialName(name);
-            if (mName==null) {nbError++; continue;}
-            byte face = getFace(name,mName);
-            if (face==-1) {nbError++; continue;}
-            int color = 0;
-            try {
-                color = getAverageColor(ImageIO.read(file.toFile()));
-            } catch (IOException e) {
-                PixelArtisan.LOGGER.error("Failed get average color of texture {}", mName, e);
-            }
-            Material material = Material.matchMaterial(mName);
-            if (material==null || !material.isBlock()) continue;
-            short mID = (short) material.ordinal();
-
-            int[] faceGoods;
-            if (face==0) faceGoods = new int[]{0,1,2,3,4,5};
-            else if (face==7) faceGoods = new int[]{1,2,3,4};
-            else faceGoods = new int[]{face-1};
-            for (int i : faceGoods) treeList.get(i).putIfAbsent(color, mID);
         }
         if (nbError>0) ChatUtils.sendMessage(sender,"§cnb error processing = "+nbError);
         else ChatUtils.sendMessage(sender,"§ano process error detected");
