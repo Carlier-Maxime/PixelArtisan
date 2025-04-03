@@ -1,7 +1,10 @@
 package fr.metouais.pixelartisan.utils;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import fr.metouais.pixelartisan.PixelArtisan;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -64,16 +67,21 @@ public class FileUtils {
 
     public static void downloadClientMC(String version, Path outputPath) throws Exception {
         String json = FileUtils.downloadJson(VERSION_MANIFEST_URL);
-        JSONObject obj = new JSONObject(json);
-        for (Object ver : obj.getJSONArray("versions")) {
-            JSONObject v = (JSONObject) ver;
-            if (!v.getString("id").equals(version)) continue;
-            String versionUrl = v.getString("url");
+        JsonObject obj = JsonParser.parseString(json).getAsJsonObject();
+        JsonArray versionsArray = obj.getAsJsonArray("versions");
+        for (JsonElement verElement : versionsArray) {
+            JsonObject v = verElement.getAsJsonObject();
+            if (!v.get("id").getAsString().equals(version)) continue;
+            String versionUrl = v.get("url").getAsString();
             String versionJson = FileUtils.downloadJson(versionUrl);
-            JSONObject versionObj = new JSONObject(versionJson);
-            String URL = versionObj.getJSONObject("downloads").getJSONObject("client").getString("url");
-            if (URL == null) throw new RuntimeException("Unknown URL for download client MC " + version);
-            downloadFile(URL, outputPath);
+            JsonObject versionObj = JsonParser.parseString(versionJson).getAsJsonObject();
+            JsonObject downloads = versionObj.getAsJsonObject("downloads");
+            JsonObject client = downloads.getAsJsonObject("client");
+            String url = client.get("url").getAsString();
+            if (url == null) {
+                throw new RuntimeException("Unknown URL for download client MC " + version);
+            }
+            downloadFile(url, outputPath);
             return;
         }
         throw new IllegalArgumentException("Unknown version: " + version);
