@@ -1,14 +1,13 @@
 package fr.metouais.pixelartisan.commands;
 
+import dev.jorel.commandapi.CommandAPICommand;
 import fr.metouais.pixelartisan.PixelArtisan;
 import fr.metouais.pixelartisan.utils.ChatUtils;
 import fr.metouais.pixelartisan.data.DataManager;
 import fr.metouais.pixelartisan.utils.FileUtils;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -16,48 +15,41 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
-import java.util.List;
 
-public class CustomTextureCommand extends MyCommand{
-    private CommandSender sender;
+public class CustomTextureCommand {
+    private static CommandAPICommand command;
+    private final CommandSender sender;
     private ArrayList<TreeMap<Integer,Short>> treeList;
-    private DataManager dataManager;
+    private final DataManager dataManager;
 
-    public CustomTextureCommand() {
-        sender=null;
-    }
-
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
-        this.sender = sender;
-        if (args.length<1){
-            ChatUtils.sendMessage(sender,"§cmissing argument !");
-            ChatUtils.sendMessage(sender,"§c/pa create [generate|disable|enable]");
-            return false;
-        }
+    private CustomTextureCommand(CommandSender sender) {
+        this.sender=sender;
         dataManager = new DataManager(sender);
-        return switch (args[0]){
-            case "generate" -> generate();
-            case "disable" -> disable();
-            case "enable" -> enable();
-            default -> false;
-        };
     }
 
-    @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
-        this.sender = sender;
-        if (args.length==1) return List.of("generate","disable","enable");
-        else return null;
+    public static CommandAPICommand get() {
+        if (command == null) {
+            command = new CommandAPICommand("customTexture")
+                    .withSubcommand(new CommandAPICommand("generate").executes((sender, args) -> {
+                        new CustomTextureCommand(sender).generate();
+                    }))
+                    .withSubcommand(new CommandAPICommand("enable").executes((sender, args) -> {
+                        new CustomTextureCommand(sender).enable();
+                    }))
+                    .withSubcommand(new CommandAPICommand("disable").executes((sender, args) -> {
+                        new CustomTextureCommand(sender).disable();
+                    }));
+        }
+        return command;
     }
 
-    private boolean generate(){
+    private void generate(){
         if(!FileUtils.isFolderNotEmpty(PixelArtisan.PATH_CUSTOM_TEXTURE)) {
             ChatUtils.sendMessage(sender, "§ccustom_texture folder is empty or invalid ! (fill the folder and retry)");
             if (sender instanceof Player) {
                 ChatUtils.sendMessage(sender, "§6For more information: " + PixelArtisan.GIT_LINK);
             }
-            return false;
+            return;
         }
         checkAndDelUselessFile();
         int nbError = dataProcessing();
@@ -68,21 +60,18 @@ public class CustomTextureCommand extends MyCommand{
         if (nbError==0) {FileUtils.tryDeleteContentOfFolder(PixelArtisan.PATH_CUSTOM_TEXTURE); ChatUtils.sendMessage(sender,"§acleanup finish");}
         else ChatUtils.sendMessage(sender,"§6cleanup of custom_texture folder canceled because processing errors occurred");
         ChatUtils.sendMessage(sender,"§2custom textures have been supported.");
-        return true;
     }
 
-    private boolean disable(){
+    private void disable(){
         ChatUtils.sendMessage(sender,"§edisabling custom data..");
         dataManager.loadData(false);
         ChatUtils.sendMessage(sender,"§2disable.");
-        return true;
     }
 
-    private boolean enable(){
+    private void enable(){
         ChatUtils.sendMessage(sender,"§eenabling custom data..");
         dataManager.loadData(true);
         ChatUtils.sendMessage(sender,"§2enable.");
-        return true;
     }
 
     private static int getAverageColor(BufferedImage img){

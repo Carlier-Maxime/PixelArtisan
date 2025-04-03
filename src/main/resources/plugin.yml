@@ -4,9 +4,4 @@ version: 0.4.1
 description: a plugin for creating pixel art from images
 main: fr.metouais.pixelartisan.PixelArtisan
 api-version: 1.18
-commands:
-  pa:
-    description: PixelArtisan plugin command prefix
-    aliases:
-      - pixelArtisan
-      - PixelArtisan
+depend: [CommandAPI]

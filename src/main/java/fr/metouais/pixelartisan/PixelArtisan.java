@@ -1,9 +1,9 @@
 package fr.metouais.pixelartisan;
 
-import fr.metouais.pixelartisan.utils.ChatUtils;
+import dev.jorel.commandapi.CommandAPI;
 import fr.metouais.pixelartisan.commands.PixelArtisanCommand;
+import fr.metouais.pixelartisan.utils.ChatUtils;
 import org.bukkit.Material;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import org.slf4j.Logger;
@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -28,10 +27,8 @@ public class PixelArtisan extends JavaPlugin {
     public void onEnable() {
         super.onEnable();
         instance = this;
-        PluginCommand pa = Objects.requireNonNull(getCommand("pa"));
-        PixelArtisanCommand paCmd = new PixelArtisanCommand();
-        pa.setExecutor(paCmd);
-        pa.setTabCompleter(paCmd);
+        CommandAPI.onEnable();
+        PixelArtisanCommand.get().register();
 
         ChatUtils.sendConsoleMessage("NB MATERIAL = "+ Material.values().length);
 
@@ -57,6 +54,7 @@ public class PixelArtisan extends JavaPlugin {
     public void onDisable() {
         super.onDisable();
         executorService.shutdownNow();
+        CommandAPI.onDisable();
         ChatUtils.sendConsoleMessage("PixelArtisan disable");
     }
 
