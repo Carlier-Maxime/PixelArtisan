@@ -1,11 +1,23 @@
 package fr.metouais.pixelartisan.utils;
 
 import fr.metouais.pixelartisan.PixelArtisan;
+import org.json.JSONObject;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class FileUtils {
+    private static final HttpClient CLIENT = HttpClient.newHttpClient();
+    private static final String VERSION_MANIFEST_URL = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
+
     public static void tryDelete(Path file){
         try {
             Files.delete(file);
@@ -38,5 +50,61 @@ public class FileUtils {
         }
 
         return true;
+    }
+
+    public static String downloadJson(String url) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
+        return CLIENT.send(request, HttpResponse.BodyHandlers.ofString()).body();
+    }
+
+    public static void downloadFile(String url, Path outputPath) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
+        CLIENT.send(request, HttpResponse.BodyHandlers.ofFile(outputPath));
+    }
+
+    public static void downloadClientMC(String version, Path outputPath) throws Exception {
+        String json = FileUtils.downloadJson(VERSION_MANIFEST_URL);
+        JSONObject obj = new JSONObject(json);
+        for (Object ver : obj.getJSONArray("versions")) {
+            JSONObject v = (JSONObject) ver;
+            if (!v.getString("id").equals(version)) continue;
+            String versionUrl = v.getString("url");
+            String versionJson = FileUtils.downloadJson(versionUrl);
+            JSONObject versionObj = new JSONObject(versionJson);
+            String URL = versionObj.getJSONObject("downloads").getJSONObject("client").getString("url");
+            if (URL == null) throw new RuntimeException("Unknown URL for download client MC " + version);
+            downloadFile(URL, outputPath);
+            return;
+        }
+        throw new IllegalArgumentException("Unknown version: " + version);
+    }
+
+    public static void extractBlockTexturesFromClientMC(Path jarPath, Path outputDir) throws Exception {
+        Files.createDirectories(outputDir);
+        try (ZipInputStream zipIn = new ZipInputStream(new FileInputStream(jarPath.toFile()))) {
+            ZipEntry entry;
+            while ((entry = zipIn.getNextEntry()) != null) {
+                if (entry.getName().startsWith("assets/minecraft/textures/block/")) {
+                    Path filePath = outputDir.resolve(entry.getName().replace("assets/minecraft/textures/block/", ""));
+                    Files.createDirectories(filePath.getParent());
+                    try (FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
+                        byte[] buffer = new byte[1024];
+                        int len;
+                        while ((len = zipIn.read(buffer)) > 0) {
+                            fos.write(buffer, 0, len);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static void extractBlockTexturesFromClientMC(String version, Path outputDir) throws Exception {
+        Path tmpDir = Files.createTempDirectory(PixelArtisan.class.getSimpleName());
+        Path jarPath = tmpDir.resolve("client.jar");
+        downloadClientMC(version, jarPath);
+        extractBlockTexturesFromClientMC(jarPath, outputDir);
+        Files.deleteIfExists(jarPath);
+        Files.deleteIfExists(tmpDir);
     }
 }
