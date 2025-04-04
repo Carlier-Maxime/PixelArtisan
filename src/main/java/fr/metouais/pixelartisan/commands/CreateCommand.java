@@ -13,6 +13,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -39,7 +40,8 @@ public class CreateCommand {
                     .withArguments(new StringArgument("direction")
                             .replaceSuggestions(ArgumentSuggestions.strings(ALL_DIRECTION))
                     )
-                    .withArguments(Arguments.FileArgument("filename", PixelArtisan.PATH_IMAGES))
+                    .withArguments(Arguments.FileArgument("filename", PixelArtisan.PATH_IMAGES,
+                            Files::exists, Files::isRegularFile, Files::isReadable))
                     .withArguments(new IntegerArgument("size", 1))
                     .withArguments(new LocationArgument("pos", LocationType.BLOCK_POSITION))
                     .executes((sender, args) -> {

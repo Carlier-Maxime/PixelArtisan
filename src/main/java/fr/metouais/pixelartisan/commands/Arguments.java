@@ -7,18 +7,32 @@ import dev.jorel.commandapi.arguments.CustomArgument.*;
 import dev.jorel.commandapi.arguments.StringArgument;
 import fr.metouais.pixelartisan.utils.FileUtils;
 
+import java.io.IOException;
 import java.nio.file.*;
+import java.util.Arrays;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class Arguments {
-    public static Argument<Path> FileArgument(String nodeName, Path folder) {
+    @SafeVarargs
+    public static Argument<Path> FileArgument(String nodeName, Path folder, Predicate<Path>... conditions) {
         if (FileUtils.isFolderEmpty(folder)) throw new IllegalArgumentException("Folder does not exist");
         return new CustomArgument<>(new StringArgument(nodeName), info -> {
             Path file = folder.resolve(info.input());
-            if (!Files.exists(file) || !Files.isRegularFile(file)) {
-                throw CustomArgumentException.fromMessageBuilder(new MessageBuilder("Invalid file : ").appendArgInput());
-            }
-            return file;
+            if (Arrays.stream(conditions).allMatch(cond -> cond.test(file))) return file;
+            else throw CustomArgumentException.fromMessageBuilder(new MessageBuilder("Invalid file : ").appendArgInput());
         })
-        .replaceSuggestions(ArgumentSuggestions.strings(info -> folder.toFile().list()));
+        .replaceSuggestions(ArgumentSuggestions.strings(info -> {
+            try (Stream<Path> stream = Files.list(folder)) {
+                return stream
+                        .filter(Files::exists)
+                        .filter(path -> Arrays.stream(conditions).allMatch(cond -> cond.test(path)))
+                        .map(folder::relativize)
+                        .map(Path::toString)
+                        .toArray(String[]::new);
+            } catch (IOException e) {
+                return new String[0];
+            }
+        }));
     }
 }
