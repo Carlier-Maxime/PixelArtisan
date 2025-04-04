@@ -132,16 +132,14 @@ public class DataGenerator {
         int nbDelete=0;
         try (DirectoryStream<Path> list = Files.newDirectoryStream(srcDir)) {
             for (Path file : list){
-                if (!Files.isRegularFile(file)) {
-                    FileUtils.tryDelete(file); nbDelete++;}
+                if (!Files.isRegularFile(file) && file.toFile().delete()) nbDelete++;
                 String[] nameSplit = file.getFileName().toString().split("\\.");
                 if (nameSplit[nameSplit.length-1].equals("mcmeta")){
-                    FileUtils.tryDelete(file);
-                    FileUtils.tryDelete(Path.of(srcDir+"/"+nameSplit[0]+".png"));
-                    nbDelete+=2;
-                } else if (!nameSplit[nameSplit.length-1].equals("png")) {FileUtils.tryDelete(file); nbDelete++;}
+                    if (file.toFile().delete()) nbDelete++;
+                    if (Path.of(srcDir+"/"+nameSplit[0]+".png").toFile().delete()) nbDelete++;
+                } else if (!nameSplit[nameSplit.length-1].equals("png") && file.toFile().delete()) nbDelete++;
                 for (String s : new String[]{"destroy","_plant","grass","end_portal","composter","debug","chorus","bamboo","farmland","campfire","shulker_box","coral"}){
-                    if (nameSplit[0].contains(s)) {FileUtils.tryDelete(file); nbDelete++;}
+                    if (nameSplit[0].contains(s) && file.toFile().delete()) nbDelete++;
                 }
             }
         } catch (IOException e) {
