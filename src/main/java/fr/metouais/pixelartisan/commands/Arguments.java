@@ -11,7 +11,7 @@ import java.nio.file.*;
 
 public class Arguments {
     public static Argument<Path> FileArgument(String nodeName, Path folder) {
-        if (!FileUtils.isFolderNotEmpty(folder)) throw new IllegalArgumentException("Folder does not exist");
+        if (FileUtils.isFolderEmpty(folder)) throw new IllegalArgumentException("Folder does not exist");
         return new CustomArgument<>(new StringArgument(nodeName), info -> {
             Path file = folder.resolve(info.input());
             if (!Files.exists(file) || !Files.isRegularFile(file)) {

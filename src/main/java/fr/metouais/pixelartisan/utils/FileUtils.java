@@ -38,8 +38,8 @@ public class FileUtils {
         }
     }
 
-    public static boolean isFolderNotEmpty(Path folder) {
-        if (!Files.exists(folder) || !Files.isDirectory(folder)) return false;
+    public static boolean isFolderEmpty(Path folder) {
+        if (!Files.exists(folder) || !Files.isDirectory(folder)) return true;
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(folder)) {
             boolean isEmpty = true;
             for (Path ignored : stream) {
@@ -47,12 +47,12 @@ public class FileUtils {
                 break;
             }
 
-            if (isEmpty) return false;
+            if (isEmpty) return true;
         } catch (IOException e) {
-            return false;
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     public static String downloadJson(String url) throws Exception {

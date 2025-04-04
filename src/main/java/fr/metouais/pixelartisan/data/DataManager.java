@@ -41,7 +41,7 @@ public class DataManager {
         this.sender = sender;
         this.buf = ByteBuffer.allocate(Element.BYTES);
         if (db==null) {
-            if (!FileUtils.isFolderNotEmpty(PixelArtisan.PATH_DATA.resolve(DEFAULT_DATA))) {
+            if (FileUtils.isFolderEmpty(PixelArtisan.PATH_DATA.resolve(DEFAULT_DATA))) {
                 ChatUtils.sendMessage(sender, "generate default data...");
                 String version = Bukkit.getVersion();
                 version = version.substring(version.indexOf("(MC: ")+5, version.indexOf(")"));

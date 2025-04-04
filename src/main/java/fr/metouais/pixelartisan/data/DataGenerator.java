@@ -25,7 +25,7 @@ public class DataGenerator {
     }
 
     public static void generateFromTexturesBlock(CommandSender sender, Path srcDir, String name, @NotNull DataManager dataManager) {
-        if(!FileUtils.isFolderNotEmpty(srcDir)) {
+        if(FileUtils.isFolderEmpty(srcDir)) {
             ChatUtils.sendMessage(sender, "§csource folder is empty or invalid ! (fill the folder and retry)");
             if (sender instanceof Player) ChatUtils.sendMessage(sender, "§6For more information: " + PixelArtisan.GIT_LINK);
             return;
