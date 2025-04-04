@@ -27,13 +27,17 @@ It allows to create a pixel art on minecraft from an image. <br>
 **size** : number of blocks for the larger side of the image, the other side is automatically calculated <br>
 **x**,**y**,**z** : coordinates of the lower left corner of the image, by default: this is the position of the player executing the command. (args is optional) <br>
 
-### 2. /pa customTexture
+### 2. /pa texture
 
 **takes custom textures instead of default textures** <br>
-she retrieves the custom textures present in the custom_texture folder of the plugin (server/plugins/PixelArtisan/custom_texture) <br>
+she retrieves the custom textures present in the custom_texture folder of the plugin (server/plugins/PixelArtisan/input_texture) <br>
 is performing different processing to obtain the necessary data and saves them in the data folder of the plugin (server/plugins/PixelArtisan/data). <br>
 then deletes the texture present in the texture folder of the plugin and loads the custom data. <br>
-**WARNING** : drop only vanilla block textures 1.18 ! (otherwise errors may occur.)
+**WARNING** : drop only vanilla block textures 1.18, otherwise errors may occur. (drop content of assets/minecraft/textures/block)
+
+**for generate data of custom texture, use /pa texture generate \<name\>**<br>
+**for use specific texture set, use /pa texture use [name]**<br>
+
 
 ## Installation
 

@@ -20,11 +20,11 @@ import java.util.Locale;
 import java.util.TreeMap;
 
 public class DataGenerator {
-    public static void generateFromTexturesBlock(CommandSender sender, Path srcDir, String name) {
+    public static void generateFromTexturesBlock(CommandSender sender, Path srcDir, String name) throws IOException {
         generateFromTexturesBlock(sender, srcDir, name, new DataManager(sender));
     }
 
-    public static void generateFromTexturesBlock(CommandSender sender, Path srcDir, String name, @NotNull DataManager dataManager) {
+    public static void generateFromTexturesBlock(CommandSender sender, Path srcDir, String name, @NotNull DataManager dataManager) throws IOException {
         if(FileUtils.isFolderEmpty(srcDir)) {
             ChatUtils.sendMessage(sender, "§csource folder is empty or invalid ! (fill the folder and retry)");
             if (sender instanceof Player) ChatUtils.sendMessage(sender, "§6For more information: " + PixelArtisan.GIT_LINK);

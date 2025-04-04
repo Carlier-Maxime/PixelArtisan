@@ -41,24 +41,32 @@ public class DataManager {
         this.sender = sender;
         this.buf = ByteBuffer.allocate(Element.BYTES);
         if (db==null) {
-            if (FileUtils.isFolderEmpty(PixelArtisan.PATH_DATA.resolve(DEFAULT_DATA))) {
-                ChatUtils.sendMessage(sender, "generate default data...");
-                String version = Bukkit.getVersion();
-                version = version.substring(version.indexOf("(MC: ")+5, version.indexOf(")"));
-                try {
-                    FileUtils.extractBlockTexturesFromClientMC(version, PixelArtisan.PATH_CUSTOM_TEXTURE);
-                } catch (Exception e) {
-                    String msg = "Failed download and extract vanilla block textures for generate default data: "+e.getMessage();
-                    ChatUtils.sendConsoleMessage(msg);
-                    ChatUtils.sendMessage(sender, "§c INTERNAL ERROR: "+msg);
-                    throw new RuntimeException(e);
-                }
-                DataGenerator.generateFromTexturesBlock(sender, PixelArtisan.PATH_CUSTOM_TEXTURE, DEFAULT_DATA, this);
+            try {
+                loadData();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-            ChatUtils.sendMessage(sender, "load default data...");
-            loadData(DEFAULT_DATA);
         }
         this.f = null;
+    }
+
+    private void loadData() throws IOException {
+        if (FileUtils.isFolderEmpty(PixelArtisan.PATH_DATA.resolve(DEFAULT_DATA))) {
+            ChatUtils.sendMessage(sender, "generate default data...");
+            String version = Bukkit.getVersion();
+            version = version.substring(version.indexOf("(MC: ")+5, version.indexOf(")"));
+            try {
+                FileUtils.extractBlockTexturesFromClientMC(version, PixelArtisan.PATH_INPUT_TEXTURE);
+            } catch (Exception e) {
+                String msg = "Failed download and extract vanilla block textures for generate default data: "+e.getMessage();
+                ChatUtils.sendConsoleMessage(msg);
+                ChatUtils.sendMessage(sender, "§c INTERNAL ERROR: "+msg);
+                throw new RuntimeException(e);
+            }
+            DataGenerator.generateFromTexturesBlock(sender, PixelArtisan.PATH_INPUT_TEXTURE, DEFAULT_DATA, this);
+        }
+        ChatUtils.sendMessage(sender, "load default data...");
+        loadData(DEFAULT_DATA);
     }
 
     private void writeOneData(Element e){
@@ -113,7 +121,7 @@ public class DataManager {
         }
     }
 
-    public void compareWithDefaultAndSave(ArrayList<TreeMap<Integer,Short>> data, @NotNull String name){
+    public void compareWithDefaultAndSave(ArrayList<TreeMap<Integer,Short>> data, @NotNull String name) throws IOException {
         if (!DEFAULT_DATA.equals(name)) {
             ChatUtils.sendMessage(sender,"§eloading default data..");
             loadData(DEFAULT_DATA);
@@ -149,28 +157,23 @@ public class DataManager {
         ChatUtils.sendMessage(sender,"§adata saved");
     }
 
-    public void loadData(String name){
-        try {
-            db = new ArrayList<>();
-            for (int i=0; i<6; i++){
-                Path path = PixelArtisan.PATH_DATA.resolve(name).resolve("data"+i+".dat");
-                if (!Files.exists(path)) throw new IllegalArgumentException("File '"+path+"' does not exist");
-                f = FileChannel.open(
-                        path,
-                        StandardOpenOption.READ,
-                        StandardOpenOption.WRITE,
-                        StandardOpenOption.CREATE
-                );
-                f.position(0);
-                db.add(new TreeMap<>());
-                Element e;
-                while ((e=readOneData())!=null){
-                    db.get(i).put(e.color,e.mID);
-                }
+    public void loadData(String name) throws IOException {
+        db = new ArrayList<>();
+        for (int i=0; i<6; i++){
+            Path path = PixelArtisan.PATH_DATA.resolve(name).resolve("data"+i+".dat");
+            if (!Files.exists(path)) throw new IllegalArgumentException("File '"+path+"' does not exist");
+            f = FileChannel.open(
+                    path,
+                    StandardOpenOption.READ,
+                    StandardOpenOption.WRITE,
+                    StandardOpenOption.CREATE
+            );
+            f.position(0);
+            db.add(new TreeMap<>());
+            Element e;
+            while ((e=readOneData())!=null){
+                db.get(i).put(e.color,e.mID);
             }
-        } catch (Exception e){
-            ChatUtils.sendMessage(sender,"§cINTERNAL ERROR: load data failed : "+e.getMessage());
-            PixelArtisan.LOGGER.error("Failed load data", e);
         }
     }
 

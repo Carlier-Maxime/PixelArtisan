@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 public class PixelArtisan extends JavaPlugin {
     private static PixelArtisan instance;
     public static final Logger LOGGER = LoggerFactory.getLogger(PixelArtisan.class);
-    public static final Path PATH_CUSTOM_TEXTURE = Path.of("./plugins/PixelArtisan/custom_texture");
+    public static final Path PATH_INPUT_TEXTURE = Path.of("./plugins/PixelArtisan/input_texture");
     public static final Path PATH_IMAGES = Path.of("./plugins/PixelArtisan/images");
     public static final Path PATH_DATA = Path.of("plugins/PixelArtisan/data");
     public static final String GIT_LINK = "https://github.com/Carlier-Maxime/PixelArtisan";
@@ -36,7 +36,7 @@ public class PixelArtisan extends JavaPlugin {
         try {
             String s = "./plugins/PixelArtisan";
             Files.createDirectories(Path.of(s));
-            Files.createDirectories(PATH_CUSTOM_TEXTURE);
+            Files.createDirectories(PATH_INPUT_TEXTURE);
             Files.createDirectories(Path.of(s+"/images"));
             Files.createDirectories(Path.of(s+"/data"));
         } catch (IOException e) {
