@@ -3,12 +3,13 @@ package fr.metouais.pixelartisan.data;
 import fr.metouais.pixelartisan.PixelArtisan;
 import fr.metouais.pixelartisan.utils.ChatUtils;
 import fr.metouais.pixelartisan.utils.FileUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.*;
@@ -29,20 +30,35 @@ public class DataManager {
         }
     }
 
-    private static final Path path = Path.of("plugins/PixelArtisan/data");
+    public static final String DEFAULT_DATA = "default";
     private static ArrayList<TreeMap<Integer,Short>> db = null;
 
     private FileChannel f;
     private final ByteBuffer buf;
     private final CommandSender sender;
-    private InputStream in;
 
     public DataManager(CommandSender sender) {
         this.sender = sender;
         this.buf = ByteBuffer.allocate(Element.BYTES);
-        if (db==null) loadData();
+        if (db==null) {
+            if (!FileUtils.isFolderNotEmpty(PixelArtisan.PATH_DATA.resolve(DEFAULT_DATA))) {
+                ChatUtils.sendMessage(sender, "generate default data...");
+                String version = Bukkit.getVersion();
+                version = version.substring(version.indexOf("(MC: ")+5, version.indexOf(")"));
+                try {
+                    FileUtils.extractBlockTexturesFromClientMC(version, PixelArtisan.PATH_CUSTOM_TEXTURE);
+                } catch (Exception e) {
+                    String msg = "Failed download and extract vanilla block textures for generate default data: "+e.getMessage();
+                    ChatUtils.sendConsoleMessage(msg);
+                    ChatUtils.sendMessage(sender, "§c INTERNAL ERROR: "+msg);
+                    throw new RuntimeException(e);
+                }
+                DataGenerator.generateFromTexturesBlock(sender, PixelArtisan.PATH_CUSTOM_TEXTURE, DEFAULT_DATA, this);
+            }
+            ChatUtils.sendMessage(sender, "load default data...");
+            loadData(DEFAULT_DATA);
+        }
         this.f = null;
-        this.in = null;
     }
 
     private void writeOneData(Element e){
@@ -57,17 +73,10 @@ public class DataManager {
         }
     }
 
-    private Element readOneData(boolean custom){
+    private Element readOneData(){
         try {
-            byte[] buffer = new byte[Element.BYTES];
             buf.clear();
-            while (buf.hasRemaining()){
-                if (custom) {if (f.read(buf)==-1) return null;}
-                else{
-                    if (in.read(buffer)==-1) return null;
-                    buf.put(buffer);
-                }
-            }
+            while (buf.hasRemaining()) if (f.read(buf)==-1) return null;
             buf.flip();
             return new Element(buf.getInt(), buf.getShort());
         } catch (Exception e){
@@ -77,12 +86,8 @@ public class DataManager {
         return null;
     }
 
-    public void compareAndSave(ArrayList<TreeMap<Integer,Short>> data){
+    private void compareAndCompleteWithLoadedData(ArrayList<TreeMap<Integer,Short>> data) {
         try {
-            ChatUtils.sendMessage(sender,"§eloading default data..");
-            loadData();
-            ChatUtils.sendMessage(sender,"§edefault data loaded");
-            ChatUtils.sendMessage(sender,"§ecompare data with default data..");
             int nbAdd=0;
             for (int i=0; i<6; i++) {
                 if (db==null || db.size()<6) break;
@@ -102,22 +107,31 @@ public class DataManager {
                 }
             }
             ChatUtils.sendMessage(sender,"§e"+nbAdd+" missing data have been added");
-            saveCustomData(data);
         } catch (Exception e){
             ChatUtils.sendMessage(sender,"§cERROR in compareAndSave");
             PixelArtisan.LOGGER.error("Failed compare and save", e);
         }
     }
 
-    private void saveCustomData(ArrayList<TreeMap<Integer,Short>> data){
-        // delete old custom data
-        FileUtils.tryDeleteContentOfFolder(path);
-        // save custom data
-        ChatUtils.sendMessage(sender,"§esave custom data...");
-        for (int i=0; i<6; i++){
-            try {
+    public void compareWithDefaultAndSave(ArrayList<TreeMap<Integer,Short>> data, @NotNull String name){
+        if (!DEFAULT_DATA.equals(name)) {
+            ChatUtils.sendMessage(sender,"§eloading default data..");
+            loadData(DEFAULT_DATA);
+            ChatUtils.sendMessage(sender,"§edefault data loaded");
+            ChatUtils.sendMessage(sender,"§ecompare data with default data..");
+            compareAndCompleteWithLoadedData(data);
+        }
+        saveCustomData(data, name);
+    }
+
+    private void saveCustomData(ArrayList<TreeMap<Integer,Short>> data, @NotNull String name){
+        ChatUtils.sendMessage(sender,"§esave custom data on "+name+"...");
+        Path folder = PixelArtisan.PATH_DATA.resolve(name);
+        try {
+            Files.createDirectories(folder);
+            for (int i=0; i<6; i++){
                 f = FileChannel.open(
-                        FileSystems.getDefault().getPath(path+"/custom"+i+".dat"),
+                        FileSystems.getDefault().getPath(folder+"/data"+i+".dat"),
                         StandardOpenOption.READ,
                         StandardOpenOption.WRITE,
                         StandardOpenOption.CREATE
@@ -126,45 +140,38 @@ public class DataManager {
                     writeOneData(new Element(k,data.get(i).get(k)));
                 }
                 f.close();
-            } catch (IOException e) {
-                PixelArtisan.LOGGER.error("Failed save custom data of face {}", i, e);
             }
+        } catch (IOException e) {
+            PixelArtisan.LOGGER.error("Failed save custom data of face", e);
+            ChatUtils.sendMessage(sender,"§adata save has been failed");
+            return;
         }
         ChatUtils.sendMessage(sender,"§adata saved");
     }
 
-    public void loadData(boolean custom){
+    public void loadData(String name){
         try {
             db = new ArrayList<>();
             for (int i=0; i<6; i++){
-                Path file;
-                if (!custom) {
-                    in = PixelArtisan.getInstance().getResource("data/data" + i + ".dat");
-                    if (in==null) {ChatUtils.sendMessage(sender,"§cINTERNAL ERROR : file not found in the plugin !"); continue;}
-                } else {
-                    file = Path.of(path+"/custom"+i+".dat");
-                    f = FileChannel.open(
-                            FileSystems.getDefault().getPath(file.toFile().getAbsolutePath()),
-                            StandardOpenOption.READ,
-                            StandardOpenOption.WRITE,
-                            StandardOpenOption.CREATE
-                    );
-                    f.position(0);
-                }
+                Path path = PixelArtisan.PATH_DATA.resolve(name).resolve("data"+i+".dat");
+                if (!Files.exists(path)) throw new IllegalArgumentException("File '"+path+"' does not exist");
+                f = FileChannel.open(
+                        path,
+                        StandardOpenOption.READ,
+                        StandardOpenOption.WRITE,
+                        StandardOpenOption.CREATE
+                );
+                f.position(0);
                 db.add(new TreeMap<>());
                 Element e;
-                while ((e=readOneData(custom))!=null){
+                while ((e=readOneData())!=null){
                     db.get(i).put(e.color,e.mID);
                 }
             }
         } catch (Exception e){
-            ChatUtils.sendMessage(sender,"§cINTERNAL ERROR : load data failed !!");
+            ChatUtils.sendMessage(sender,"§cINTERNAL ERROR: load data failed : "+e.getMessage());
             PixelArtisan.LOGGER.error("Failed load data", e);
         }
-    }
-
-    public void loadData(){
-        loadData(false);
     }
 
     public short getBestMaterial(int colorObjectif, byte face, boolean flat){

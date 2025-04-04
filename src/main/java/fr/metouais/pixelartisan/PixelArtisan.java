@@ -20,6 +20,7 @@ public class PixelArtisan extends JavaPlugin {
     public static final Logger LOGGER = LoggerFactory.getLogger(PixelArtisan.class);
     public static final Path PATH_CUSTOM_TEXTURE = Path.of("./plugins/PixelArtisan/custom_texture");
     public static final Path PATH_IMAGES = Path.of("./plugins/PixelArtisan/images");
+    public static final Path PATH_DATA = Path.of("plugins/PixelArtisan/data");
     public static final String GIT_LINK = "https://github.com/Carlier-Maxime/PixelArtisan";
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
