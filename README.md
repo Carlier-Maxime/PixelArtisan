@@ -4,7 +4,6 @@
 
 PixelArtisan is plugin minecraft for spigot server. <br>
 It allows to create a pixel art on minecraft from an image. <br>
-**Plugin Version** : 0.4.1 <br>
 **Minecraft Version** : 1.18.1 <br>
 
 ## Commands
