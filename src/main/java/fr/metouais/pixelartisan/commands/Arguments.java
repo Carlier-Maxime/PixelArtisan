@@ -5,7 +5,6 @@ import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.CustomArgument;
 import dev.jorel.commandapi.arguments.CustomArgument.*;
 import dev.jorel.commandapi.arguments.StringArgument;
-import fr.metouais.pixelartisan.utils.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -16,7 +15,7 @@ import java.util.stream.Stream;
 public class Arguments {
     @SafeVarargs
     public static Argument<Path> FileArgument(String nodeName, Path folder, Predicate<Path>... conditions) {
-        if (FileUtils.isFolderEmpty(folder)) throw new IllegalArgumentException("Folder does not exist");
+        if (!Files.isDirectory(folder)) throw new IllegalArgumentException("Folder does not exist or not directory: "+folder.toAbsolutePath());
         return new CustomArgument<>(new StringArgument(nodeName), info -> {
             Path file = folder.resolve(info.input());
             if (Arrays.stream(conditions).allMatch(cond -> cond.test(file))) return file;

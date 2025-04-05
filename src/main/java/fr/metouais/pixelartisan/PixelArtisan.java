@@ -18,8 +18,8 @@ import java.util.concurrent.Executors;
 public class PixelArtisan extends JavaPlugin {
     private static PixelArtisan instance;
     public static final Logger LOGGER = LoggerFactory.getLogger(PixelArtisan.class);
-    public static final Path PATH_INPUT_TEXTURE = Path.of("./plugins/PixelArtisan/input_texture");
-    public static final Path PATH_IMAGES = Path.of("./plugins/PixelArtisan/images");
+    public static final Path PATH_INPUT_TEXTURE = Path.of("plugins/PixelArtisan/input_texture");
+    public static final Path PATH_IMAGES = Path.of("plugins/PixelArtisan/images");
     public static final Path PATH_DATA = Path.of("plugins/PixelArtisan/data");
     public static final String GIT_LINK = "https://github.com/Carlier-Maxime/PixelArtisan";
     private final ExecutorService executorService = Executors.newCachedThreadPool();
@@ -28,21 +28,18 @@ public class PixelArtisan extends JavaPlugin {
     public void onEnable() {
         super.onEnable();
         instance = this;
-        CommandAPI.onEnable();
-        PixelArtisanCommand.get().register();
-
-        ChatUtils.sendConsoleMessage("NB MATERIAL = "+ Material.values().length);
-
         try {
-            String s = "./plugins/PixelArtisan";
-            Files.createDirectories(Path.of(s));
             Files.createDirectories(PATH_INPUT_TEXTURE);
-            Files.createDirectories(Path.of(s+"/images"));
-            Files.createDirectories(Path.of(s+"/data"));
+            Files.createDirectories(PATH_IMAGES);
+            Files.createDirectories(PATH_DATA);
         } catch (IOException e) {
             LOGGER.error("Failed creation folder of PixelArtisan", e);
         }
 
+        CommandAPI.onEnable();
+        PixelArtisanCommand.get().register();
+
+        ChatUtils.sendConsoleMessage("NB MATERIAL = "+ Material.values().length);
         ChatUtils.sendConsoleMessage(
                 getDescription().getName()+" enable\n"+
                 "  - Plugin create by " + getDescription().getAuthors() + '\n' +

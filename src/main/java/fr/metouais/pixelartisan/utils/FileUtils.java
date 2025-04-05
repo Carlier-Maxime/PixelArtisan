@@ -49,6 +49,7 @@ public class FileUtils {
 
             if (isEmpty) return true;
         } catch (IOException e) {
+            PixelArtisan.LOGGER.error("Failed to read directory: {} - {}", folder, e.getMessage());
             return true;
         }
 
