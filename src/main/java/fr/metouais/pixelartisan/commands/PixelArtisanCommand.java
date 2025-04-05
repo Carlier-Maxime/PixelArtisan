@@ -14,7 +14,8 @@ public class PixelArtisanCommand {
                     .withShortDescription("PixelArtisan plugin command prefix")
                     .withPermission(CommandPermission.OP)
                     .withSubcommand(CreateCommand.get())
-                    .withSubcommand(TextureCommand.get());
+                    .withSubcommand(TextureCommand.get())
+                    .withSubcommand(DebugCommand.get());
         }
         return command;
     }

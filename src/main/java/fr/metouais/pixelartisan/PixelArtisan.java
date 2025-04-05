@@ -21,6 +21,8 @@ public class PixelArtisan extends JavaPlugin {
     public static final Path PATH_INPUT_TEXTURE = Path.of("plugins/PixelArtisan/input_texture");
     public static final Path PATH_IMAGES = Path.of("plugins/PixelArtisan/images");
     public static final Path PATH_DATA = Path.of("plugins/PixelArtisan/data");
+    public static final Path PATH_DEBUG = Path.of("plugins/PixelArtisan/debug");
+    private static final Path[] PATHS = {PATH_INPUT_TEXTURE, PATH_IMAGES, PATH_DATA, PATH_DEBUG};
     public static final String GIT_LINK = "https://github.com/Carlier-Maxime/PixelArtisan";
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -29,9 +31,7 @@ public class PixelArtisan extends JavaPlugin {
         super.onEnable();
         instance = this;
         try {
-            Files.createDirectories(PATH_INPUT_TEXTURE);
-            Files.createDirectories(PATH_IMAGES);
-            Files.createDirectories(PATH_DATA);
+            for (Path path : PATHS) Files.createDirectories(path);
         } catch (IOException e) {
             LOGGER.error("Failed creation folder of PixelArtisan", e);
         }
