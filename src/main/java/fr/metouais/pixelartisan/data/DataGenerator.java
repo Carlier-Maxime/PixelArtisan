@@ -16,10 +16,21 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class DataGenerator {
+    private static final String[][] FACES_SUFFIXES = new String[][]{{"top"},{"front", "north"},{"east"},{"back", "south"},{"west"},{"bottom"},{"side"}};
+    private static final String[] OTHER_SUFFIXES = {
+        "down", "up", "base", "stage", "overlay", "on", "off", "inside", "outside", "moist", "inverted",
+        "inner", "empty", "occupied", "powered", "awake", "dormant", "triggered", "tip", "emissive", "lit"
+    };
+    private static final String[] ALL_SUFFIXES = Stream.concat(Arrays.stream(FACES_SUFFIXES).flatMap(Arrays::stream), Arrays.stream(OTHER_SUFFIXES)).toArray(String[]::new);
+    private static final Pattern SuffixPattern = Pattern.compile("_(" +String.join("|", ALL_SUFFIXES)+ ")([0-9]|s)?((_.*$)|$)");
+
     public static void generateFromTexturesBlock(CommandSender sender, Path srcDir, String name) throws IOException {
         generateFromTexturesBlock(sender, srcDir, name, new DataManager(sender));
     }
@@ -63,36 +74,24 @@ public class DataGenerator {
     }
 
     private static String getMaterialName(@NotNull String textureName){
-        String name = textureName.split("_top")[0];
-        name = name.split("_side")[0];
-        name = name.split("_bottom")[0];
-        name = name.split("_front")[0];
-        name = name.split("_down")[0];
-        name = name.split("_up")[0];
-        name = name.split("_base")[0];
-        name = name.split("_lit")[0];
-        name = name.split("_stage")[0];
-        name = name.split("_overlay")[0];
-        name = name.split("_back")[0];
-        name = name.split("_on")[0];
-        name = name.split("_off")[0];
-        name = name.split("_inside")[0];
-        name = name.split("_outside")[0];
-        name = name.split("_moist")[0];
-        name = name.split("_inverted")[0];
-        name = name.split("_inner")[0];
+        String name = SuffixPattern.matcher(textureName).replaceAll("");
         if (name.contains("_pot")){
             if (!name.equals("flower_pot")) name = "potted_" + name.split("_pot")[0];
         }
-        for (String s : new String[]{"turtle_egg","structure_block","small_dripleaf","jigsaw","grindstone","frosted_ice","campfire","beehive"}){
+        for (String s : new String[]{
+                "turtle_egg","structure_block","small_dripleaf","jigsaw","grindstone","frosted_ice","campfire",
+                "beehive","calibrated_sculk_sensor","test_block","sniffer_egg","suspicious_gravel","suspicious_sand",
+                "wildflowers","pink_petals"
+        }){
             if (name.contains(s)) {name = s; break;}
         }
         if (name.contains("redstone_dust")) name = "redstone_wire";
         if (name.contains("rail_corner")) name = "rail";
         if (name.contains("sticky")) name = "sticky_piston";
-        if (name.equals("big_dripleaf_tip")) name = "big_dripleaf";
         else if (name.contains("piston")) name = "piston";
+        if (name.equals("big_dripleaf_tip")) name = "big_dripleaf";
         if (name.equals("mushroom_block")) name = "brown_"+name;
+        if (name.equals("mangrove_propagule_hanging")) name = "mangrove_propagule";
         name = name.toUpperCase(Locale.ROOT);
         Material m = Material.matchMaterial(name);
         if (m==null) {
@@ -107,9 +106,8 @@ public class DataGenerator {
         if (suffixs.length<=1) return 0;
         String suffix = suffixs[1];
         if (suffix.length()<=2) return 0;
-        String[] faceSuffixs = new String[]{"_top","_front","$$$$","_back","$$$$","_bottom","_side"};
-        for (int i=0; i<faceSuffixs.length; i++){
-            if (suffix.contains(faceSuffixs[i])) return (byte) (i+1);
+        for (int i=0; i<FACES_SUFFIXES.length; i++){
+            for (var faceSuffix : FACES_SUFFIXES[i]) if (suffix.contains("_"+faceSuffix)) return (byte) (i+1);
         }
         if (suffix.contains("_inner")){
             if (mName.contains("CAULDRON")) return 1;
@@ -118,13 +116,6 @@ public class DataGenerator {
         if (mName.contains("GRINDSTONE")) return 0;
         if (suffix.contains("_end")) return 6;
         if (suffix.contains("_tip")) return 7;
-
-        /* line of code for test full know texture support
-        for (String faceSuffix : new String[]{"_lit","_down","_up","_stage","_overlay","_cracked","_on","_off","_save","_load","_data","_corner","_base","_inside","_outside","_lock"}) {
-            if (suffix.contains(faceSuffix)) return 0;
-        }
-        ChatUtils.sendMessage(sender,"§c"+name+": suffix = "+suffix+" not found face correspondence !");
-        return -1;*/
         return 0;
     }
 
