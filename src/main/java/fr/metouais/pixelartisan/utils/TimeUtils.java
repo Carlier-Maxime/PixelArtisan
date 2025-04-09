@@ -3,6 +3,8 @@ package fr.metouais.pixelartisan.utils;
 import java.time.Duration;
 
 public class TimeUtils {
+    private TimeUtils() {}
+
     public static String formatDuration(long nanos) {
         Duration duration = Duration.ofNanos(nanos);
 

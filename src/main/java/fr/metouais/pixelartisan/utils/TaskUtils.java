@@ -6,6 +6,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.concurrent.CountDownLatch;
 
 public class TaskUtils {
+    private TaskUtils() {}
+
     public static void runTaskInMainThreadAndWait(Runnable task){
         CountDownLatch latch = new CountDownLatch(1);
         new BukkitRunnable(){

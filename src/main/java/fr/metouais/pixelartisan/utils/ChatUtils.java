@@ -4,6 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 public class ChatUtils{
+    private ChatUtils() {}
+
     public static void sendConsoleMessage(String msg){
         for (String line : msg.split("\n")){
             Bukkit.getConsoleSender().sendMessage("[PixelArtisan] "+line);
