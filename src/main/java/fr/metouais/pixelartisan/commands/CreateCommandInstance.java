@@ -2,6 +2,7 @@ package fr.metouais.pixelartisan.commands;
 
 import fr.metouais.pixelartisan.utils.ChatUtils;
 import fr.metouais.pixelartisan.data.DataManager;
+import fr.metouais.pixelartisan.utils.Misc;
 import fr.metouais.pixelartisan.utils.TaskUtils;
 import fr.metouais.pixelartisan.utils.TimeUtils;
 import org.bukkit.Location;
@@ -10,9 +11,14 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
 
 public class CreateCommandInstance implements Runnable{
     private static final long timeBetweenMsg = 5_000_000_000L;
+    private static final int NB_THREADS = 4;
+    private static final Runnable POISON = () -> {};
 
     private final CommandSender sender;
     private final boolean flat;
@@ -25,6 +31,10 @@ public class CreateCommandInstance implements Runnable{
     private final BufferedImage img;
     private final byte face;
     private int nbBlock;
+    private final ExecutorService executor;
+    private final BlockingQueue<Runnable> jobQueue;
+    private CountDownLatch latch;
+
 
     public CreateCommandInstance(@NotNull CommandSender sender, Location start, byte[] dirH, byte[] dirW, byte face, BufferedImage img) {
         this.sender = sender;
@@ -35,26 +45,64 @@ public class CreateCommandInstance implements Runnable{
         this.face = face;
         this.img = img;
         this.flat = dirH[1]==0 && dirW[1]==0;
+        executor = Executors.newFixedThreadPool(NB_THREADS);
+        jobQueue = new LinkedBlockingQueue<>();
+    }
+
+    private void launchWorkers() {
+        latch = new CountDownLatch(NB_THREADS);
+        for (int i = 0; i < NB_THREADS; i++) {
+            executor.submit(() -> {
+                try {
+                    while (true) {
+                        Runnable job = jobQueue.take();
+                        if (job == POISON) break;
+                        job.run();
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+    }
+
+    private void stopWorkers() {
+        for (int i = 0; i < NB_THREADS; i++) jobQueue.add(POISON);
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        executor.shutdownNow();
+    }
+
+    synchronized
+    private void incNbBlockPlaced() {
+        blockPlaced++;
     }
 
     @Override
     public void run() {
         long startTime = System.nanoTime();
+        timeForMsg = System.nanoTime() + timeBetweenMsg;
         nbBlock = img.getHeight()*img.getWidth();
         blockPlaced=0;
-        timeForMsg = System.nanoTime() + timeBetweenMsg;
-        for (int i=img.getHeight()-1; i>=0; i-=16){
+        launchWorkers();
+        for (int i=img.getHeight()-1; i>=0; i-= Misc.CHUNK_LENGTH){
             Location loc2 = new Location(location.getWorld(),location.getBlockX(),location.getBlockY(),location.getBlockZ());
-            for (int j=0; j<img.getWidth(); j+=16){
+            for (int j=0; j<img.getWidth(); j+=Misc.CHUNK_LENGTH){
                 int finalI = i;
                 int finalJ = j;
-                final Location locC = location.clone();
-                TaskUtils.runTaskInMainThreadAndWait(() -> buildChunck(locC,finalI,finalJ));
-                location.add(directionW[0]*16,directionW[1]*16,directionW[2]*16);
+                Location finalLoc = location.clone();
+                jobQueue.add(() -> buildChunk(finalLoc,finalI,finalJ));
+                location.add(directionW[0]<<Misc.CHUNK_POWER,directionW[1]<<Misc.CHUNK_POWER,directionW[2]<<Misc.CHUNK_POWER);
             }
             location = new Location(loc2.getWorld(),loc2.getBlockX(),loc2.getBlockY(),loc2.getBlockZ());
-            location.add(directionH[0]*16,directionH[1]*16,directionH[2]*16);
+            location.add(directionH[0]<<Misc.CHUNK_POWER,directionH[1]<<Misc.CHUNK_POWER,directionH[2]<<Misc.CHUNK_POWER);
         }
+        stopWorkers();
         String duration = TimeUtils.formatDuration(System.nanoTime() - startTime);
         TaskUtils.runTaskInMainThreadAndWait(() -> {
             ChatUtils.sendConsoleMessage("finish in "+duration+". ("+blockPlaced+" block placed)");
@@ -62,22 +110,8 @@ public class CreateCommandInstance implements Runnable{
         });
     }
 
-    private void buildChunck(Location loc, int i, int j){
-        Location locBase = loc.clone();
-        Location locH;
-        for (int y = i; y > i -16; y--){
-            if (y < 0) break;
-            locH = new Location(locBase.getWorld(),locBase.getBlockX(),locBase.getBlockY(),locBase.getBlockZ());
-            for (int x = j; x< j +16; x++){
-                if (x >= img.getWidth()) break;
-                Material material = Material.values()[dataManager.getBestMaterial(img.getRGB(x, y), face, flat)];
-                locBase.getBlock().setType(material);
-                locBase.add(directionW[0],directionW[1],directionW[2]);
-                blockPlaced++;
-            }
-            locBase = new Location(locH.getWorld(),locH.getBlockX(),locH.getBlockY(),locH.getBlockZ());
-            locBase.add(directionH[0],directionH[1],directionH[2]);
-        }
+    synchronized
+    private void progressMessage(){
         long time = System.nanoTime();
         if (time > timeForMsg){
             double perc = (blockPlaced*1.0/nbBlock)*100;
@@ -85,5 +119,38 @@ public class CreateCommandInstance implements Runnable{
             ChatUtils.sendMessage(sender,String.format("%.1f %% (%d/%d)", perc, blockPlaced, nbBlock));
             timeForMsg = System.nanoTime() + timeBetweenMsg;
         }
+    }
+
+    private void buildChunk(Location loc, int i, int j){
+        class Entry {
+            public Location loc;
+            public Material material;
+        }
+        List<Entry> states = new ArrayList<>(Misc.CHUNK_SIZE);
+        for (int k = 0; k < Misc.CHUNK_SIZE; k++) {
+            states.add(new Entry());
+        }
+        Location locBase = loc.clone();
+        Location locH;
+        var materials = Material.values();
+        int index=0;
+        for (int y = i; y > i-Misc.CHUNK_LENGTH; y--){
+            if (y < 0) break;
+            locH = locBase.clone();
+            for (int x = j; x < j+Misc.CHUNK_LENGTH; x++){
+                if (x >= img.getWidth()) break;
+                states.get(index).loc=locBase.clone();
+                states.get(index).material = materials[dataManager.getBestMaterial(img.getRGB(x, y), face, flat)];
+                locBase.add(directionW[0],directionW[1],directionW[2]);
+                incNbBlockPlaced();
+                index++;
+            }
+            locBase = locH.clone().add(directionH[0],directionH[1],directionH[2]);
+        }
+        int finalIndex = index;
+        TaskUtils.runTaskInMainThreadAndWait(() -> {
+            for (int ind = 0; ind< finalIndex; ind++) states.get(ind).loc.getBlock().setType(states.get(ind).material);
+            progressMessage();
+        });
     }
 }
