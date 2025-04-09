@@ -3,7 +3,7 @@ package fr.metouais.pixelartisan.data;
 import fr.metouais.pixelartisan.PixelArtisan;
 import fr.metouais.pixelartisan.utils.ChatUtils;
 import fr.metouais.pixelartisan.utils.FileUtils;
-import org.bukkit.Bukkit;
+import fr.metouais.pixelartisan.utils.Misc;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -53,10 +53,8 @@ public class DataManager {
     private void loadData() throws IOException {
         if (FileUtils.isFolderEmpty(PixelArtisan.PATH_DATA.resolve(DEFAULT_DATA))) {
             ChatUtils.sendMessage(sender, "generate default data...");
-            String version = Bukkit.getVersion();
-            version = version.substring(version.indexOf("(MC: ")+5, version.indexOf(")"));
             try {
-                FileUtils.extractBlockTexturesFromClientMC(version, PixelArtisan.PATH_INPUT_TEXTURE);
+                FileUtils.extractBlockTexturesFromClientMC(Misc.getMCVersion(), PixelArtisan.PATH_INPUT_TEXTURE);
             } catch (Exception e) {
                 String msg = "Failed download and extract vanilla block textures for generate default data: "+e.getMessage();
                 ChatUtils.sendConsoleMessage(msg);
