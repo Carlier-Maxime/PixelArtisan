@@ -25,6 +25,7 @@ public class CreateCommand {
     private final Path filepath;
     private final int size;
     private final Location pos;
+    private final int nbThreads;
 
     private CreateCommand(@NotNull CommandSender sender, @NotNull CommandArguments args) {
         this.sender = sender;
@@ -32,6 +33,8 @@ public class CreateCommand {
         filepath = (Path) args.get("filename");
         size = (Integer) Objects.requireNonNull(args.get("size"));
         pos = (Location) args.get("pos");
+        var argNbThreads = args.get("nbThreads");
+        nbThreads = argNbThreads==null ? 4 : (Integer) argNbThreads;
     }
 
     synchronized public static CommandAPICommand get() {
@@ -44,6 +47,7 @@ public class CreateCommand {
                             Files::exists, Files::isRegularFile, Files::isReadable))
                     .withArguments(new IntegerArgument("size", 1))
                     .withArguments(new LocationArgument("pos", LocationType.BLOCK_POSITION))
+                    .withOptionalArguments(new IntegerArgument("nbThreads", 1))
                     .executes((sender, args) -> {
                         new CreateCommand(sender, args).exec();
                     });
@@ -63,7 +67,7 @@ public class CreateCommand {
         if (img==null) return;
         ChatUtils.sendMessage(sender,"§ecreate pixel art..");
         ChatUtils.sendMessage(sender,"paint size : "+img.getWidth()+" "+img.getHeight());
-        PixelArtisan.getInstance().getExecutorService().submit(new CreateCommandInstance(sender, startLocation, dirH, dirW, face, img));
+        PixelArtisan.getInstance().getExecutorService().submit(new CreateCommandInstance(sender, startLocation, dirH, dirW, face, img, nbThreads));
     }
 
     private BufferedImage resizeImg(Path originalImgPath, int size){

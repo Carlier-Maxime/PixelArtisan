@@ -17,7 +17,6 @@ import java.util.concurrent.*;
 
 public class CreateCommandInstance implements Runnable{
     private static final long timeBetweenMsg = 5_000_000_000L;
-    private static final int NB_THREADS = 4;
     private static final Runnable POISON = () -> {};
 
     private final CommandSender sender;
@@ -31,12 +30,13 @@ public class CreateCommandInstance implements Runnable{
     private final BufferedImage img;
     private final byte face;
     private int nbBlock;
+    private final int nbThreads;
     private final ExecutorService executor;
     private final BlockingQueue<Runnable> jobQueue;
     private CountDownLatch latch;
 
 
-    public CreateCommandInstance(@NotNull CommandSender sender, Location start, byte[] dirH, byte[] dirW, byte face, BufferedImage img) {
+    public CreateCommandInstance(@NotNull CommandSender sender, Location start, byte[] dirH, byte[] dirW, byte face, BufferedImage img, int nbThreads) {
         this.sender = sender;
         dataManager = new DataManager(sender);
         location = start.clone();
@@ -45,13 +45,14 @@ public class CreateCommandInstance implements Runnable{
         this.face = face;
         this.img = img;
         this.flat = dirH[1]==0 && dirW[1]==0;
-        executor = Executors.newFixedThreadPool(NB_THREADS);
+        this.nbThreads = nbThreads;
+        executor = Executors.newFixedThreadPool(nbThreads);
         jobQueue = new LinkedBlockingQueue<>();
     }
 
     private void launchWorkers() {
-        latch = new CountDownLatch(NB_THREADS);
-        for (int i = 0; i < NB_THREADS; i++) {
+        latch = new CountDownLatch(nbThreads);
+        for (int i = 0; i < nbThreads; i++) {
             executor.submit(() -> {
                 try {
                     while (true) {
@@ -69,7 +70,7 @@ public class CreateCommandInstance implements Runnable{
     }
 
     private void stopWorkers() {
-        for (int i = 0; i < NB_THREADS; i++) jobQueue.add(POISON);
+        for (int i = 0; i < nbThreads; i++) jobQueue.add(POISON);
         try {
             latch.await();
         } catch (InterruptedException e) {
