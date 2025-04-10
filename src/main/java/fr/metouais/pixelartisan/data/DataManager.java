@@ -176,13 +176,13 @@ public class DataManager {
     }
 
     public short getBestMaterial(int colorObjectif, byte face, boolean flat){
-        TreeMap<Integer,Short> tree = db.get(face);
+        var tree = db.get(face);
         Color goal = new Color(colorObjectif,true);
         Color bestColor = new Color(tree.firstKey(),true);
         for (int clr : tree.keySet()){
             Color color = new Color(clr,true);
             Color tmp = getBestMatchColor(goal,bestColor,color);
-            Material m = Material.values()[tree.get(tmp.getRGB())];
+            Material m = Misc.MATERIALS[tree.get(tmp.getRGB())];
             if (!m.isOccluding() && bestColor.getAlpha()==255) continue;
             if (flat && m.hasGravity()) continue;
             bestColor = tmp;

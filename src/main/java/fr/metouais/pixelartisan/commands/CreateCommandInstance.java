@@ -125,7 +125,7 @@ public class CreateCommandInstance implements Runnable{
     private void buildChunk(Location loc, int i, int j){
         class Entry {
             public Location loc;
-            public Material material;
+            public Material material = Material.AIR;
         }
         List<Entry> states = new ArrayList<>(Misc.CHUNK_SIZE);
         for (int k = 0; k < Misc.CHUNK_SIZE; k++) {
@@ -133,7 +133,6 @@ public class CreateCommandInstance implements Runnable{
         }
         Location locBase = loc.clone();
         Location locH;
-        var materials = Material.values();
         int index=0;
         for (int y = i; y > i-Misc.CHUNK_LENGTH; y--){
             if (y < 0) break;
@@ -141,7 +140,7 @@ public class CreateCommandInstance implements Runnable{
             for (int x = j; x < j+Misc.CHUNK_LENGTH; x++){
                 if (x >= img.getWidth()) break;
                 states.get(index).loc=locBase.clone();
-                states.get(index).material = materials[dataManager.getBestMaterial(img.getRGB(x, y), face, flat)];
+                states.get(index).material = Misc.MATERIALS[dataManager.getBestMaterial(img.getRGB(x, y), face, flat)];
                 locBase.add(directionW[0],directionW[1],directionW[2]);
                 incNbBlockPlaced();
                 index++;

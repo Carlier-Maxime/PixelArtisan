@@ -3,7 +3,7 @@ package fr.metouais.pixelartisan;
 import dev.jorel.commandapi.CommandAPI;
 import fr.metouais.pixelartisan.commands.PixelArtisanCommand;
 import fr.metouais.pixelartisan.utils.ChatUtils;
-import org.bukkit.Material;
+import fr.metouais.pixelartisan.utils.Misc;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ public class PixelArtisan extends JavaPlugin {
         CommandAPI.onEnable();
         PixelArtisanCommand.get().register();
 
-        ChatUtils.sendConsoleMessage("NB MATERIAL = "+ Material.values().length);
+        ChatUtils.sendConsoleMessage("NB MATERIAL = "+ Misc.MATERIALS.length);
         ChatUtils.sendConsoleMessage(
                 getDescription().getName()+" enable\n"+
                 "  - Plugin create by " + getDescription().getAuthors() + '\n' +

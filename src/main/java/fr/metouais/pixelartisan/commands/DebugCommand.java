@@ -3,6 +3,7 @@ package fr.metouais.pixelartisan.commands;
 import dev.jorel.commandapi.CommandAPICommand;
 import fr.metouais.pixelartisan.PixelArtisan;
 import fr.metouais.pixelartisan.utils.ChatUtils;
+import fr.metouais.pixelartisan.utils.Misc;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 
@@ -29,17 +30,16 @@ public class DebugCommand {
         int count = 0;
         final int LIMIT = 64;
         Path file = PixelArtisan.PATH_DEBUG.resolve("listMaterial.txt");
-        var materials = Material.values();
         try {
             Files.write(file.toFile().toPath(),
-                    Arrays.stream(Material.values())
+                    Arrays.stream(Misc.MATERIALS)
                             .map(Material::name)
                             .collect(Collectors.toList()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        for (Material mat : materials) {
+        for (Material mat : Misc.MATERIALS) {
             ChatUtils.sendMessage(sender, "§7- " + mat.name());
             count++;
             if (count >= LIMIT) {
