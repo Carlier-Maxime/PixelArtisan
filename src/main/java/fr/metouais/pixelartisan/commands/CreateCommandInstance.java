@@ -149,7 +149,11 @@ public class CreateCommandInstance implements Runnable{
         }
         int finalIndex = index;
         TaskUtils.runTaskInMainThreadAndWait(() -> {
-            for (int ind = 0; ind< finalIndex; ind++) states.get(ind).loc.getBlock().setType(states.get(ind).material);
+            for (int ind = 0; ind< finalIndex; ind++) {
+                var localLoc = states.get(ind).loc;
+                if (!localLoc.getChunk().isLoaded()) localLoc.getChunk().load();
+                localLoc.getBlock().setType(states.get(ind).material, false);
+            }
             progressMessage();
         });
     }
