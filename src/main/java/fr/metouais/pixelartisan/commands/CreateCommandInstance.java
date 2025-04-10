@@ -1,5 +1,6 @@
 package fr.metouais.pixelartisan.commands;
 
+import fr.metouais.pixelartisan.PixelArtisan;
 import fr.metouais.pixelartisan.utils.ChatUtils;
 import fr.metouais.pixelartisan.data.DataManager;
 import fr.metouais.pixelartisan.utils.Misc;
@@ -8,6 +9,8 @@ import fr.metouais.pixelartisan.utils.TimeUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.image.BufferedImage;
@@ -34,7 +37,8 @@ public class CreateCommandInstance implements Runnable{
     private final ExecutorService executor;
     private final BlockingQueue<Runnable> jobQueue;
     private CountDownLatch latch;
-
+    private final Semaphore semChunkLimitInOneTick;
+    private final BukkitTask taskTimerOneTick;
 
     public CreateCommandInstance(@NotNull CommandSender sender, Location start, byte[] dirH, byte[] dirW, byte face, BufferedImage img, int nbThreads) {
         this.sender = sender;
@@ -48,6 +52,17 @@ public class CreateCommandInstance implements Runnable{
         this.nbThreads = nbThreads;
         executor = Executors.newFixedThreadPool(nbThreads);
         jobQueue = new LinkedBlockingQueue<>();
+        int chunkLimitInOneTick = nbThreads<<2;
+        semChunkLimitInOneTick = new Semaphore(chunkLimitInOneTick, true);
+        taskTimerOneTick = new BukkitRunnable(){
+            @Override
+            public void run() {
+                synchronized (semChunkLimitInOneTick) {
+                    semChunkLimitInOneTick.drainPermits();
+                    semChunkLimitInOneTick.release(chunkLimitInOneTick);
+                }
+            }
+        }.runTaskTimer(PixelArtisan.getInstance(), 1, 1);
     }
 
     private void launchWorkers() {
@@ -76,6 +91,7 @@ public class CreateCommandInstance implements Runnable{
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+        taskTimerOneTick.cancel();
         executor.shutdownNow();
     }
 
@@ -148,6 +164,11 @@ public class CreateCommandInstance implements Runnable{
             locBase = locH.clone().add(directionH[0],directionH[1],directionH[2]);
         }
         int finalIndex = index;
+        try {
+            semChunkLimitInOneTick.acquire();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         TaskUtils.runTaskInMainThreadAndWait(() -> {
             for (int ind = 0; ind< finalIndex; ind++) {
                 var localLoc = states.get(ind).loc;
