@@ -6,9 +6,38 @@ Please note that this changelog may not include every change made to the project
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.4.2] - Work in progress
+## [0.4.2] - 2025-04-11
 
-changelog for this version coming when version it out
+### Added
+
+- add dependence to commandapi
+- use commandapi for all command
+- auto generate data of vanilla texture on first pixel art created
+- add name argument on generate texture : **'/pa texture generate <name>'**
+- add debug command for show list materials : **'/pa debug listMaterial'**
+- support new block introduced between 1.18.1 and 1.21.5
+- limit chunk of pixel art in one tick for avoid server crash due to tick is too long (4*nbThread)
+- add optional argument nbThread on pixel art creation (default: 4)
+
+### Changed
+
+- optimize pixel art creation (this is much faster)
+- not update neighbor block for improve performance and avoid fail block placed
+- tweak project structure
+- improve argument verification
+- change **'/pa customTexture'** to **'/pa texture'**
+- change custom texture enable/disable to **'/pa texture use [name]'**
+- downgrade spigot-api for work with 1.18.0
+
+### Fixed
+
+- fix generate data of custom texture
+- fix fail not delete because as deleted before
+- fix some files bug on first init plugin
+
+### Removed
+
+- remove default data on jar
 
 ## [0.4.1] - 2025-04-02
 
