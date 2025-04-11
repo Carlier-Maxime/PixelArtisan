@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "pixelartisan",
+  "version": "0.5.0-SNAPSHOT",
+  "name": "Pixel Artisan",
+  "description": "create pixel art from images",
+  "authors": ["M_EtOuais"],
+
+  "contact": {
+    "homepage": "https://github.com/Carlier-Maxime/PixelArtisan",
+    "sources": "https://github.com/Carlier-Maxime/PixelArtisan",
+    "issues": "https://github.com/Carlier-Maxime/PixelArtisan/issues"
+  },
+
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "fabric": "*",
+    "minecraft": "1.21.5"
+  },
+
+  "entrypoints": {
+    "main": ["fr.metouais.pixelartisan.PixelArtisanFabric"]
+  }
+}
