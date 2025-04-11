@@ -10,3 +10,8 @@ dependencies {
     implementation 'org.spigotmc:spigot-api:1.18-R0.1-20211209.220721-27'
     implementation 'dev.jorel:commandapi-bukkit-shade:10.0.0'
 }
+
+jar {
+    from project(':common').sourceSets.main.output
+    from sourceSets.main.output
+}
