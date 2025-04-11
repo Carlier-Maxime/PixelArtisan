@@ -2,8 +2,6 @@ plugins {
     id 'java'
 }
 
-archivesBaseName = "pixelartisan-${project.name}"
-
 dependencies {
     implementation 'com.google.code.gson:gson:2.12.1'
 }

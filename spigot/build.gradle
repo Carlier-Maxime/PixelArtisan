@@ -2,8 +2,6 @@ plugins {
     id 'java'
 }
 
-archivesBaseName = "pixelartisan-${project.name}"
-
 dependencies {
     implementation project(':common')
 

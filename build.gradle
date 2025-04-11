@@ -1,6 +1,7 @@
 subprojects {
     apply plugin: 'java'
 
+    archivesBaseName = "pixelartisan-${project.name}"
     group = 'fr.metouais.pixelartisan'
     version = '0.5.0-SNAPSHOT'
 
