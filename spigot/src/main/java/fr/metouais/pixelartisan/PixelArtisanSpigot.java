@@ -6,23 +6,15 @@ import fr.metouais.pixelartisan.utils.ChatUtils;
 import fr.metouais.pixelartisan.utils.Misc;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 public class PixelArtisanSpigot extends JavaPlugin {
     private static PixelArtisanSpigot instance;
-    private static final PixelArtisan common = PixelArtisan.getInstance();
+    private PixelArtisan common;
 
     @Override
     public void onEnable() {
         super.onEnable();
         instance = this;
-        try {
-            for (Path path : PixelArtisan.PATHS) Files.createDirectories(path);
-        } catch (IOException e) {
-            PixelArtisan.LOGGER.error("Failed creation folder of PixelArtisan", e);
-        }
+        common = PixelArtisan.getInstance();
 
         CommandAPI.onEnable();
         PixelArtisanCommand.get().register();
@@ -39,7 +31,7 @@ public class PixelArtisanSpigot extends JavaPlugin {
     @Override
     public void onDisable() {
         super.onDisable();
-        common.getExecutorService().shutdownNow();
+        common.shutdownNow();
         CommandAPI.onDisable();
         ChatUtils.sendConsoleMessage("PixelArtisan disable");
     }
