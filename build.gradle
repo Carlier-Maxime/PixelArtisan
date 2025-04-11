@@ -1,9 +1,21 @@
+ext {
+    pa_id = 'pixelartisan'
+    pa_name = 'PixelArtisan'
+    pa_desc = 'a plugin/mod for creating pixel art from images'
+    pa_author = 'M_EtOuais'
+    pa_version = '0.5.0-SNAPSHOT'
+    pa_group = 'fr.metouais.'+pa_id
+    pa_source = 'https://github.com/Carlier-Maxime/PixelArtisan'
+    pa_website = pa_source
+    pa_issues = pa_source+'/issues'
+}
+
 subprojects {
     apply plugin: 'java'
 
     archivesBaseName = "pixelartisan-${project.name}"
-    group = 'fr.metouais.pixelartisan'
-    version = '0.5.0-SNAPSHOT'
+    group = rootProject.ext.pa_group
+    version = rootProject.ext.pa_version
 
     repositories {
         mavenCentral()

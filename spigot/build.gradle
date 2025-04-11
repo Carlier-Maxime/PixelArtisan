@@ -9,6 +9,12 @@ dependencies {
     implementation 'dev.jorel:commandapi-bukkit-shade:10.0.0'
 }
 
+processResources {
+    filesMatching("**/plugin.yml") {
+        expand(project.properties)
+    }
+}
+
 jar {
     from project(':common').sourceSets.main.output
     from sourceSets.main.output
