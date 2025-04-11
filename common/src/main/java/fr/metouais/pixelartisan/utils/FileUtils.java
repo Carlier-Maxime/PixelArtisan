@@ -85,7 +85,7 @@ public class FileUtils {
                 throw new RuntimeException("Unknown URL for download client MC " + version);
             }
             downloadFile(url, outputPath);
-            ChatUtils.sendConsoleMessage("Download client MC complete for " + version);
+            PixelArtisan.LOGGER.info("Download client MC complete for {}", version);
             return;
         }
         throw new IllegalArgumentException("Unknown version: " + version);
