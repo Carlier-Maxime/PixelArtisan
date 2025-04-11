@@ -1,6 +1,6 @@
 package fr.metouais.pixelartisan.utils;
 
-import fr.metouais.pixelartisan.PixelArtisan;
+import fr.metouais.pixelartisan.PixelArtisanSpigot;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -19,7 +19,7 @@ public class TaskUtils {
                     task.run();
                     latch.countDown();
                 }
-            }.runTask(PixelArtisan.getInstance());
+            }.runTask(PixelArtisanSpigot.getInstance());
             try {
                 latch.await();
             } catch (InterruptedException e) {

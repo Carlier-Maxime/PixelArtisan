@@ -1,6 +1,6 @@
 package fr.metouais.pixelartisan.commands;
 
-import fr.metouais.pixelartisan.PixelArtisan;
+import fr.metouais.pixelartisan.PixelArtisanSpigot;
 import fr.metouais.pixelartisan.utils.ChatUtils;
 import fr.metouais.pixelartisan.data.DataManager;
 import fr.metouais.pixelartisan.utils.Misc;
@@ -62,7 +62,7 @@ public class CreateCommandInstance implements Runnable{
                     semChunkLimitInOneTick.release(chunkLimitInOneTick);
                 }
             }
-        }.runTaskTimer(PixelArtisan.getInstance(), 1, 1);
+        }.runTaskTimer(PixelArtisanSpigot.getInstance(), 1, 1);
     }
 
     private void launchWorkers() {

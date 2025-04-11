@@ -2,6 +2,6 @@ name: PixelArtisan
 author: M_EtOuais
 version: 0.5.0-SNAPSHOT
 description: a plugin for creating pixel art from images
-main: fr.metouais.pixelartisan.PixelArtisan
+main: fr.metouais.pixelartisan.PixelArtisanSpigot
 api-version: 1.18
 depend: [CommandAPI]
