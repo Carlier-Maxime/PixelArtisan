@@ -20,12 +20,6 @@ public class PixelArtisanSpigot extends JavaPlugin {
         PixelArtisanCommand.get().register();
 
         ChatUtils.sendConsoleMessage("NB MATERIAL = "+ Misc.MATERIALS.length);
-        ChatUtils.sendConsoleMessage(
-                getDescription().getName()+" enable\n"+
-                "  - Plugin create by " + getDescription().getAuthors() + '\n' +
-                "  - Version : " + getDescription().getVersion() + '\n' +
-                "  - Description : " + getDescription().getDescription()
-        );
     }
 
     @Override

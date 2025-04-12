@@ -1,0 +1,11 @@
+package fr.metouais.pixelartisan.utils;
+
+public class Info {
+    private Info() {}
+    public static final String ID = "@pa_id@";
+    public static final String NAME = "@pa_name@";
+    public static final String VERSION = "@pa_version@";
+    public static final String DESCRIPTION = "@pa_desc@";
+    public static final String WEBSITE = "@pa_website@";
+    public static final String AUTHOR = "@pa_author@";
+}

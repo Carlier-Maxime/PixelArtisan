@@ -1,6 +1,7 @@
 package fr.metouais.pixelartisan.data;
 
 import fr.metouais.pixelartisan.PixelArtisan;
+import fr.metouais.pixelartisan.utils.Info;
 import fr.metouais.pixelartisan.utils.ChatUtils;
 import fr.metouais.pixelartisan.utils.FileUtils;
 import org.bukkit.Material;
@@ -38,7 +39,7 @@ public class DataGenerator {
     public static void generateFromTexturesBlock(CommandSender sender, Path srcDir, String name, @NotNull DataManager dataManager) throws IOException {
         if(FileUtils.isFolderEmpty(srcDir)) {
             ChatUtils.sendMessage(sender, "§csource folder is empty or invalid ! (fill the folder and retry)");
-            if (sender instanceof Player) ChatUtils.sendMessage(sender, "§6For more information: " + PixelArtisan.GIT_LINK);
+            if (sender instanceof Player) ChatUtils.sendMessage(sender, "§6For more information: " + Info.WEBSITE);
             return;
         }
         ChatUtils.sendMessage(sender,"§echecking texture and delete unnecessary files...");

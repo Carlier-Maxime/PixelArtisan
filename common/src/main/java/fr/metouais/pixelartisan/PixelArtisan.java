@@ -1,5 +1,6 @@
 package fr.metouais.pixelartisan;
 
+import fr.metouais.pixelartisan.utils.Info;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,15 +19,19 @@ public class PixelArtisan {
     public static final Path PATH_DATA = PATH_PREFIX.resolve("data");
     public static final Path PATH_DEBUG = PATH_PREFIX.resolve("debug");
     public static final Path[] PATHS = {PATH_INPUT_TEXTURE, PATH_IMAGES, PATH_DATA, PATH_DEBUG};
-    public static final String GIT_LINK = "https://github.com/Carlier-Maxime/PixelArtisan";
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     private PixelArtisan() {
         try {
-            for (Path path : PixelArtisan.PATHS) Files.createDirectories(path);
+            for (Path path : PATHS) Files.createDirectories(path);
         } catch (IOException e) {
-            PixelArtisan.LOGGER.error("Failed creation folder of PixelArtisan", e);
+            LOGGER.error("Failed creation folder of PixelArtisan", e);
         }
+        LOGGER.info(Info.NAME+" enable\n"+
+            "\t\t\t\t - Create by " + Info.AUTHOR + '\n' +
+            "\t\t\t\t - Version : " + Info.VERSION + '\n' +
+            "\t\t\t\t - Description : " + Info.DESCRIPTION
+        );
     }
 
     public static PixelArtisan getInstance() {
