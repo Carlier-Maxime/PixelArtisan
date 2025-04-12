@@ -1,9 +1,9 @@
 package fr.metouais.pixelartisan.spigot.data;
 
 import fr.metouais.pixelartisan.common.PixelArtisan;
-import fr.metouais.pixelartisan.common.utils.Info;
-import fr.metouais.pixelartisan.common.utils.FileUtils;
-import fr.metouais.pixelartisan.common.utils.MessageSender;
+import fr.metouais.pixelartisan.common.util.Info;
+import fr.metouais.pixelartisan.common.util.FileUtils;
+import fr.metouais.pixelartisan.common.util.MessageSender;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;

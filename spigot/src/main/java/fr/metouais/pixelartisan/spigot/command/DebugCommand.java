@@ -1,10 +1,10 @@
-package fr.metouais.pixelartisan.spigot.commands;
+package fr.metouais.pixelartisan.spigot.command;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import fr.metouais.pixelartisan.common.PixelArtisan;
-import fr.metouais.pixelartisan.common.utils.MessageSender;
-import fr.metouais.pixelartisan.spigot.utils.MessageSenderSpigot;
-import fr.metouais.pixelartisan.spigot.utils.Misc;
+import fr.metouais.pixelartisan.common.util.MessageSender;
+import fr.metouais.pixelartisan.spigot.util.MessageSenderSpigot;
+import fr.metouais.pixelartisan.spigot.util.Misc;
 import org.bukkit.Material;
 
 import java.io.IOException;

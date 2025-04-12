@@ -1,11 +1,11 @@
-package fr.metouais.pixelartisan.spigot.commands;
+package fr.metouais.pixelartisan.spigot.command;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.*;
 import dev.jorel.commandapi.executors.CommandArguments;
 import fr.metouais.pixelartisan.common.PixelArtisan;
-import fr.metouais.pixelartisan.common.utils.MessageSender;
-import fr.metouais.pixelartisan.spigot.utils.MessageSenderSpigot;
+import fr.metouais.pixelartisan.common.util.MessageSender;
+import fr.metouais.pixelartisan.spigot.util.MessageSenderSpigot;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 

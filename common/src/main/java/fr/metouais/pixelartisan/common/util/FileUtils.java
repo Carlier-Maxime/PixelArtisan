@@ -1,4 +1,4 @@
-package fr.metouais.pixelartisan.common.utils;
+package fr.metouais.pixelartisan.common.util;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

@@ -1,11 +1,11 @@
-package fr.metouais.pixelartisan.spigot.commands;
+package fr.metouais.pixelartisan.spigot.command;
 
-import fr.metouais.pixelartisan.common.utils.MessageSender;
+import fr.metouais.pixelartisan.common.util.MessageSender;
 import fr.metouais.pixelartisan.spigot.PixelArtisanSpigot;
 import fr.metouais.pixelartisan.spigot.data.DataManager;
-import fr.metouais.pixelartisan.spigot.utils.Misc;
-import fr.metouais.pixelartisan.spigot.utils.TaskUtils;
-import fr.metouais.pixelartisan.common.utils.TimeUtils;
+import fr.metouais.pixelartisan.spigot.util.Misc;
+import fr.metouais.pixelartisan.spigot.util.TaskUtils;
+import fr.metouais.pixelartisan.common.util.TimeUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitRunnable;

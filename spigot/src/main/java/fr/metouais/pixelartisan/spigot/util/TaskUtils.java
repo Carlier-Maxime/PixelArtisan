@@ -1,4 +1,4 @@
-package fr.metouais.pixelartisan.spigot.utils;
+package fr.metouais.pixelartisan.spigot.util;
 
 import fr.metouais.pixelartisan.spigot.PixelArtisanSpigot;
 import org.bukkit.Bukkit;

@@ -1,4 +1,4 @@
-package fr.metouais.pixelartisan.spigot.commands;
+package fr.metouais.pixelartisan.spigot.command;
 
 import dev.jorel.commandapi.arguments.Argument;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;

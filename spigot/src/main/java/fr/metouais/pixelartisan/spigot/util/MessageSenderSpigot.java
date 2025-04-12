@@ -1,6 +1,6 @@
-package fr.metouais.pixelartisan.spigot.utils;
+package fr.metouais.pixelartisan.spigot.util;
 
-import fr.metouais.pixelartisan.common.utils.MessageSender;
+import fr.metouais.pixelartisan.common.util.MessageSender;
 import org.bukkit.command.CommandSender;
 
 public class MessageSenderSpigot implements MessageSender {

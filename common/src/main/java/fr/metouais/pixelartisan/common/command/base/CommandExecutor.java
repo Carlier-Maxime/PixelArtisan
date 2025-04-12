@@ -1,6 +1,6 @@
-package fr.metouais.pixelartisan.common.commands.base;
+package fr.metouais.pixelartisan.common.command.base;
 
-import fr.metouais.pixelartisan.common.utils.MessageSender;
+import fr.metouais.pixelartisan.common.util.MessageSender;
 
 import java.util.Map;
 

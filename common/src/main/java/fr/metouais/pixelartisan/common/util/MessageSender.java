@@ -1,4 +1,4 @@
-package fr.metouais.pixelartisan.common.utils;
+package fr.metouais.pixelartisan.common.util;
 
 import fr.metouais.pixelartisan.common.PixelArtisan;
 

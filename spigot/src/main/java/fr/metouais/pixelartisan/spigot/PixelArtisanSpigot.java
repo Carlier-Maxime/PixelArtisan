@@ -1,10 +1,10 @@
 package fr.metouais.pixelartisan.spigot;
 
 import dev.jorel.commandapi.CommandAPI;
-import fr.metouais.pixelartisan.common.utils.MessageSender;
-import fr.metouais.pixelartisan.spigot.commands.PixelArtisanCommand;
+import fr.metouais.pixelartisan.common.util.MessageSender;
+import fr.metouais.pixelartisan.spigot.command.PixelArtisanCommand;
 import fr.metouais.pixelartisan.common.PixelArtisan;
-import fr.metouais.pixelartisan.spigot.utils.Misc;
+import fr.metouais.pixelartisan.spigot.util.Misc;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class PixelArtisanSpigot extends JavaPlugin {

@@ -1,4 +1,4 @@
-package fr.metouais.pixelartisan.common.commands.base;
+package fr.metouais.pixelartisan.common.command.base;
 
 public interface Command {
     void register();

@@ -6,8 +6,8 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.12.1'
 }
 
-def infoTemplate = file("src/main/java/fr/metouais/pixelartisan/common/utils/Info.java.in")
-def infoOutput = file("build/generated/sources/info/java/fr/metouais/pixelartisan/common/utils/Info.java")
+def infoTemplate = file("src/main/java/fr/metouais/pixelartisan/common/util/Info.java.in")
+def infoOutput = file("build/generated/sources/info/java/fr/metouais/pixelartisan/common/util/Info.java")
 
 task generateInfo {
     inputs.file(infoTemplate)
