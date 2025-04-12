@@ -1,11 +1,10 @@
 package fr.metouais.pixelartisan.spigot.data;
 
 import fr.metouais.pixelartisan.common.PixelArtisan;
-import fr.metouais.pixelartisan.spigot.utils.ChatUtils;
 import fr.metouais.pixelartisan.common.utils.FileUtils;
+import fr.metouais.pixelartisan.common.utils.MessageSender;
 import fr.metouais.pixelartisan.spigot.utils.Misc;
 import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -35,9 +34,9 @@ public class DataManager {
 
     private FileChannel f;
     private final ByteBuffer buf;
-    private final CommandSender sender;
+    private final MessageSender sender;
 
-    public DataManager(CommandSender sender) {
+    public DataManager(MessageSender sender) {
         this.sender = sender;
         this.buf = ByteBuffer.allocate(Element.BYTES);
         if (db==null) {
@@ -52,18 +51,18 @@ public class DataManager {
 
     private void loadData() throws IOException {
         if (FileUtils.isFolderEmpty(PixelArtisan.PATH_DATA.resolve(DEFAULT_DATA))) {
-            ChatUtils.sendMessage(sender, "generate default data...");
+            sender.send( "generate default data...");
             try {
                 FileUtils.extractBlockTexturesFromClientMC(Misc.getMCVersion(), PixelArtisan.PATH_INPUT_TEXTURE);
             } catch (Exception e) {
                 String msg = "Failed download and extract vanilla block textures for generate default data: "+e.getMessage();
-                ChatUtils.sendConsoleMessage(msg);
-                ChatUtils.sendMessage(sender, "§c INTERNAL ERROR: "+msg);
+                MessageSender.CONSOLE.send(msg);
+                sender.send( "§c INTERNAL ERROR: "+msg);
                 throw new RuntimeException(e);
             }
             DataGenerator.generateFromTexturesBlock(sender, PixelArtisan.PATH_INPUT_TEXTURE, DEFAULT_DATA, this);
         }
-        ChatUtils.sendMessage(sender, "load default data...");
+        sender.send( "load default data...");
         loadData(DEFAULT_DATA);
     }
 
@@ -86,7 +85,7 @@ public class DataManager {
             buf.flip();
             return new Element(buf.getInt(), buf.getShort());
         } catch (Exception e){
-            ChatUtils.sendMessage(sender,"§cError in readOneData");
+            sender.send("§cError in readOneData");
             PixelArtisan.LOGGER.error("Failed readOneData", e);
         }
         return null;
@@ -112,26 +111,26 @@ public class DataManager {
                     }
                 }
             }
-            ChatUtils.sendMessage(sender,"§e"+nbAdd+" missing data have been added");
+            sender.send("§e"+nbAdd+" missing data have been added");
         } catch (Exception e){
-            ChatUtils.sendMessage(sender,"§cERROR in compareAndSave");
+            sender.send("§cERROR in compareAndSave");
             PixelArtisan.LOGGER.error("Failed compare and save", e);
         }
     }
 
     public void compareWithDefaultAndSave(ArrayList<TreeMap<Integer,Short>> data, @NotNull String name) throws IOException {
         if (!DEFAULT_DATA.equals(name)) {
-            ChatUtils.sendMessage(sender,"§eloading default data..");
+            sender.send("§eloading default data..");
             loadData(DEFAULT_DATA);
-            ChatUtils.sendMessage(sender,"§edefault data loaded");
-            ChatUtils.sendMessage(sender,"§ecompare data with default data..");
+            sender.send("§edefault data loaded");
+            sender.send("§ecompare data with default data..");
             compareAndCompleteWithLoadedData(data);
         }
         saveCustomData(data, name);
     }
 
     private void saveCustomData(ArrayList<TreeMap<Integer,Short>> data, @NotNull String name){
-        ChatUtils.sendMessage(sender,"§esave custom data on "+name+"...");
+        sender.send("§esave custom data on "+name+"...");
         Path folder = PixelArtisan.PATH_DATA.resolve(name);
         try {
             Files.createDirectories(folder);
@@ -149,10 +148,10 @@ public class DataManager {
             }
         } catch (IOException e) {
             PixelArtisan.LOGGER.error("Failed save custom data of face", e);
-            ChatUtils.sendMessage(sender,"§adata save has been failed");
+            sender.send("§adata save has been failed");
             return;
         }
-        ChatUtils.sendMessage(sender,"§adata saved");
+        sender.send("§adata saved");
     }
 
     public void loadData(String name) throws IOException {

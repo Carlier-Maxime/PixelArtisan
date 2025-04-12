@@ -1,14 +1,13 @@
 package fr.metouais.pixelartisan.spigot.commands;
 
+import fr.metouais.pixelartisan.common.utils.MessageSender;
 import fr.metouais.pixelartisan.spigot.PixelArtisanSpigot;
-import fr.metouais.pixelartisan.spigot.utils.ChatUtils;
 import fr.metouais.pixelartisan.spigot.data.DataManager;
 import fr.metouais.pixelartisan.spigot.utils.Misc;
 import fr.metouais.pixelartisan.spigot.utils.TaskUtils;
 import fr.metouais.pixelartisan.common.utils.TimeUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +21,7 @@ public class CreateCommandInstance implements Runnable{
     private static final long timeBetweenMsg = 5_000_000_000L;
     private static final Runnable POISON = () -> {};
 
-    private final CommandSender sender;
+    private final MessageSender sender;
     private final boolean flat;
     private int blockPlaced;
     private long timeForMsg;
@@ -40,7 +39,7 @@ public class CreateCommandInstance implements Runnable{
     private final Semaphore semChunkLimitInOneTick;
     private final BukkitTask taskTimerOneTick;
 
-    public CreateCommandInstance(@NotNull CommandSender sender, Location start, byte[] dirH, byte[] dirW, byte face, BufferedImage img, int nbThreads) {
+    public CreateCommandInstance(@NotNull MessageSender sender, Location start, byte[] dirH, byte[] dirW, byte face, BufferedImage img, int nbThreads) {
         this.sender = sender;
         dataManager = new DataManager(sender);
         location = start.clone();
@@ -122,8 +121,8 @@ public class CreateCommandInstance implements Runnable{
         stopWorkers();
         String duration = TimeUtils.formatDuration(System.nanoTime() - startTime);
         TaskUtils.runTaskInMainThreadAndWait(() -> {
-            ChatUtils.sendConsoleMessage("finish in "+duration+". ("+blockPlaced+" block placed)");
-            ChatUtils.sendMessage(sender,"§2pixel art created in "+duration+"! ("+blockPlaced+" block placed)");
+            MessageSender.CONSOLE.send("finish in "+duration+". ("+blockPlaced+" block placed)");
+            sender.send("§2pixel art created in "+duration+"! ("+blockPlaced+" block placed)");
         });
     }
 
@@ -132,8 +131,8 @@ public class CreateCommandInstance implements Runnable{
         long time = System.nanoTime();
         if (time > timeForMsg){
             double perc = (blockPlaced*1.0/nbBlock)*100;
-            ChatUtils.sendConsoleMessage(String.format("%.1f %%", perc));
-            ChatUtils.sendMessage(sender,String.format("%.1f %% (%d/%d)", perc, blockPlaced, nbBlock));
+            MessageSender.CONSOLE.send(String.format("%.1f %%", perc));
+            sender.send(String.format("%.1f %% (%d/%d)", perc, blockPlaced, nbBlock));
             timeForMsg = System.nanoTime() + timeBetweenMsg;
         }
     }

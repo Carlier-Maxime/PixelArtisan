@@ -4,8 +4,8 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.StringArgument;
 import fr.metouais.pixelartisan.common.PixelArtisan;
 import fr.metouais.pixelartisan.spigot.data.DataGenerator;
-import fr.metouais.pixelartisan.spigot.utils.ChatUtils;
 import fr.metouais.pixelartisan.spigot.data.DataManager;
+import fr.metouais.pixelartisan.spigot.utils.MessageSenderSpigot;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,7 +24,7 @@ public class TextureCommand {
                             .withArguments(new StringArgument("name"))
                             .executes((sender, args) -> {
                                 try {
-                                    DataGenerator.generateFromTexturesBlock(sender, PixelArtisan.PATH_INPUT_TEXTURE, (String) args.get(0));
+                                    DataGenerator.generateFromTexturesBlock(MessageSenderSpigot.of(sender), PixelArtisan.PATH_INPUT_TEXTURE, (String) args.get(0));
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
@@ -35,11 +35,11 @@ public class TextureCommand {
                             .executes((sender, args) -> {
                                 String name = ((Path) Objects.requireNonNull(args.get(0))).getFileName().toString();
                                 try {
-                                    new DataManager(sender).loadData(name);
+                                    new DataManager(MessageSenderSpigot.of(sender)).loadData(name);
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
-                                ChatUtils.sendMessage(sender,"§euse "+name+" texture");
+                                MessageSenderSpigot.of(sender).send("§euse "+name+" texture");
                             })
                     );
         }

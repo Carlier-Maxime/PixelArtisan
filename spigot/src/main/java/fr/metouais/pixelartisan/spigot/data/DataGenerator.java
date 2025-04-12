@@ -3,9 +3,8 @@ package fr.metouais.pixelartisan.spigot.data;
 import fr.metouais.pixelartisan.common.PixelArtisan;
 import fr.metouais.pixelartisan.common.utils.Info;
 import fr.metouais.pixelartisan.common.utils.FileUtils;
-import fr.metouais.pixelartisan.spigot.utils.ChatUtils;
+import fr.metouais.pixelartisan.common.utils.MessageSender;
 import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,26 +31,26 @@ public class DataGenerator {
     private static final String[] ALL_SUFFIXES = Stream.concat(Arrays.stream(FACES_SUFFIXES).flatMap(Arrays::stream), Arrays.stream(OTHER_SUFFIXES)).toArray(String[]::new);
     private static final Pattern SuffixPattern = Pattern.compile("_(" +String.join("|", ALL_SUFFIXES)+ ")([0-9]|s)?((_.*$)|$)");
 
-    public static void generateFromTexturesBlock(CommandSender sender, Path srcDir, String name) throws IOException {
+    public static void generateFromTexturesBlock(MessageSender sender, Path srcDir, String name) throws IOException {
         generateFromTexturesBlock(sender, srcDir, name, new DataManager(sender));
     }
 
-    public static void generateFromTexturesBlock(CommandSender sender, Path srcDir, String name, @NotNull DataManager dataManager) throws IOException {
+    public static void generateFromTexturesBlock(MessageSender sender, Path srcDir, String name, @NotNull DataManager dataManager) throws IOException {
         if(FileUtils.isFolderEmpty(srcDir)) {
-            ChatUtils.sendMessage(sender, "§csource folder is empty or invalid ! (fill the folder and retry)");
-            if (sender instanceof Player) ChatUtils.sendMessage(sender, "§6For more information: " + Info.WEBSITE);
+            sender.send( "§csource folder is empty or invalid ! (fill the folder and retry)");
+            if (sender instanceof Player) sender.send( "§6For more information: " + Info.WEBSITE);
             return;
         }
-        ChatUtils.sendMessage(sender,"§echecking texture and delete unnecessary files...");
+        sender.send("§echecking texture and delete unnecessary files...");
         int nbDelete = checkAndDelUselessFile(srcDir);
-        ChatUtils.sendMessage(sender,"§e"+nbDelete+" files have been deleted");
-        ChatUtils.sendMessage(sender,"§edata processing...");
+        sender.send("§e"+nbDelete+" files have been deleted");
+        sender.send("§edata processing...");
         var treeList = dataProcessing(srcDir);
-        ChatUtils.sendMessage(sender,"§ecompare and save...");
+        sender.send("§ecompare and save...");
         dataManager.compareWithDefaultAndSave(treeList, name);
-        ChatUtils.sendMessage(sender,"§ecleanup of source folder");
-        FileUtils.tryDeleteContentOfFolder(srcDir); ChatUtils.sendMessage(sender,"§acleanup finish");
-        ChatUtils.sendMessage(sender,"§2custom textures have been supported.");
+        sender.send("§ecleanup of source folder");
+        FileUtils.tryDeleteContentOfFolder(srcDir); sender.send("§acleanup finish");
+        sender.send("§2custom textures have been supported.");
     }
 
     private static int getAverageColor(BufferedImage img){
@@ -96,7 +95,7 @@ public class DataGenerator {
         name = name.toUpperCase(Locale.ROOT);
         Material m = Material.matchMaterial(name);
         if (m==null) {
-            ChatUtils.sendConsoleMessage(textureName+" alias "+name+" not found correspondance !");
+            MessageSender.CONSOLE.send(textureName+" alias "+name+" not found correspondance !");
             return null;
         }
         return m.name();
@@ -170,7 +169,7 @@ public class DataGenerator {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        ChatUtils.sendConsoleMessage(nbError+" error(s) during processing");
+        MessageSender.CONSOLE.send(nbError+" error(s) during processing");
         return treeList;
     }
 }

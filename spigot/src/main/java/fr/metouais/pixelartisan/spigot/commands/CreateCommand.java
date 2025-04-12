@@ -4,9 +4,9 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.*;
 import dev.jorel.commandapi.executors.CommandArguments;
 import fr.metouais.pixelartisan.common.PixelArtisan;
-import fr.metouais.pixelartisan.spigot.utils.ChatUtils;
+import fr.metouais.pixelartisan.common.utils.MessageSender;
+import fr.metouais.pixelartisan.spigot.utils.MessageSenderSpigot;
 import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
@@ -20,14 +20,14 @@ import java.util.Objects;
 public class CreateCommand {
     private static CommandAPICommand command;
     private static final String[] ALL_DIRECTION = new String[]{"North","East","South","West","FlatNorthEast","FlatEastSouth","FlatSouthWest","FlatWestNorth"};
-    private final CommandSender sender;
+    private final MessageSender sender;
     private final String direction;
     private final Path filepath;
     private final int size;
     private final Location pos;
     private final int nbThreads;
 
-    private CreateCommand(@NotNull CommandSender sender, @NotNull CommandArguments args) {
+    private CreateCommand(@NotNull MessageSender sender, @NotNull CommandArguments args) {
         this.sender = sender;
         direction = (String) args.get("direction");
         filepath = (Path) args.get("filename");
@@ -49,14 +49,14 @@ public class CreateCommand {
                     .withArguments(new LocationArgument("pos", LocationType.BLOCK_POSITION))
                     .withOptionalArguments(new IntegerArgument("nbThreads", 1))
                     .executes((sender, args) -> {
-                        new CreateCommand(sender, args).exec();
+                        new CreateCommand(MessageSenderSpigot.of(sender), args).exec();
                     });
         }
         return command;
     }
 
     private void exec() {
-        ChatUtils.sendMessage(sender,"§ecalculation of direction, face and position");
+        sender.send("§ecalculation of direction, face and position");
         byte[] dirH = getDirectionH(direction);
         byte[] dirW = getDirectionW(direction);
         if (dirH==null || dirW==null) return;
@@ -65,13 +65,13 @@ public class CreateCommand {
         if (startLocation==null) return;
         BufferedImage img = resizeImg(filepath, size);
         if (img==null) return;
-        ChatUtils.sendMessage(sender,"§ecreate pixel art..");
-        ChatUtils.sendMessage(sender,"paint size : "+img.getWidth()+" "+img.getHeight());
+        sender.send("§ecreate pixel art..");
+        sender.send("paint size : "+img.getWidth()+" "+img.getHeight());
         PixelArtisan.getInstance().getExecutorService().submit(new CreateCommandInstance(sender, startLocation, dirH, dirW, face, img, nbThreads));
     }
 
     private BufferedImage resizeImg(Path originalImgPath, int size){
-        ChatUtils.sendMessage(sender,"§eimage recovery and resizing..");
+        sender.send("§eimage recovery and resizing..");
         try {
             BufferedImage originalImg = ImageIO.read(originalImgPath.toFile());
             BufferedImage img = getBufferedImage(size, originalImg);
@@ -80,7 +80,7 @@ public class CreateCommand {
             g2D.dispose();
             return img;
         } catch (IOException e) {
-            ChatUtils.sendMessage(sender,"§ccheck that the provided file is an image and that it is not corrupted");
+            sender.send("§ccheck that the provided file is an image and that it is not corrupted");
             return null;
         }
     }

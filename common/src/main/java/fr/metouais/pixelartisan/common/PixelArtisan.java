@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
 
 public class PixelArtisan {
     public static PixelArtisan instance;
-    public static final Logger LOGGER = LoggerFactory.getLogger(PixelArtisan.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(PixelArtisan.class+"prefix");
     private static final Path PATH_PREFIX = Path.of("data/PixelArtisan");
     public static final Path PATH_INPUT_TEXTURE = PATH_PREFIX.resolve("input_texture");
     public static final Path PATH_IMAGES = PATH_PREFIX.resolve("images");

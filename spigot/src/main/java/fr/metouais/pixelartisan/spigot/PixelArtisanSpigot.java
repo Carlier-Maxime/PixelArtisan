@@ -1,9 +1,9 @@
 package fr.metouais.pixelartisan.spigot;
 
 import dev.jorel.commandapi.CommandAPI;
+import fr.metouais.pixelartisan.common.utils.MessageSender;
 import fr.metouais.pixelartisan.spigot.commands.PixelArtisanCommand;
 import fr.metouais.pixelartisan.common.PixelArtisan;
-import fr.metouais.pixelartisan.spigot.utils.ChatUtils;
 import fr.metouais.pixelartisan.spigot.utils.Misc;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -20,7 +20,7 @@ public class PixelArtisanSpigot extends JavaPlugin {
         CommandAPI.onEnable();
         PixelArtisanCommand.get().register();
 
-        ChatUtils.sendConsoleMessage("NB MATERIAL = "+ Misc.MATERIALS.length);
+        MessageSender.CONSOLE.send("NB MATERIAL = "+ Misc.MATERIALS.length);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class PixelArtisanSpigot extends JavaPlugin {
         super.onDisable();
         common.shutdownNow();
         CommandAPI.onDisable();
-        ChatUtils.sendConsoleMessage("PixelArtisan disable");
+        MessageSender.CONSOLE.send("PixelArtisan disable");
     }
 
     public static PixelArtisanSpigot getInstance() {

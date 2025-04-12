@@ -2,10 +2,10 @@ package fr.metouais.pixelartisan.spigot.commands;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import fr.metouais.pixelartisan.common.PixelArtisan;
-import fr.metouais.pixelartisan.spigot.utils.ChatUtils;
+import fr.metouais.pixelartisan.common.utils.MessageSender;
+import fr.metouais.pixelartisan.spigot.utils.MessageSenderSpigot;
 import fr.metouais.pixelartisan.spigot.utils.Misc;
 import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,13 +20,13 @@ public class DebugCommand {
         if (command == null) {
             command = new CommandAPICommand("debug")
                     .withSubcommand(new CommandAPICommand("listMaterial")
-                            .executes((sender, args) -> {listAllMaterials(sender);})
+                            .executes((sender, args) -> {listAllMaterials(MessageSenderSpigot.of(sender));})
                     );
         }
         return command;
     }
 
-    private static void listAllMaterials(CommandSender sender) {
+    private static void listAllMaterials(MessageSender sender) {
         int count = 0;
         final int LIMIT = 64;
         Path file = PixelArtisan.PATH_DEBUG.resolve("listMaterial.txt");
@@ -40,10 +40,10 @@ public class DebugCommand {
         }
 
         for (Material mat : Misc.MATERIALS) {
-            ChatUtils.sendMessage(sender, "§7- " + mat.name());
+            sender.send( "§7- " + mat.name());
             count++;
             if (count >= LIMIT) {
-                ChatUtils.sendMessage(sender, "§e... list truncated to "+LIMIT+" elements, to see the whole list consult the file : "+file);
+                sender.send( "§e... list truncated to "+LIMIT+" elements, to see the whole list consult the file : "+file);
                 break;
             }
         }
