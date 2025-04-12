@@ -4,6 +4,6 @@ version: ${pa_version}
 description: ${pa_desc}
 website: ${pa_source}
 issue-url: ${pa_issues}
-main: ${pa_group}.${pa_name}Spigot
+main: ${pa_group}.spigot.${pa_name}Spigot
 api-version: 1.18
 depend: [CommandAPI]

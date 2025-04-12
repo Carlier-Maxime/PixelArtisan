@@ -19,6 +19,6 @@
   },
 
   "entrypoints": {
-    "main": ["${pa_group}.${pa_name}Fabric"]
+    "main": ["${pa_group}.fabric.${pa_name}Fabric"]
   }
 }
