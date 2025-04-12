@@ -1,10 +1,10 @@
-package fr.metouais.pixelartisan.commands;
+package fr.metouais.pixelartisan.spigot.commands;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.*;
 import dev.jorel.commandapi.executors.CommandArguments;
-import fr.metouais.pixelartisan.PixelArtisan;
-import fr.metouais.pixelartisan.utils.ChatUtils;
+import fr.metouais.pixelartisan.common.PixelArtisan;
+import fr.metouais.pixelartisan.spigot.utils.ChatUtils;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;

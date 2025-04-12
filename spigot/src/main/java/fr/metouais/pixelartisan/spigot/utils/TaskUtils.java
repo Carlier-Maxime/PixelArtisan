@@ -1,6 +1,6 @@
-package fr.metouais.pixelartisan.utils;
+package fr.metouais.pixelartisan.spigot.utils;
 
-import fr.metouais.pixelartisan.PixelArtisanSpigot;
+import fr.metouais.pixelartisan.spigot.PixelArtisanSpigot;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 

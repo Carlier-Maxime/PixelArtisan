@@ -1,4 +1,4 @@
-package fr.metouais.pixelartisan.utils;
+package fr.metouais.pixelartisan.spigot.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;

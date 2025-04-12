@@ -1,6 +1,6 @@
-package fr.metouais.pixelartisan;
+package fr.metouais.pixelartisan.common;
 
-import fr.metouais.pixelartisan.utils.Info;
+import fr.metouais.pixelartisan.common.utils.Info;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

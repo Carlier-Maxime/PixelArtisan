@@ -1,4 +1,4 @@
-package fr.metouais.pixelartisan.commands;
+package fr.metouais.pixelartisan.spigot.commands;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandPermission;

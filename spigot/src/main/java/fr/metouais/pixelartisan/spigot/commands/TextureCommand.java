@@ -1,11 +1,11 @@
-package fr.metouais.pixelartisan.commands;
+package fr.metouais.pixelartisan.spigot.commands;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.StringArgument;
-import fr.metouais.pixelartisan.PixelArtisan;
-import fr.metouais.pixelartisan.data.DataGenerator;
-import fr.metouais.pixelartisan.utils.ChatUtils;
-import fr.metouais.pixelartisan.data.DataManager;
+import fr.metouais.pixelartisan.common.PixelArtisan;
+import fr.metouais.pixelartisan.spigot.data.DataGenerator;
+import fr.metouais.pixelartisan.spigot.utils.ChatUtils;
+import fr.metouais.pixelartisan.spigot.data.DataManager;
 
 import java.io.IOException;
 import java.nio.file.Files;

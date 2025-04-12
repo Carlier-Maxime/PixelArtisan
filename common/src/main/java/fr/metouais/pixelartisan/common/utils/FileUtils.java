@@ -1,9 +1,9 @@
-package fr.metouais.pixelartisan.utils;
+package fr.metouais.pixelartisan.common.utils;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import fr.metouais.pixelartisan.PixelArtisan;
+import fr.metouais.pixelartisan.common.PixelArtisan;
 import com.google.gson.JsonObject;
 
 import java.io.FileInputStream;

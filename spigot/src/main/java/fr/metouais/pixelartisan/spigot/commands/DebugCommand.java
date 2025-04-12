@@ -1,9 +1,9 @@
-package fr.metouais.pixelartisan.commands;
+package fr.metouais.pixelartisan.spigot.commands;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import fr.metouais.pixelartisan.PixelArtisan;
-import fr.metouais.pixelartisan.utils.ChatUtils;
-import fr.metouais.pixelartisan.utils.Misc;
+import fr.metouais.pixelartisan.common.PixelArtisan;
+import fr.metouais.pixelartisan.spigot.utils.ChatUtils;
+import fr.metouais.pixelartisan.spigot.utils.Misc;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 

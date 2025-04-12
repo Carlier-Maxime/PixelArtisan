@@ -1,5 +1,6 @@
-package fr.metouais.pixelartisan;
+package fr.metouais.pixelartisan.fabric;
 
+import fr.metouais.pixelartisan.common.PixelArtisan;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;

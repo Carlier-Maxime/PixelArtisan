@@ -1,9 +1,9 @@
-package fr.metouais.pixelartisan.data;
+package fr.metouais.pixelartisan.spigot.data;
 
-import fr.metouais.pixelartisan.PixelArtisan;
-import fr.metouais.pixelartisan.utils.Info;
-import fr.metouais.pixelartisan.utils.ChatUtils;
-import fr.metouais.pixelartisan.utils.FileUtils;
+import fr.metouais.pixelartisan.common.PixelArtisan;
+import fr.metouais.pixelartisan.common.utils.Info;
+import fr.metouais.pixelartisan.common.utils.FileUtils;
+import fr.metouais.pixelartisan.spigot.utils.ChatUtils;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
