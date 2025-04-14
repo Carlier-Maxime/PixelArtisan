@@ -1,14 +1,28 @@
 package fr.metouais.pixelartisan.common.command.base;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.function.Function;
 
-public final class CommandFactory {
-    private static Function<String, Command> construct = null;
-    public static void setBuilder(Function<String, Command> construct) {
-        CommandFactory.construct = construct;
+public class CommandFactory {
+    private final Function<String, Command> construct;
+    private CommandFactory(Function<String, Command> construct) {
+        this.construct = construct;
+    }
+    public Command internalBuilder(String commandName) {
+        return construct.apply(commandName);
+    }
+    private static CommandFactory instance = new CommandFactory(null){
+        @Override
+        public Command internalBuilder(String commandName) {
+            throw new IllegalStateException("construct has not been set");
+        }
+    };
+    synchronized
+    public static void setBuilder(@NotNull Function<String, Command> construct) {
+        instance = new CommandFactory(construct);
     }
     public static Command builder(String commandName) {
-        if (construct == null) throw new IllegalStateException("construct has not been set");
-        return construct.apply(commandName);
+        return instance.internalBuilder(commandName);
     }
 }
