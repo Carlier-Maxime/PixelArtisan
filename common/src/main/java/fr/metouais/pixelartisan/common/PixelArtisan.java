@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -42,8 +43,8 @@ public class PixelArtisan {
             .execute((sender, args) -> sender.send("a base of command texture"))
         ).subcommand(CommandFactory.builder("debug")
             .argument(
-                argsFactory.integerArgument("count", 2, 10)
-                .argument(argsFactory.wordArgument("name")
+                argsFactory.integerArgument("count", 2, 10).suggests(List.of(2, 4, 8))
+                .argument(argsFactory.wordArgument("name").suggests(List.of("toto", "titi", "prout"))
                     .execute((sender, args) -> sender.send("a count is : "+args.getArg("count", Integer.class)+" and name is : "+args.getArg("name", String.class)))
                 )
                 .execute((sender, args) -> sender.send("a count is : "+args.getArg("count", Integer.class)))

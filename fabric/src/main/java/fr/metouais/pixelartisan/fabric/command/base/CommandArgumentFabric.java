@@ -1,19 +1,21 @@
 package fr.metouais.pixelartisan.fabric.command.base;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import fr.metouais.pixelartisan.common.command.base.CommandArgument;
 import fr.metouais.pixelartisan.common.command.base.CommandExecutor;
-import fr.metouais.pixelartisan.common.command.base.CommandNode;
 import net.minecraft.server.command.ServerCommandSource;
 
-public class CommandArgumentFabric<T> implements CommandArgument<T> {
-    private ArgumentBuilder<ServerCommandSource, ?> argBuilder;
+import java.util.List;
 
-    private CommandArgumentFabric(ArgumentBuilder<ServerCommandSource, ?> argBuilder) {
+public class CommandArgumentFabric<T> implements CommandArgument<T> {
+    private RequiredArgumentBuilder<ServerCommandSource, ?> argBuilder;
+
+    private CommandArgumentFabric(RequiredArgumentBuilder<ServerCommandSource, ?> argBuilder) {
         this.argBuilder = argBuilder;
     }
 
-    public static <T> CommandArgumentFabric<T> of(ArgumentBuilder<ServerCommandSource, ?> argBuilder){
+    public static <T> CommandArgumentFabric<T> of(RequiredArgumentBuilder<ServerCommandSource, ?> argBuilder){
         return new CommandArgumentFabric<>(argBuilder);
     }
 
@@ -31,6 +33,16 @@ public class CommandArgumentFabric<T> implements CommandArgument<T> {
     @Override
     public CommandArgumentFabric<T> execute(CommandExecutor executor) {
         argBuilder = argBuilder.executes(CommandFabric.toBrigadierExecutor(executor));
+        return this;
+    }
+
+    @Override
+    public final CommandArgument<T> suggests(List<T> suggests) {
+        argBuilder = argBuilder.suggests((ctx, builder) -> {
+            String input = builder.getRemaining();
+            for (T suggest : suggests) if (suggest.toString().startsWith(input)) builder.suggest(suggest.toString());
+            return builder.buildFuture();
+        });
         return this;
     }
 }

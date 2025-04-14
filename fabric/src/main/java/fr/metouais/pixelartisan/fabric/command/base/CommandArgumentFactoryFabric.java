@@ -2,9 +2,12 @@ package fr.metouais.pixelartisan.fabric.command.base;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import fr.metouais.pixelartisan.common.command.base.CommandArgument;
 import fr.metouais.pixelartisan.common.command.base.CommandArgumentFactory;
 import net.minecraft.server.command.CommandManager;
+
+import java.util.List;
 
 public class CommandArgumentFactoryFabric implements CommandArgumentFactory {
     @Override

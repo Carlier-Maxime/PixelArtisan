@@ -1,8 +1,12 @@
 package fr.metouais.pixelartisan.spigot.command.base;
 
 import dev.jorel.commandapi.arguments.Argument;
+import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import fr.metouais.pixelartisan.common.command.base.CommandArgument;
 import fr.metouais.pixelartisan.common.command.base.CommandExecutor;
+
+import java.util.List;
+import java.util.Objects;
 
 public class CommandArgumentSpigot<T> implements CommandArgument<T> {
     private final Argument<?> argument;
@@ -32,6 +36,12 @@ public class CommandArgumentSpigot<T> implements CommandArgument<T> {
     @Override
     public CommandArgumentSpigot<T> execute(CommandExecutor executor) {
         this.executor = executor;
+        return this;
+    }
+
+    @Override
+    public final CommandArgument<T> suggests(List<T> suggests) {
+        argument.replaceSuggestions(ArgumentSuggestions.strings(info -> suggests.stream().map(Objects::toString).toArray(String[]::new)));
         return this;
     }
 
