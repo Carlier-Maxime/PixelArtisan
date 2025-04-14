@@ -3,11 +3,13 @@ package fr.metouais.pixelartisan.spigot.command.base;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandPermission;
 import fr.metouais.pixelartisan.common.command.base.Command;
+import fr.metouais.pixelartisan.common.command.base.CommandArgument;
 import fr.metouais.pixelartisan.common.command.base.CommandExecutor;
 import fr.metouais.pixelartisan.spigot.util.MessageSenderSpigot;
 
 public class CommandSpigot implements Command {
     private CommandAPICommand command;
+    private boolean hasArg = false;
 
     public CommandSpigot(String name) {
         command = new CommandAPICommand(name);
@@ -33,7 +35,18 @@ public class CommandSpigot implements Command {
     @Override
     public Command subcommand(Command subcommand) {
         if (subcommand instanceof CommandSpigot cmd) command = command.withSubcommand(cmd.command);
-        else throw new IllegalArgumentException("subcommand must be a CommandSpigot");
+        else throw new IllegalArgumentException("subcommand must be a "+CommandSpigot.class.getSimpleName());
+        return this;
+    }
+
+    @Override
+    public Command argument(CommandArgument<?> argument) {
+        if (argument instanceof CommandArgumentSpigot<?> argSpigot) {
+            if (hasArg) throw new IllegalArgumentException("my implementation of command in spigot not authorise multi-argument on one node");
+            else command.withArguments(argSpigot.getArgument());
+        }
+        else throw new IllegalArgumentException("argument must be a "+CommandArgumentSpigot.class.getSimpleName());
+        hasArg = true;
         return this;
     }
 

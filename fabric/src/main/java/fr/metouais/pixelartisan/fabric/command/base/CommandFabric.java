@@ -4,6 +4,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.metouais.pixelartisan.common.command.base.Command;
+import fr.metouais.pixelartisan.common.command.base.CommandArgument;
 import fr.metouais.pixelartisan.common.command.base.CommandExecutor;
 import fr.metouais.pixelartisan.fabric.util.MessageSenderFabric;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -57,7 +58,14 @@ public class CommandFabric implements Command {
             for (String alias : cmdb.aliases) command.then(buildRedirect(alias, cmd));
             command = command.then(cmd);
         }
-        else throw new IllegalArgumentException("subcommand must be a command fabric");
+        else throw new IllegalArgumentException("subcommand must be a "+CommandFabric.class.getSimpleName());
+        return this;
+    }
+
+    @Override
+    public Command argument(CommandArgument<?> argument) {
+        if (argument instanceof CommandArgumentFabric<?> argFabric) command = command.then(argFabric.getArgBuilder());
+        else throw new IllegalArgumentException("argument must be a "+CommandArgument.class.getName());
         return this;
     }
 

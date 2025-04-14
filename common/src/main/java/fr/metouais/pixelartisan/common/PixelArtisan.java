@@ -33,6 +33,7 @@ public class PixelArtisan {
             "\t\t\t\t - Version : " + Info.VERSION + '\n' +
             "\t\t\t\t - Description : " + Info.DESCRIPTION
         );
+        var argsFactory = CommandFactory.argsFactory();
         CommandFactory.builder("pa").aliases(Info.ID).permissionLevel(2)
         .subcommand(CommandFactory.builder("create")
             .aliases("build", "make")
@@ -40,6 +41,7 @@ public class PixelArtisan {
         ).subcommand(CommandFactory.builder("texture")
             .execute((sender, args) -> sender.send("a base of command texture"))
         ).subcommand(CommandFactory.builder("debug")
+            .argument(argsFactory.integerArgument("count", 2, 10))
             .execute((sender, args) -> sender.send("a base of command debug"))
         ).register();
     }

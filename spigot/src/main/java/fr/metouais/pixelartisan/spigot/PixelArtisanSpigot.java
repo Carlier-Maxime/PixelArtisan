@@ -4,6 +4,7 @@ import dev.jorel.commandapi.CommandAPI;
 import fr.metouais.pixelartisan.common.command.base.CommandFactory;
 import fr.metouais.pixelartisan.common.util.MessageSender;
 import fr.metouais.pixelartisan.common.PixelArtisan;
+import fr.metouais.pixelartisan.spigot.command.base.CommandArgumentFactorySpigot;
 import fr.metouais.pixelartisan.spigot.command.base.CommandSpigot;
 import fr.metouais.pixelartisan.spigot.util.Misc;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,9 +18,8 @@ public class PixelArtisanSpigot extends JavaPlugin {
         super.onEnable();
         CommandAPI.onEnable();
         instance = this;
-        CommandFactory.setBuilder(CommandSpigot::new);
+        CommandFactory.setFactory(CommandSpigot::new, new CommandArgumentFactorySpigot());
         common = PixelArtisan.getInstance();
-        //PixelArtisanCommand.get().register();
         MessageSender.CONSOLE.send("NB MATERIAL = "+ Misc.MATERIALS.length);
     }
 
