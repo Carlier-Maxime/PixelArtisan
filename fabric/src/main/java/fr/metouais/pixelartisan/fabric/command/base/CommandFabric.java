@@ -1,6 +1,8 @@
 package fr.metouais.pixelartisan.fabric.command.base;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.tree.CommandNode;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.metouais.pixelartisan.common.command.base.Command;
 import fr.metouais.pixelartisan.common.command.base.CommandExecutor;
 import fr.metouais.pixelartisan.fabric.util.MessageSenderFabric;
@@ -10,6 +12,7 @@ import net.minecraft.server.command.ServerCommandSource;
 
 public class CommandFabric implements Command {
     private LiteralArgumentBuilder<ServerCommandSource> command;
+    private String[] aliases = new String[0];
 
     public CommandFabric(String name) {
         command = CommandManager.literal(name);
@@ -17,12 +20,28 @@ public class CommandFabric implements Command {
 
     @Override
     public void register() {
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(command));
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            var cmd = dispatcher.register(command);
+            for (String alias : aliases) dispatcher.getRoot().addChild(buildRedirect(alias, cmd));
+        });
+    }
+
+
+    /* the original version of this code can be found on https://github.com/PaperMC/Velocity/blob/8abc9c80a69158ebae0121fda78b55c865c0abad/proxy/src/main/java/com/velocitypowered/proxy/util/BrigadierUtils.java#L38*/
+    public static LiteralCommandNode<ServerCommandSource> buildRedirect(final String alias, final LiteralCommandNode<ServerCommandSource> destination) {
+        var builder = CommandManager
+                .literal(alias)
+                .requires(destination.getRequirement())
+                .forward(destination.getRedirect(), destination.getRedirectModifier(), destination.isFork())
+                .executes(destination.getCommand());
+        for (CommandNode<ServerCommandSource> child : destination.getChildren()) builder.then(child);
+        return builder.build();
     }
 
     @Override
     public Command aliases(String... aliases) {
-        return null;
+        this.aliases = aliases;
+        return this;
     }
 
     @Override
@@ -37,7 +56,11 @@ public class CommandFabric implements Command {
 
     @Override
     public Command subcommand(Command subcommand) {
-        if (subcommand instanceof CommandFabric cmd) command = command.then(cmd.command);
+        if (subcommand instanceof CommandFabric cmdb) {
+            var cmd = cmdb.command.build();
+            for (String alias : cmdb.aliases) command.then(buildRedirect(alias, cmd));
+            command = command.then(cmd);
+        }
         else throw new IllegalArgumentException("subcommand must be a command fabric");
         return this;
     }

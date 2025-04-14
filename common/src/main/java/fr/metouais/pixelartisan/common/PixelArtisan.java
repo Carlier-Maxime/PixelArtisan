@@ -33,8 +33,9 @@ public class PixelArtisan {
             "\t\t\t\t - Version : " + Info.VERSION + '\n' +
             "\t\t\t\t - Description : " + Info.DESCRIPTION
         );
-        CommandFactory.builder("pa")
+        CommandFactory.builder("pa").aliases(Info.ID)
         .subcommand(CommandFactory.builder("create")
+            .aliases("build", "make")
             .execute((sender, args) -> sender.send("a base of command create"))
         ).subcommand(CommandFactory.builder("texture")
             .execute((sender, args) -> sender.send("a base of command texture"))

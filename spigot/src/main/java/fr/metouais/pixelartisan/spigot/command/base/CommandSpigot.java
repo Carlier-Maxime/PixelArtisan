@@ -19,7 +19,8 @@ public class CommandSpigot implements Command {
 
     @Override
     public Command aliases(String... aliases) {
-        return null;
+        command = command.withAliases(aliases);
+        return this;
     }
 
     @Override
