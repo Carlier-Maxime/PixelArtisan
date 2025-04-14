@@ -5,10 +5,13 @@ import fr.metouais.pixelartisan.common.command.base.CommandArgument;
 import fr.metouais.pixelartisan.common.command.base.CommandExecutor;
 
 public class CommandArgumentSpigot<T> implements CommandArgument<T> {
-    private Argument<?> argument;
+    private final Argument<?> argument;
+    private CommandExecutor executor;
+    private CommandArgumentSpigot<?> child;
 
     private CommandArgumentSpigot(Argument<?> argument) {
         this.argument = argument;
+        argument.setOptional(true);
     }
 
     public static <T> CommandArgumentSpigot<T> of(Argument<?> argument) {
@@ -21,13 +24,22 @@ public class CommandArgumentSpigot<T> implements CommandArgument<T> {
 
     @Override
     public CommandArgumentSpigot<T> argument(CommandArgument<?> argument) {
-        if (argument instanceof CommandArgumentSpigot<?> arg) this.argument.combineWith(arg.argument);
+        if (argument instanceof CommandArgumentSpigot<?> arg) child = arg;
+        else throw new IllegalArgumentException("Argument is not a "+CommandArgumentSpigot.class.getSimpleName());
         return this;
     }
 
     @Override
     public CommandArgumentSpigot<T> execute(CommandExecutor executor) {
-        argument = argument.executes(CommandSpigot.toCommandAPIExecutor(executor));
+        this.executor = executor;
         return this;
+    }
+
+    public CommandExecutor getExecutor() {
+        return executor;
+    }
+
+    public CommandArgumentSpigot<?> getChild() {
+        return child;
     }
 }

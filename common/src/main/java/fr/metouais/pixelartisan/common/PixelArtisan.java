@@ -43,6 +43,9 @@ public class PixelArtisan {
         ).subcommand(CommandFactory.builder("debug")
             .argument(
                 argsFactory.integerArgument("count", 2, 10)
+                .argument(argsFactory.wordArgument("name")
+                    .execute((sender, args) -> sender.send("a count is : "+args.getArg("count", Integer.class)+" and name is : "+args.getArg("name", String.class)))
+                )
                 .execute((sender, args) -> sender.send("a count is : "+args.getArg("count", Integer.class)))
             )
             .execute((sender, args) -> sender.send("a base of command debug"))

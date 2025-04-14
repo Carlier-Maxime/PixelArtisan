@@ -1,5 +1,6 @@
 package fr.metouais.pixelartisan.spigot.command.base;
 
+import com.google.common.collect.Lists;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandPermission;
 import fr.metouais.pixelartisan.common.command.base.Command;
@@ -7,9 +8,12 @@ import fr.metouais.pixelartisan.common.command.base.CommandArgument;
 import fr.metouais.pixelartisan.common.command.base.CommandExecutor;
 import fr.metouais.pixelartisan.spigot.util.MessageSenderSpigot;
 
+import java.util.List;
+
 public class CommandSpigot implements Command {
     private CommandAPICommand command;
     private boolean hasArg = false;
+    private final List<CommandExecutor> executors = Lists.newArrayList();
 
     public CommandSpigot(String name) {
         command = new CommandAPICommand(name);
@@ -43,7 +47,14 @@ public class CommandSpigot implements Command {
     public CommandSpigot argument(CommandArgument<?> argument) {
         if (argument instanceof CommandArgumentSpigot<?> argSpigot) {
             if (hasArg) throw new IllegalArgumentException("my implementation of command in spigot not authorise multi-argument on one node");
-            else command.withOptionalArguments(argSpigot.getArgument());
+            int i=1;
+            var child = argSpigot;
+            while (child != null) {
+                while (executors.size() <= i) executors.add(null);
+                executors.set(i++, child.getExecutor());
+                command.withOptionalArguments(child.getArgument());
+                child = child.getChild();
+            }
         }
         else throw new IllegalArgumentException("argument must be a "+CommandArgumentSpigot.class.getSimpleName());
         hasArg = true;
@@ -52,11 +63,15 @@ public class CommandSpigot implements Command {
 
     @Override
     public CommandSpigot execute(CommandExecutor executor) {
-        command = command.executes(toCommandAPIExecutor(executor));
+        if (executors.isEmpty()) executors.add(executor);
+        else executors.set(0, executor);
+        command = command.executes((cmdSender, cmdArgs) -> {
+            var sender = MessageSenderSpigot.of(cmdSender);
+            var args = CommandArgumentsSpigot.of(cmdArgs);
+            var execFunc = executors.get(cmdArgs.args().length);
+            if (execFunc == null) throw new IllegalArgumentException("no such executor of this number of args");
+            execFunc.exec(sender, args);
+        });
         return this;
-    }
-
-    public static dev.jorel.commandapi.executors.CommandExecutor toCommandAPIExecutor(CommandExecutor executor) {
-        return (sender, args) -> executor.exec(MessageSenderSpigot.of(sender), CommandArgumentsSpigot.of(args));
     }
 }
