@@ -21,29 +21,29 @@ public class CommandSpigot implements Command {
     }
 
     @Override
-    public Command aliases(String... aliases) {
+    public CommandSpigot aliases(String... aliases) {
         command = command.withAliases(aliases);
         return this;
     }
 
     @Override
-    public Command permissionLevel(int level) {
+    public CommandSpigot permissionLevel(int level) {
         command = command.withPermission(level>0 ? CommandPermission.OP : CommandPermission.NONE);
         return this;
     }
 
     @Override
-    public Command subcommand(Command subcommand) {
+    public CommandSpigot subcommand(Command subcommand) {
         if (subcommand instanceof CommandSpigot cmd) command = command.withSubcommand(cmd.command);
         else throw new IllegalArgumentException("subcommand must be a "+CommandSpigot.class.getSimpleName());
         return this;
     }
 
     @Override
-    public Command argument(CommandArgument<?> argument) {
+    public CommandSpigot argument(CommandArgument<?> argument) {
         if (argument instanceof CommandArgumentSpigot<?> argSpigot) {
             if (hasArg) throw new IllegalArgumentException("my implementation of command in spigot not authorise multi-argument on one node");
-            else command.withArguments(argSpigot.getArgument());
+            else command.withOptionalArguments(argSpigot.getArgument());
         }
         else throw new IllegalArgumentException("argument must be a "+CommandArgumentSpigot.class.getSimpleName());
         hasArg = true;
@@ -51,10 +51,12 @@ public class CommandSpigot implements Command {
     }
 
     @Override
-    public Command execute(CommandExecutor executor) {
-        command = command.executes((sender, args) -> {
-            executor.exec(MessageSenderSpigot.of(sender), CommandArgumentsSpigot.of(args));
-        });
+    public CommandSpigot execute(CommandExecutor executor) {
+        command = command.executes(toCommandAPIExecutor(executor));
         return this;
+    }
+
+    public static dev.jorel.commandapi.executors.CommandExecutor toCommandAPIExecutor(CommandExecutor executor) {
+        return (sender, args) -> executor.exec(MessageSenderSpigot.of(sender), CommandArgumentsSpigot.of(args));
     }
 }

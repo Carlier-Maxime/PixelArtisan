@@ -40,19 +40,19 @@ public class CommandFabric implements Command {
     }
 
     @Override
-    public Command aliases(String... aliases) {
+    public CommandFabric aliases(String... aliases) {
         this.aliases = aliases;
         return this;
     }
 
     @Override
-    public Command permissionLevel(int level) {
+    public CommandFabric permissionLevel(int level) {
         command = command.requires((source) -> source.hasPermissionLevel(level));
         return this;
     }
 
     @Override
-    public Command subcommand(Command subcommand) {
+    public CommandFabric subcommand(Command subcommand) {
         if (subcommand instanceof CommandFabric cmdb) {
             var cmd = cmdb.command.build();
             for (String alias : cmdb.aliases) command.then(buildRedirect(alias, cmd));
@@ -63,18 +63,22 @@ public class CommandFabric implements Command {
     }
 
     @Override
-    public Command argument(CommandArgument<?> argument) {
+    public CommandFabric argument(CommandArgument<?> argument) {
         if (argument instanceof CommandArgumentFabric<?> argFabric) command = command.then(argFabric.getArgBuilder());
         else throw new IllegalArgumentException("argument must be a "+CommandArgument.class.getName());
         return this;
     }
 
     @Override
-    public Command execute(CommandExecutor executor) {
-        command = command.executes(ctx -> {
+    public CommandFabric execute(CommandExecutor executor) {
+        command = command.executes(toBrigadierExecutor(executor));
+        return this;
+    }
+
+    public static com.mojang.brigadier.Command<ServerCommandSource> toBrigadierExecutor(CommandExecutor executor) {
+        return ctx -> {
             executor.exec(MessageSenderFabric.of(ctx.getSource()), CommandArgumentsFabric.of(ctx));
             return 1;
-        });
-        return this;
+        };
     }
 }

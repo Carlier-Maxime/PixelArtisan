@@ -41,7 +41,10 @@ public class PixelArtisan {
         ).subcommand(CommandFactory.builder("texture")
             .execute((sender, args) -> sender.send("a base of command texture"))
         ).subcommand(CommandFactory.builder("debug")
-            .argument(argsFactory.integerArgument("count", 2, 10))
+            .argument(
+                argsFactory.integerArgument("count", 2, 10)
+                .execute((sender, args) -> sender.send("a count is : "+args.getArg("count", Integer.class)))
+            )
             .execute((sender, args) -> sender.send("a base of command debug"))
         ).register();
     }
