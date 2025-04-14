@@ -51,7 +51,8 @@ public class CommandFabric implements Command {
 
     @Override
     public Command permissionLevel(int level) {
-        return null;
+        command = command.requires((source) -> source.hasPermissionLevel(level));
+        return this;
     }
 
     @Override

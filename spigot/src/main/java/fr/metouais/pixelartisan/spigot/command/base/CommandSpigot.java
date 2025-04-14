@@ -1,9 +1,11 @@
 package fr.metouais.pixelartisan.spigot.command.base;
 
 import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.CommandPermission;
 import fr.metouais.pixelartisan.common.command.base.Command;
 import fr.metouais.pixelartisan.common.command.base.CommandExecutor;
 import fr.metouais.pixelartisan.spigot.util.MessageSenderSpigot;
+import org.bukkit.entity.Player;
 
 public class CommandSpigot implements Command {
     private CommandAPICommand command;
@@ -30,7 +32,8 @@ public class CommandSpigot implements Command {
 
     @Override
     public Command permissionLevel(int level) {
-        return null;
+        command = command.withPermission(level>0 ? CommandPermission.OP : CommandPermission.NONE);
+        return this;
     }
 
     @Override

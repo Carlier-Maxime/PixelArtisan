@@ -33,7 +33,7 @@ public class PixelArtisan {
             "\t\t\t\t - Version : " + Info.VERSION + '\n' +
             "\t\t\t\t - Description : " + Info.DESCRIPTION
         );
-        CommandFactory.builder("pa").aliases(Info.ID)
+        CommandFactory.builder("pa").aliases(Info.ID).permissionLevel(2)
         .subcommand(CommandFactory.builder("create")
             .aliases("build", "make")
             .execute((sender, args) -> sender.send("a base of command create"))
