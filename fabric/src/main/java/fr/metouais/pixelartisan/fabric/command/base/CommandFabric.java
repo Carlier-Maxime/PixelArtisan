@@ -45,11 +45,6 @@ public class CommandFabric implements Command {
     }
 
     @Override
-    public Command description(String description) {
-        return null;
-    }
-
-    @Override
     public Command permissionLevel(int level) {
         command = command.requires((source) -> source.hasPermissionLevel(level));
         return this;
@@ -69,7 +64,7 @@ public class CommandFabric implements Command {
     @Override
     public Command execute(CommandExecutor executor) {
         command = command.executes(ctx -> {
-            executor.exec(MessageSenderFabric.of(ctx.getSource()), null);
+            executor.exec(MessageSenderFabric.of(ctx.getSource()), CommandArgumentsFabric.of(ctx));
             return 1;
         });
         return this;

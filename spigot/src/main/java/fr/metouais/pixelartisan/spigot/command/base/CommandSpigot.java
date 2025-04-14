@@ -5,7 +5,6 @@ import dev.jorel.commandapi.CommandPermission;
 import fr.metouais.pixelartisan.common.command.base.Command;
 import fr.metouais.pixelartisan.common.command.base.CommandExecutor;
 import fr.metouais.pixelartisan.spigot.util.MessageSenderSpigot;
-import org.bukkit.entity.Player;
 
 public class CommandSpigot implements Command {
     private CommandAPICommand command;
@@ -26,11 +25,6 @@ public class CommandSpigot implements Command {
     }
 
     @Override
-    public Command description(String description) {
-        return null;
-    }
-
-    @Override
     public Command permissionLevel(int level) {
         command = command.withPermission(level>0 ? CommandPermission.OP : CommandPermission.NONE);
         return this;
@@ -46,7 +40,7 @@ public class CommandSpigot implements Command {
     @Override
     public Command execute(CommandExecutor executor) {
         command = command.executes((sender, args) -> {
-            executor.exec(MessageSenderSpigot.of(sender), args.argsMap());
+            executor.exec(MessageSenderSpigot.of(sender), CommandArgumentsSpigot.of(args));
         });
         return this;
     }
