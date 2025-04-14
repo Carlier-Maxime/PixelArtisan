@@ -33,9 +33,14 @@ public class PixelArtisan {
             "\t\t\t\t - Version : " + Info.VERSION + '\n' +
             "\t\t\t\t - Description : " + Info.DESCRIPTION
         );
-        CommandFactory.builder("pa").execute((sender, args) -> {
-            sender.send("a base of command");
-        }).register();
+        CommandFactory.builder("pa")
+        .subcommand(CommandFactory.builder("create")
+            .execute((sender, args) -> sender.send("a base of command create"))
+        ).subcommand(CommandFactory.builder("texture")
+            .execute((sender, args) -> sender.send("a base of command texture"))
+        ).subcommand(CommandFactory.builder("debug")
+            .execute((sender, args) -> sender.send("a base of command debug"))
+        ).register();
     }
 
     public static PixelArtisan getInstance() {

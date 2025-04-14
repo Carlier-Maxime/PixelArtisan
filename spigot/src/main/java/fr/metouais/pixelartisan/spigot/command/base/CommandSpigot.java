@@ -34,12 +34,14 @@ public class CommandSpigot implements Command {
 
     @Override
     public Command subcommand(Command subcommand) {
-        return null;
+        if (subcommand instanceof CommandSpigot cmd) command = command.withSubcommand(cmd.command);
+        else throw new IllegalArgumentException("subcommand must be a CommandSpigot");
+        return this;
     }
 
     @Override
     public Command execute(CommandExecutor executor) {
-        command.executes((sender, args) -> {
+        command = command.executes((sender, args) -> {
             executor.exec(MessageSenderSpigot.of(sender), args.argsMap());
         });
         return this;

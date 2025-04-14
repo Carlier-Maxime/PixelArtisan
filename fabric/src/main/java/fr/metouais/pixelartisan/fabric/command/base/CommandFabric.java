@@ -17,9 +17,7 @@ public class CommandFabric implements Command {
 
     @Override
     public void register() {
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-            dispatcher.register(command);
-        });
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(command));
     }
 
     @Override
@@ -39,12 +37,14 @@ public class CommandFabric implements Command {
 
     @Override
     public Command subcommand(Command subcommand) {
-        return null;
+        if (subcommand instanceof CommandFabric cmd) command = command.then(cmd.command);
+        else throw new IllegalArgumentException("subcommand must be a command fabric");
+        return this;
     }
 
     @Override
     public Command execute(CommandExecutor executor) {
-        command.executes(ctx -> {
+        command = command.executes(ctx -> {
             executor.exec(MessageSenderFabric.of(ctx.getSource()), null);
             return 1;
         });
