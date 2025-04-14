@@ -1,5 +1,6 @@
 package fr.metouais.pixelartisan.common;
 
+import fr.metouais.pixelartisan.common.command.base.CommandFactory;
 import fr.metouais.pixelartisan.common.util.Info;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,9 @@ public class PixelArtisan {
             "\t\t\t\t - Version : " + Info.VERSION + '\n' +
             "\t\t\t\t - Description : " + Info.DESCRIPTION
         );
+        CommandFactory.builder("pa").execute((sender, args) -> {
+            sender.send("a base of command");
+        }).register();
     }
 
     public static PixelArtisan getInstance() {
