@@ -19,7 +19,7 @@ public interface CommandArgumentFactory {
         return new CommandCustomArgument<>(wordArgument(name), input -> {
             Path file = folder.resolve(input);
             if (conditions.stream().allMatch(cond -> cond.test(file))) return file;
-            else throw new IllegalArgumentException("Invalid file : "+input);
+            else throw new CommandException("Invalid file : "+input);
         }, Objects::toString, String.class);
     }
 }
