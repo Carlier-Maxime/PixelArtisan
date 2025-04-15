@@ -39,6 +39,16 @@ public class PixelArtisan {
         .subcommand(CommandFactory.builder("create")
             .aliases("build", "make")
             .execute((sender, args) -> sender.send("a base of command create"))
+            .argument(argsFactory.fileArgument("filename", PATH_IMAGES, List.of(Files::exists, Files::isRegularFile, Files::isReadable))
+                .argument(argsFactory.integerArgument("size", 1)
+                    .execute((sender, args) -> {
+                        sender.send(args.getArg("filename", Path.class)+" and size "+args.getArg("size", Integer.class));
+                    })
+                )
+                .execute((sender, args) -> {
+                    sender.send("a filename is : "+args.getArg("filename", Path.class));
+                })
+            )
         ).subcommand(CommandFactory.builder("texture")
             .execute((sender, args) -> sender.send("a base of command texture"))
         ).subcommand(CommandFactory.builder("debug")

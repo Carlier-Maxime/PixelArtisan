@@ -45,11 +45,18 @@ public class CommandArgumentSpigot<T> implements CommandArgument<T> {
         return this;
     }
 
+    @Override
     public CommandExecutor getExecutor() {
         return executor;
     }
 
+    @Override
     public CommandArgumentSpigot<?> getChild() {
         return child;
+    }
+
+    @Override
+    public String getName() {
+        return argument.getNodeName();
     }
 }

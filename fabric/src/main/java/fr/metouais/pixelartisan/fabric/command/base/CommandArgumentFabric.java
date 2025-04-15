@@ -10,6 +10,8 @@ import java.util.List;
 
 public class CommandArgumentFabric<T> implements CommandArgument<T> {
     private RequiredArgumentBuilder<ServerCommandSource, ?> argBuilder;
+    private CommandExecutor executor = null;
+    private CommandArgumentFabric<?> child = null;
 
     private CommandArgumentFabric(RequiredArgumentBuilder<ServerCommandSource, ?> argBuilder) {
         this.argBuilder = argBuilder;
@@ -25,7 +27,10 @@ public class CommandArgumentFabric<T> implements CommandArgument<T> {
 
     @Override
     public CommandArgumentFabric<T> argument(CommandArgument<?> argument) {
-        if (argument instanceof CommandArgumentFabric<?> arg) argBuilder = argBuilder.then(arg.argBuilder);
+        if (argument instanceof CommandArgumentFabric<?> arg) {
+            argBuilder = argBuilder.then(arg.argBuilder);
+            child = arg;
+        }
         else throw new IllegalArgumentException("Argument is not a "+CommandArgumentFabric.class.getSimpleName());
         return this;
     }
@@ -33,6 +38,7 @@ public class CommandArgumentFabric<T> implements CommandArgument<T> {
     @Override
     public CommandArgumentFabric<T> execute(CommandExecutor executor) {
         argBuilder = argBuilder.executes(CommandFabric.toBrigadierExecutor(executor));
+        this.executor = executor;
         return this;
     }
 
@@ -44,5 +50,20 @@ public class CommandArgumentFabric<T> implements CommandArgument<T> {
             return builder.buildFuture();
         });
         return this;
+    }
+
+    @Override
+    public String getName() {
+        return argBuilder.getName();
+    }
+
+    @Override
+    public CommandExecutor getExecutor() {
+        return executor;
+    }
+
+    @Override
+    public CommandArgumentFabric<?> getChild() {
+        return child;
     }
 }

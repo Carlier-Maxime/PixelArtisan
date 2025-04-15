@@ -5,6 +5,7 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandPermission;
 import fr.metouais.pixelartisan.common.command.base.Command;
 import fr.metouais.pixelartisan.common.command.base.CommandArgument;
+import fr.metouais.pixelartisan.common.command.base.CommandCustomArgument;
 import fr.metouais.pixelartisan.common.command.base.CommandExecutor;
 import fr.metouais.pixelartisan.spigot.util.MessageSenderSpigot;
 
@@ -45,20 +46,31 @@ public class CommandSpigot implements Command {
 
     @Override
     public CommandSpigot argument(CommandArgument<?> argument) {
-        if (argument instanceof CommandArgumentSpigot<?> argSpigot) {
-            if (hasArg) throw new IllegalArgumentException("my implementation of command in spigot not authorise multi-argument on one node");
-            int i=1;
-            var child = argSpigot;
-            while (child != null) {
-                while (executors.size() <= i) executors.add(null);
-                executors.set(i++, child.getExecutor());
-                command.withOptionalArguments(child.getArgument());
-                child = child.getChild();
-            }
+        if (hasArg) throw new IllegalArgumentException("my implementation of command in spigot not authorise multi-argument on one node");
+        int i=1;
+        var child = argument;
+        while (child != null) {
+            while (executors.size() <= i) executors.add(null);
+            executors.set(i++, child.getExecutor());
+            argumentStep(child);
+            child = child.getChild();
         }
-        else throw new IllegalArgumentException("argument must be a "+CommandArgumentSpigot.class.getSimpleName());
         hasArg = true;
         return this;
+    }
+
+    private void argumentStep(CommandArgument<?> argument) {
+        if (argument instanceof CommandArgumentSpigot<?> argSpigot) argumentStep(argSpigot);
+        else if (argument instanceof CommandCustomArgument<?,?> argCustom) argumentStep(argCustom);
+        else throw new IllegalArgumentException("argument must be a "+CommandArgumentSpigot.class.getSimpleName());
+    }
+
+    private void argumentStep(CommandArgumentSpigot<?> argSpigot) {
+        command.withOptionalArguments(argSpigot.getArgument());
+    }
+
+    private void argumentStep(CommandCustomArgument<?,?> argCustom) {
+        argumentStep(argCustom.getBase());
     }
 
     @Override
@@ -67,7 +79,7 @@ public class CommandSpigot implements Command {
         else executors.set(0, executor);
         command = command.executes((cmdSender, cmdArgs) -> {
             var sender = MessageSenderSpigot.of(cmdSender);
-            var args = CommandArgumentsSpigot.of(cmdArgs);
+            var args = CommandArgumentsSpigot.of(cmdArgs).wrapper();
             var execFunc = executors.get(cmdArgs.args().length);
             if (execFunc == null) throw new IllegalArgumentException("no such executor of this number of args");
             execFunc.exec(sender, args);

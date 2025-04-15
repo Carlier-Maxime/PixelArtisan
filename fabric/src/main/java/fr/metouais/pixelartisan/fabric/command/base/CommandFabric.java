@@ -5,6 +5,7 @@ import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.metouais.pixelartisan.common.command.base.Command;
 import fr.metouais.pixelartisan.common.command.base.CommandArgument;
+import fr.metouais.pixelartisan.common.command.base.CommandCustomArgument;
 import fr.metouais.pixelartisan.common.command.base.CommandExecutor;
 import fr.metouais.pixelartisan.fabric.util.MessageSenderFabric;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -64,8 +65,13 @@ public class CommandFabric implements Command {
 
     @Override
     public CommandFabric argument(CommandArgument<?> argument) {
-        if (argument instanceof CommandArgumentFabric<?> argFabric) command = command.then(argFabric.getArgBuilder());
-        else throw new IllegalArgumentException("argument must be a "+CommandArgument.class.getName());
+        if (argument instanceof CommandArgumentFabric<?> argFabric) return argument(argFabric);
+        else if (argument instanceof CommandCustomArgument<?,?> argCustom) return argument(argCustom.getBase());
+        throw new IllegalArgumentException("argument must be a "+CommandArgument.class.getName());
+    }
+
+    public CommandFabric argument(CommandArgumentFabric<?> argFabric) {
+        command = command.then(argFabric.getArgBuilder());
         return this;
     }
 
@@ -77,7 +83,7 @@ public class CommandFabric implements Command {
 
     public static com.mojang.brigadier.Command<ServerCommandSource> toBrigadierExecutor(CommandExecutor executor) {
         return ctx -> {
-            executor.exec(MessageSenderFabric.of(ctx.getSource()), CommandArgumentsFabric.of(ctx));
+            executor.exec(MessageSenderFabric.of(ctx.getSource()), CommandArgumentsFabric.of(ctx).wrapper());
             return 1;
         };
     }
