@@ -47,6 +47,12 @@ public class CommandCustomArgument<S, T> implements CommandArgument<T> {
     }
 
     @Override
+    public CommandArgument<T> suggests(Function<String, List<T>> suggestsProvider) {
+        baseArgument.suggests(input -> suggestsProvider.apply(input).stream().map(toS).toList());
+        return this;
+    }
+
+    @Override
     public String getName() {
         return baseArgument.getName();
     }

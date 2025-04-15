@@ -1,10 +1,12 @@
 package fr.metouais.pixelartisan.common.command.base;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public interface CommandArgumentFactory {
     CommandArgument<String> wordArgument(String name);
@@ -20,6 +22,16 @@ public interface CommandArgumentFactory {
             Path file = folder.resolve(input);
             if (conditions.stream().allMatch(cond -> cond.test(file))) return file;
             else throw new CommandException("Invalid file : "+input);
-        }, Objects::toString, String.class);
+        }, Objects::toString, String.class).suggests(input -> {
+            try (Stream<Path> stream = Files.list(folder)) {
+                return stream
+                    .filter(Files::exists)
+                    .filter(path -> conditions.stream().allMatch(cond -> cond.test(path)))
+                    .map(folder::relativize)
+                    .toList();
+            } catch (IOException e) {
+                return List.of();
+            }
+        });
     }
 }

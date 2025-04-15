@@ -7,6 +7,7 @@ import fr.metouais.pixelartisan.common.command.base.CommandExecutor;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 public class CommandArgumentSpigot<T> implements CommandArgument<T> {
     private final Argument<?> argument;
@@ -41,8 +42,18 @@ public class CommandArgumentSpigot<T> implements CommandArgument<T> {
 
     @Override
     public final CommandArgument<T> suggests(List<T> suggests) {
-        argument.replaceSuggestions(ArgumentSuggestions.strings(info -> suggests.stream().map(Objects::toString).toArray(String[]::new)));
+        argument.replaceSuggestions(ArgumentSuggestions.strings(info -> suggestsToStringArray(suggests)));
         return this;
+    }
+
+    @Override
+    public CommandArgument<T> suggests(Function<String, List<T>> suggestsProvider) {
+        argument.replaceSuggestions(ArgumentSuggestions.strings(info -> suggestsToStringArray(suggestsProvider.apply(info.currentInput()))));
+        return this;
+    }
+
+    private String[] suggestsToStringArray(List<T> suggests) {
+        return suggests.stream().map(Objects::toString).toArray(String[]::new);
     }
 
     @Override
