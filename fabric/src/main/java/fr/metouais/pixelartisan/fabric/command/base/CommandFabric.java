@@ -71,6 +71,7 @@ public class CommandFabric implements Command {
     }
 
     public CommandFabric argument(CommandArgumentFabric<?> argFabric) {
+        argFabric.build();
         command = command.then(argFabric.getArgBuilder());
         return this;
     }

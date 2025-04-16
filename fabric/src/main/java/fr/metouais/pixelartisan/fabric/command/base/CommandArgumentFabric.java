@@ -38,14 +38,20 @@ public class CommandArgumentFabric<T> implements CommandArgument<T> {
     }
 
     private CommandArgumentFabric<T> argument(CommandArgumentFabric<?> argFabric) {
-        argBuilder = argBuilder.then(argFabric.argBuilder);
         child = argFabric;
         return this;
     }
 
+    public void build() {
+        if (child!=null) {
+            child.build();
+            argBuilder = argBuilder.then(child.argBuilder);
+        }
+        if (executor!=null) argBuilder = argBuilder.executes(CommandFabric.toBrigadierExecutor(executor));
+    }
+
     @Override
     public CommandArgumentFabric<T> execute(CommandExecutor executor) {
-        argBuilder = argBuilder.executes(CommandFabric.toBrigadierExecutor(executor));
         this.executor = executor;
         return this;
     }
