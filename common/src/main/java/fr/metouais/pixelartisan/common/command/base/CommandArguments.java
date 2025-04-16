@@ -7,7 +7,7 @@ public interface CommandArguments {
     default <V> V getArg(@NotNull String name, @NotNull Class<V> clazz, V defaultValue) {
         try {
             return getArg(name, clazz);
-        } catch (CommandException e) {
+        } catch (Exception e) {
             return defaultValue;
         }
     }
