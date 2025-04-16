@@ -1,7 +1,9 @@
 package fr.metouais.pixelartisan.common;
 
+import fr.metouais.pixelartisan.common.block.Block;
 import fr.metouais.pixelartisan.common.command.PixelArtisanCommand;
 import fr.metouais.pixelartisan.common.util.Info;
+import fr.metouais.pixelartisan.common.util.MessageSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +36,7 @@ public class PixelArtisan {
             "\t\t\t\t - Version : " + Info.VERSION + '\n' +
             "\t\t\t\t - Description : " + Info.DESCRIPTION
         );
+        MessageSender.CONSOLE.send("NB BLOCK = "+ Block.all().size());
     }
 
     public static PixelArtisan getInstance() {

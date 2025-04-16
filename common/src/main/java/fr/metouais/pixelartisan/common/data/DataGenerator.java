@@ -1,11 +1,10 @@
-package fr.metouais.pixelartisan.spigot.data;
+package fr.metouais.pixelartisan.common.data;
 
 import fr.metouais.pixelartisan.common.PixelArtisan;
 import fr.metouais.pixelartisan.common.util.Info;
 import fr.metouais.pixelartisan.common.util.FileUtils;
 import fr.metouais.pixelartisan.common.util.MessageSender;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
+import fr.metouais.pixelartisan.common.block.*;
 import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
@@ -18,7 +17,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -38,7 +36,7 @@ public class DataGenerator {
     public static void generateFromTexturesBlock(MessageSender sender, Path srcDir, String name, @NotNull DataManager dataManager) throws IOException {
         if(FileUtils.isFolderEmpty(srcDir)) {
             sender.send( "§csource folder is empty or invalid ! (fill the folder and retry)");
-            if (sender instanceof Player) sender.send( "§6For more information: " + Info.WEBSITE);
+            sender.send( "§6For more information: " + Info.WEBSITE);
             return;
         }
         sender.send("§echecking texture and delete unnecessary files...");
@@ -93,12 +91,12 @@ public class DataGenerator {
         if (name.equals("mushroom_block")) name = "brown_"+name;
         if (name.equals("mangrove_propagule_hanging")) name = "mangrove_propagule";
         name = name.toUpperCase(Locale.ROOT);
-        Material m = Material.matchMaterial(name);
+        IBlock m = Block.of(name);
         if (m==null) {
             MessageSender.CONSOLE.send(textureName+" alias "+name+" not found correspondance !");
             return null;
         }
-        return m.name();
+        return m.getId();
     }
 
     private static byte getFace(@NotNull String name, @NotNull String mName){
@@ -139,9 +137,9 @@ public class DataGenerator {
         return nbDelete;
     }
 
-    private static ArrayList<TreeMap<Integer,Short>> dataProcessing(Path srcDir){
-        ArrayList<TreeMap<Integer,Short>> treeList = new ArrayList<>(6);
-        for (int i=0; i<6; i++) treeList.add(new TreeMap<>());
+    private static ArrayList<Data> dataProcessing(Path srcDir){
+        ArrayList<Data> treeList = new ArrayList<>(6);
+        for (int i=0; i<6; i++) treeList.add(new Data());
         int nbError=0;
         try (DirectoryStream<Path> list = Files.newDirectoryStream(srcDir)) {
             for (Path file : list){
@@ -156,15 +154,14 @@ public class DataGenerator {
                 } catch (IOException e) {
                     PixelArtisan.LOGGER.error("Failed get average color of texture {}", mName, e);
                 }
-                Material material = Material.matchMaterial(mName);
-                if (material==null || !material.isBlock()) continue;
-                short mID = (short) material.ordinal();
+                var block = Block.of(mName);
+                if (block==null) continue;
 
                 int[] faceGoods;
                 if (face==0) faceGoods = new int[]{0,1,2,3,4,5};
                 else if (face==7) faceGoods = new int[]{1,2,3,4};
                 else faceGoods = new int[]{face-1};
-                for (int i : faceGoods) treeList.get(i).putIfAbsent(color, mID);
+                for (int i : faceGoods) treeList.get(i).putIfAbsent(color, block.getId());
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

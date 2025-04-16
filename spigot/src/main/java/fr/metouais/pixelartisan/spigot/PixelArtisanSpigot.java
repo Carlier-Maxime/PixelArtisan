@@ -1,12 +1,15 @@
 package fr.metouais.pixelartisan.spigot;
 
 import dev.jorel.commandapi.CommandAPI;
+import fr.metouais.pixelartisan.common.block.Block;
 import fr.metouais.pixelartisan.common.command.base.CommandFactory;
 import fr.metouais.pixelartisan.common.util.MessageSender;
 import fr.metouais.pixelartisan.common.PixelArtisan;
+import fr.metouais.pixelartisan.common.util.Misc;
+import fr.metouais.pixelartisan.spigot.block.BlockManagerSpigot;
 import fr.metouais.pixelartisan.spigot.command.base.CommandArgumentFactorySpigot;
 import fr.metouais.pixelartisan.spigot.command.base.CommandSpigot;
-import fr.metouais.pixelartisan.spigot.util.Misc;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class PixelArtisanSpigot extends JavaPlugin {
@@ -18,9 +21,13 @@ public class PixelArtisanSpigot extends JavaPlugin {
         super.onEnable();
         CommandAPI.onEnable();
         instance = this;
+        Misc.setGetterMCVersion(() -> {
+            String version = Bukkit.getVersion();
+            return version.substring(version.indexOf("(MC: ")+5, version.indexOf(")"));
+        });
         CommandFactory.setFactory(CommandSpigot::new, new CommandArgumentFactorySpigot());
+        Block.setManager(new BlockManagerSpigot());
         common = PixelArtisan.getInstance();
-        MessageSender.CONSOLE.send("NB MATERIAL = "+ Misc.MATERIALS.length);
     }
 
     @Override

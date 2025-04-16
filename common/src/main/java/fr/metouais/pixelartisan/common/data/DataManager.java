@@ -1,36 +1,29 @@
-package fr.metouais.pixelartisan.spigot.data;
+package fr.metouais.pixelartisan.common.data;
 
 import fr.metouais.pixelartisan.common.PixelArtisan;
+import fr.metouais.pixelartisan.common.block.Block;
+import fr.metouais.pixelartisan.common.block.IBlock;
 import fr.metouais.pixelartisan.common.util.FileUtils;
 import fr.metouais.pixelartisan.common.util.MessageSender;
-import fr.metouais.pixelartisan.spigot.util.Misc;
-import org.bukkit.Material;
+import fr.metouais.pixelartisan.common.util.Misc;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.TreeMap;
 
 public class DataManager {
-    private static class Element{
+    private record Element(int color, String id) {
         public static final int BYTES = Integer.BYTES+Short.BYTES;
-
-        public int color;
-        public short mID;
-
-        public Element(int color, short mID) {
-            this.color = color;
-            this.mID = mID;
-        }
     }
 
     public static final String DEFAULT_DATA = "default";
-    private static ArrayList<TreeMap<Integer,Short>> db = null;
+    private static ArrayList<Data> db = null;
 
     private FileChannel f;
     private final ByteBuffer buf;
@@ -70,7 +63,9 @@ public class DataManager {
         try {
             buf.clear();
             buf.putInt(e.color);
-            buf.putShort(e.mID);
+            var bytes = e.id.getBytes(StandardCharsets.UTF_8);
+            buf.putInt(bytes.length);
+            buf.put(bytes);
             buf.flip();
             while (buf.hasRemaining()) if (f.write(buf) <= 0) throw new IOException("write failed");
         } catch (Exception exception){
@@ -83,7 +78,9 @@ public class DataManager {
             buf.clear();
             while (buf.hasRemaining()) if (f.read(buf)==-1) return null;
             buf.flip();
-            return new Element(buf.getInt(), buf.getShort());
+            byte[] bytes = new byte[buf.getInt()];
+            buf.get(bytes);
+            return new Element(buf.getInt(), new String(bytes, StandardCharsets.UTF_8));
         } catch (Exception e){
             sender.send("§cError in readOneData");
             PixelArtisan.LOGGER.error("Failed readOneData", e);
@@ -91,7 +88,7 @@ public class DataManager {
         return null;
     }
 
-    private void compareAndCompleteWithLoadedData(ArrayList<TreeMap<Integer,Short>> data) {
+    private void compareAndCompleteWithLoadedData(ArrayList<Data> data) {
         try {
             int nbAdd=0;
             for (int i=0; i<6; i++) {
@@ -118,7 +115,7 @@ public class DataManager {
         }
     }
 
-    public void compareWithDefaultAndSave(ArrayList<TreeMap<Integer,Short>> data, @NotNull String name) throws IOException {
+    public void compareWithDefaultAndSave(ArrayList<Data> data, @NotNull String name) throws IOException {
         if (!DEFAULT_DATA.equals(name)) {
             sender.send("§eloading default data..");
             loadData(DEFAULT_DATA);
@@ -129,7 +126,7 @@ public class DataManager {
         saveCustomData(data, name);
     }
 
-    private void saveCustomData(ArrayList<TreeMap<Integer,Short>> data, @NotNull String name){
+    private void saveCustomData(ArrayList<Data> data, @NotNull String name){
         sender.send("§esave custom data on "+name+"...");
         Path folder = PixelArtisan.PATH_DATA.resolve(name);
         try {
@@ -166,27 +163,27 @@ public class DataManager {
                     StandardOpenOption.CREATE
             );
             f.position(0);
-            db.add(new TreeMap<>());
+            db.add(new Data());
             Element e;
             while ((e=readOneData())!=null){
-                db.get(i).put(e.color,e.mID);
+                db.get(i).put(e.color,e.id);
             }
         }
     }
 
-    public short getBestMaterial(int colorObjectif, byte face, boolean flat){
+    public IBlock getBestMaterial(int colorObjective, byte face, boolean flat){
         var tree = db.get(face);
-        Color goal = new Color(colorObjectif,true);
+        Color goal = new Color(colorObjective,true);
         Color bestColor = new Color(tree.firstKey(),true);
         for (int clr : tree.keySet()){
             Color color = new Color(clr,true);
             Color tmp = getBestMatchColor(goal,bestColor,color);
-            Material m = Misc.MATERIALS[tree.get(tmp.getRGB())];
-            if (!m.isOccluding() && bestColor.getAlpha()==255) continue;
-            if (flat && m.hasGravity()) continue;
+            IBlock b = Block.of(tree.get(tmp.getRGB()));
+            if (!b.isOpaque() && bestColor.getAlpha()==255) continue;
+            if (flat && b.hasGravity()) continue;
             bestColor = tmp;
         }
-        return tree.get(bestColor.getRGB());
+        return Block.of(tree.get(bestColor.getRGB()));
     }
 
     private static Color getBestMatchColor(Color goal, Color c1, Color c2){

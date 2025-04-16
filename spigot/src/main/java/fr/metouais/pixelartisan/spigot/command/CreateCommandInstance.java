@@ -2,8 +2,8 @@ package fr.metouais.pixelartisan.spigot.command;
 
 import fr.metouais.pixelartisan.common.util.MessageSender;
 import fr.metouais.pixelartisan.spigot.PixelArtisanSpigot;
-import fr.metouais.pixelartisan.spigot.data.DataManager;
-import fr.metouais.pixelartisan.spigot.util.Misc;
+import fr.metouais.pixelartisan.common.data.DataManager;
+import fr.metouais.pixelartisan.common.util.Misc;
 import fr.metouais.pixelartisan.spigot.util.TaskUtils;
 import fr.metouais.pixelartisan.common.util.TimeUtils;
 import org.bukkit.Location;
@@ -155,7 +155,7 @@ public class CreateCommandInstance implements Runnable{
             for (int x = j; x < j+Misc.CHUNK_LENGTH; x++){
                 if (x >= img.getWidth()) break;
                 states.get(index).loc=locBase.clone();
-                states.get(index).material = Misc.MATERIALS[dataManager.getBestMaterial(img.getRGB(x, y), face, flat)];
+                //TODO states.get(index).material = Misc.MATERIALS[dataManager.getBestMaterial(img.getRGB(x, y), face, flat)];
                 locBase.add(directionW[0],directionW[1],directionW[2]);
                 incNbBlockPlaced();
                 index++;
