@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.metouais.pixelartisan.common.command.base.CommandArgument;
+import fr.metouais.pixelartisan.common.command.base.CommandCustomArgument;
 import fr.metouais.pixelartisan.common.command.base.CommandExecutor;
 import net.minecraft.server.command.ServerCommandSource;
 
@@ -31,11 +32,14 @@ public class CommandArgumentFabric<T> implements CommandArgument<T> {
 
     @Override
     public CommandArgumentFabric<T> argument(CommandArgument<?> argument) {
-        if (argument instanceof CommandArgumentFabric<?> arg) {
-            argBuilder = argBuilder.then(arg.argBuilder);
-            child = arg;
-        }
+        if (argument instanceof CommandArgumentFabric<?> arg) return argument(arg);
+        else if (argument instanceof CommandCustomArgument<?,?> argCustom) return argument(argCustom.getBase());
         else throw new IllegalArgumentException("Argument is not a "+CommandArgumentFabric.class.getSimpleName());
+    }
+
+    private CommandArgumentFabric<T> argument(CommandArgumentFabric<?> argFabric) {
+        argBuilder = argBuilder.then(argFabric.argBuilder);
+        child = argFabric;
         return this;
     }
 

@@ -24,6 +24,7 @@ public class CommandCustomArgument<S, T> implements CommandArgument<T> {
             child.execute((sender, args) -> {
                 args.addCustomCast(getName(), toT, clazzS);
                 if (executor != null) executor.exec(sender, args);
+                else throw new CommandException("Incomplete or incorrect command");
             });
             child = child.getChild();
         }

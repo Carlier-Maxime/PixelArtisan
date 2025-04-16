@@ -28,4 +28,9 @@ public class CommandArgumentsWrapper implements CommandArguments {
     public <A, B> void addCustomCast(String name, Function<A, B> func, Class<A> inputClass) {
         customCasts.put(name, new Pair<>(func, inputClass));
     }
+
+    @Override
+    public long size() {
+        return args.size();
+    }
 }

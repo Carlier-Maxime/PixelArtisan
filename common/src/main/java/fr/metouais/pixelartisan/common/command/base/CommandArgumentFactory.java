@@ -18,6 +18,7 @@ public interface CommandArgumentFactory {
     }
     CommandArgument<Integer> integerArgument(String name, int min, int max);
     default CommandArgument<Path> fileArgument(String name, Path folder, List<Predicate<Path>> conditions) {
+        if (!Files.isDirectory(folder)) throw new IllegalArgumentException("Folder does not exist or not directory: "+folder.toAbsolutePath());
         return new CommandCustomArgument<>(wordArgument(name), input -> {
             Path file = folder.resolve(input);
             if (conditions.stream().allMatch(cond -> cond.test(file))) return file;

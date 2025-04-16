@@ -1,6 +1,7 @@
 package fr.metouais.pixelartisan.spigot.command.base;
 
 import fr.metouais.pixelartisan.common.command.base.CommandArguments;
+import fr.metouais.pixelartisan.common.command.base.CommandException;
 import org.jetbrains.annotations.NotNull;
 
 public class CommandArgumentsSpigot implements CommandArguments {
@@ -18,6 +19,11 @@ public class CommandArgumentsSpigot implements CommandArguments {
     public <V> V getArg(@NotNull String name, @NotNull Class<V> clazz) {
         var arg = arguments.get(name);
         if (clazz.isInstance(arg)) return clazz.cast(arg);
-        else throw new IllegalArgumentException("Argument " + name + " is not of type " + clazz);
+        else throw new CommandException("Argument " + name + " is not of type " + clazz);
+    }
+
+    @Override
+    public long size() {
+        return arguments.args().length;
     }
 }

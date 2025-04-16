@@ -11,8 +11,8 @@ import java.util.function.Function;
 
 public class CommandArgumentSpigot<T> implements CommandArgument<T> {
     private final Argument<?> argument;
-    private CommandExecutor executor;
-    private CommandArgumentSpigot<?> child;
+    private CommandExecutor executor = null;
+    private CommandArgument<?> child;
 
     private CommandArgumentSpigot(Argument<?> argument) {
         this.argument = argument;
@@ -29,8 +29,7 @@ public class CommandArgumentSpigot<T> implements CommandArgument<T> {
 
     @Override
     public CommandArgumentSpigot<T> argument(CommandArgument<?> argument) {
-        if (argument instanceof CommandArgumentSpigot<?> arg) child = arg;
-        else throw new IllegalArgumentException("Argument is not a "+CommandArgumentSpigot.class.getSimpleName());
+        child = argument;
         return this;
     }
 
@@ -62,7 +61,7 @@ public class CommandArgumentSpigot<T> implements CommandArgument<T> {
     }
 
     @Override
-    public CommandArgumentSpigot<?> getChild() {
+    public CommandArgument<?> getChild() {
         return child;
     }
 

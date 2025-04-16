@@ -1,5 +1,6 @@
 package fr.metouais.pixelartisan.fabric.command.base;
 
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.metouais.pixelartisan.common.command.base.CommandArguments;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.server.command.ServerCommandSource;
@@ -19,5 +20,12 @@ public class CommandArgumentsFabric implements CommandArguments {
     @Override
     public <V> V getArg(@NotNull String name, @NotNull Class<V> clazz) {
         return ctx.getArgument(name, clazz);
+    }
+
+    @Override
+    public long size() {
+        return ctx.getNodes().stream()
+            .filter(node -> !(node.getNode() instanceof LiteralCommandNode<ServerCommandSource>))
+            .count();
     }
 }

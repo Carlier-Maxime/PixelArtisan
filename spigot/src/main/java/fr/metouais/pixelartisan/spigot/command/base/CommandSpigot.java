@@ -3,10 +3,7 @@ package fr.metouais.pixelartisan.spigot.command.base;
 import com.google.common.collect.Lists;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandPermission;
-import fr.metouais.pixelartisan.common.command.base.Command;
-import fr.metouais.pixelartisan.common.command.base.CommandArgument;
-import fr.metouais.pixelartisan.common.command.base.CommandCustomArgument;
-import fr.metouais.pixelartisan.common.command.base.CommandExecutor;
+import fr.metouais.pixelartisan.common.command.base.*;
 import fr.metouais.pixelartisan.spigot.util.MessageSenderSpigot;
 
 import java.util.List;
@@ -17,7 +14,16 @@ public class CommandSpigot implements Command {
     private final List<CommandExecutor> executors = Lists.newArrayList();
 
     public CommandSpigot(String name) {
-        command = new CommandAPICommand(name);
+        CommandExecutor executor = (sender, args) -> {
+            var nbArgs = args.size();
+            if (nbArgs >= executors.size())  throw new CommandException("Incomplete or invalid command");
+            var execFunc = executors.get((int) nbArgs);
+            if (execFunc == null) throw new CommandException("no such executor of this number of args");
+            execFunc.exec(sender, args);
+        } ;
+        command = new CommandAPICommand(name).executes((cmdSender, cmdArgs) -> {
+            executor.exec(MessageSenderSpigot.of(cmdSender), CommandArgumentsSpigot.of(cmdArgs).wrapper());
+        });
     }
 
     @Override
@@ -77,13 +83,6 @@ public class CommandSpigot implements Command {
     public CommandSpigot execute(CommandExecutor executor) {
         if (executors.isEmpty()) executors.add(executor);
         else executors.set(0, executor);
-        command = command.executes((cmdSender, cmdArgs) -> {
-            var sender = MessageSenderSpigot.of(cmdSender);
-            var args = CommandArgumentsSpigot.of(cmdArgs).wrapper();
-            var execFunc = executors.get(cmdArgs.args().length);
-            if (execFunc == null) throw new IllegalArgumentException("no such executor of this number of args");
-            execFunc.exec(sender, args);
-        });
         return this;
     }
 }
