@@ -28,16 +28,11 @@ public class CreateCommand {
 
     private CreateCommand(@NotNull MessageSender sender, @NotNull CommandArgumentsWrapper args) {
         this.sender = sender;
-        sender.send("construct args");
         direction = args.getArg("direction", String.class);
-        sender.send("args dir check");
         filepath = args.getArg("filename", Path.class);
-        sender.send("args path check");
         size = args.getArg("size", Integer.class);
-        sender.send("args size check");
         //pos = args.getArg("pos", Location.class);
         nbThreads = args.getArg("nbThreads", Integer.class, 4);
-        sender.send("args obtained");
     }
 
     synchronized public static Command get() {
