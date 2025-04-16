@@ -1,56 +1,63 @@
-package fr.metouais.pixelartisan.spigot.command;
+package fr.metouais.pixelartisan.common.command;
 
-import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.*;
-import dev.jorel.commandapi.executors.CommandArguments;
 import fr.metouais.pixelartisan.common.PixelArtisan;
+import fr.metouais.pixelartisan.common.command.base.Command;
+import fr.metouais.pixelartisan.common.command.base.CommandArgumentsWrapper;
+import fr.metouais.pixelartisan.common.command.base.CommandFactory;
 import fr.metouais.pixelartisan.common.util.MessageSender;
-import fr.metouais.pixelartisan.spigot.util.MessageSenderSpigot;
-import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 
 public class CreateCommand {
-    private static CommandAPICommand command;
-    private static final String[] ALL_DIRECTION = new String[]{"North","East","South","West","FlatNorthEast","FlatEastSouth","FlatSouthWest","FlatWestNorth"};
+    private static Command command;
+    private static final List<String> ALL_DIRECTION = List.of("North","East","South","West","FlatNorthEast","FlatEastSouth","FlatSouthWest","FlatWestNorth");
     private final MessageSender sender;
     private final String direction;
     private final Path filepath;
     private final int size;
-    private final Location pos;
+    //private final Location pos;
     private final int nbThreads;
 
-    private CreateCommand(@NotNull MessageSender sender, @NotNull CommandArguments args) {
+    private CreateCommand(@NotNull MessageSender sender, @NotNull CommandArgumentsWrapper args) {
         this.sender = sender;
-        direction = (String) args.get("direction");
-        filepath = (Path) args.get("filename");
-        size = (Integer) Objects.requireNonNull(args.get("size"));
-        pos = (Location) args.get("pos");
-        var argNbThreads = args.get("nbThreads");
-        nbThreads = argNbThreads==null ? 4 : (Integer) argNbThreads;
+        sender.send("construct args");
+        direction = args.getArg("direction", String.class);
+        sender.send("args dir check");
+        filepath = args.getArg("filename", Path.class);
+        sender.send("args path check");
+        size = args.getArg("size", Integer.class);
+        sender.send("args size check");
+        //pos = args.getArg("pos", Location.class);
+        nbThreads = args.getArg("nbThreads", Integer.class, 4);
+        sender.send("args obtained");
     }
 
-    synchronized public static CommandAPICommand get() {
+    synchronized public static Command get() {
         if (command == null) {
-            command = new CommandAPICommand("create")
-                    .withArguments(new StringArgument("direction")
-                            .replaceSuggestions(ArgumentSuggestions.strings(ALL_DIRECTION))
-                    )
-                    .withArguments(Arguments.FileArgument("filename", PixelArtisan.PATH_IMAGES,
-                            Files::exists, Files::isRegularFile, Files::isReadable))
-                    .withArguments(new IntegerArgument("size", 1))
-                    .withArguments(new LocationArgument("pos", LocationType.BLOCK_POSITION))
-                    .withOptionalArguments(new IntegerArgument("nbThreads", 1))
-                    .executes((sender, args) -> {
-                        new CreateCommand(MessageSenderSpigot.of(sender), args).exec();
-                    });
+            var argsFactory = CommandFactory.argsFactory();
+            command = CommandFactory.builder("create")
+                    .argument(argsFactory.wordArgument("direction")
+                        .suggests(ALL_DIRECTION)
+                        .argument(argsFactory.fileArgument("filename", PixelArtisan.PATH_IMAGES,
+                                List.of(Files::exists, Files::isRegularFile, Files::isReadable))
+                            .argument(argsFactory.integerArgument("size", 1)
+                                .argument(argsFactory.wordArgument("pos")
+                                    .argument(argsFactory.integerArgument("nbThreads", 1)
+                                        .execute((sender, args) -> new CreateCommand(sender, args).exec())
+                                    )
+                                    .execute((sender, args) -> new CreateCommand(sender, args).exec())
+                                )
+                            )
+                        )
+                    );
         }
         return command;
     }
@@ -61,13 +68,15 @@ public class CreateCommand {
         byte[] dirW = getDirectionW(direction);
         if (dirH==null || dirW==null) return;
         byte face = getFace(direction);
-        Location startLocation = pos;
-        if (startLocation==null) return;
         BufferedImage img = resizeImg(filepath, size);
         if (img==null) return;
+        //TODO
+        sender.send("pixel art make");
+        /*Location startLocation = pos;
+        if (startLocation==null) return;
         sender.send("§ecreate pixel art..");
         sender.send("paint size : "+img.getWidth()+" "+img.getHeight());
-        PixelArtisan.getInstance().getExecutorService().submit(new CreateCommandInstance(sender, startLocation, dirH, dirW, face, img, nbThreads));
+        PixelArtisan.getInstance().getExecutorService().submit(new CreateCommandInstance(sender, startLocation, dirH, dirW, face, img, nbThreads));*/
     }
 
     private BufferedImage resizeImg(Path originalImgPath, int size){
@@ -101,8 +110,8 @@ public class CreateCommand {
 
     private byte[] getDirectionH(String direction){
         // "North","East","South","West","FlatNorthEast","FlatEastSouth","FlatSouthWest","FlatWestNorth"
-        for (int i=0; i<CreateCommand.ALL_DIRECTION.length; i++){
-            if (Objects.equals(CreateCommand.ALL_DIRECTION[i], direction)){
+        for (int i=0; i<CreateCommand.ALL_DIRECTION.size(); i++){
+            if (Objects.equals(CreateCommand.ALL_DIRECTION.get(i), direction)){
                 return switch (i) {
                     case 0, 1, 2, 3 -> new byte[]{0, 1, 0};
                     case 4 -> new byte[]{0, 0, -1};
@@ -118,8 +127,8 @@ public class CreateCommand {
 
     private byte[] getDirectionW(String direction){
         // "North","East","South","West","FlatNorthEast","FlatEastSouth","FlatSouthWest","FlatWestNorth"
-        for (int i=0; i<CreateCommand.ALL_DIRECTION.length; i++){
-            if (Objects.equals(CreateCommand.ALL_DIRECTION[i], direction)){
+        for (int i=0; i<CreateCommand.ALL_DIRECTION.size(); i++){
+            if (Objects.equals(CreateCommand.ALL_DIRECTION.get(i), direction)){
                 return switch (i) {
                     case 0,4 -> new byte[]{1, 0, 0};
                     case 1,5 -> new byte[]{0, 0, 1};

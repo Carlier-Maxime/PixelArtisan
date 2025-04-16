@@ -1,33 +1,26 @@
-package fr.metouais.pixelartisan.spigot.command;
+package fr.metouais.pixelartisan.common.command;
 
-import dev.jorel.commandapi.CommandAPICommand;
-import fr.metouais.pixelartisan.common.PixelArtisan;
+import fr.metouais.pixelartisan.common.command.base.Command;
+import fr.metouais.pixelartisan.common.command.base.CommandFactory;
 import fr.metouais.pixelartisan.common.util.MessageSender;
-import fr.metouais.pixelartisan.spigot.util.MessageSenderSpigot;
-import fr.metouais.pixelartisan.spigot.util.Misc;
-import org.bukkit.Material;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public class DebugCommand {
-    private static CommandAPICommand command;
+    private static Command command;
 
-    public static CommandAPICommand get() {
+    public static Command get() {
         if (command == null) {
-            command = new CommandAPICommand("debug")
-                    .withSubcommand(new CommandAPICommand("listMaterial")
-                            .executes((sender, args) -> {listAllMaterials(MessageSenderSpigot.of(sender));})
-                    );
+            command = CommandFactory.builder("debug")
+                .subcommand(CommandFactory.builder("listMaterial")
+                    .execute((sender, args) -> listAllMaterials(sender))
+                );
         }
         return command;
     }
 
     private static void listAllMaterials(MessageSender sender) {
-        int count = 0;
+        //TODO
+        sender.send("list all materials");
+        /*int count = 0;
         final int LIMIT = 64;
         Path file = PixelArtisan.PATH_DEBUG.resolve("listMaterial.txt");
         try {
@@ -46,6 +39,6 @@ public class DebugCommand {
                 sender.send( "§e... list truncated to "+LIMIT+" elements, to see the whole list consult the file : "+file);
                 break;
             }
-        }
+        }*/
     }
 }
