@@ -13,10 +13,13 @@ public class BlockPosSpigot implements BlockPos {
     public static BlockPosSpigot of(Location location) {
         return new BlockPosSpigot(location);
     }
+    public static BlockPosSpigot of(int x, int y, int z) {
+        return new BlockPosSpigot(new Location(null, x, y, z));
+    }
 
     @Override
     public BlockPos clone() {
-        return BlockPosSpigot.of(location);
+        return BlockPosSpigot.of(location.clone());
     }
 
     public static BlockPosSpigot cast(BlockPos pos) {
@@ -26,7 +29,7 @@ public class BlockPosSpigot implements BlockPos {
 
     @Override
     public BlockPos add(BlockPos pos) {
-        location.add(cast(pos).location);
+        location.add(pos.getX(), pos.getY(), pos.getZ());
         return this;
     }
 
