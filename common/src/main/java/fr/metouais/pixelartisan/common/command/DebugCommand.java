@@ -19,7 +19,7 @@ public class DebugCommand {
         if (command == null) {
             command = CommandFactory.builder("debug")
                 .subcommand(CommandFactory.builder("listBlocks")
-                    .execute((sender, args) -> listAllBlocks(sender))
+                    .execute(ctx -> listAllBlocks(ctx.getSender()))
                 );
         }
         return command;

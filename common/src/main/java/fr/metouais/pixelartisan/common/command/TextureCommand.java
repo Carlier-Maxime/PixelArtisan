@@ -23,9 +23,9 @@ public class TextureCommand {
             command = CommandFactory.builder("texture")
                 .subcommand(CommandFactory.builder("generate")
                     .argument(argsFactory.wordArgument("name")
-                        .execute((sender, args) -> {
+                        .execute(ctx -> {
                             try {
-                                DataGenerator.generateFromTexturesBlock(sender, PixelArtisan.PATH_INPUT_TEXTURE, args.getArg("name", String.class));
+                                DataGenerator.generateFromTexturesBlock(ctx.getSender(), PixelArtisan.PATH_INPUT_TEXTURE, ctx.getArguments().getArg("name", String.class));
                             } catch (IOException e) {
                                 throw new CommandException(e);
                             }
@@ -35,14 +35,14 @@ public class TextureCommand {
                 .subcommand(CommandFactory.builder("use")
                     .argument(argsFactory.fileArgument("name", PixelArtisan.PATH_DATA,
                             List.of(Files::exists, Files::isDirectory, Files::isExecutable, Files::isReadable)
-                        ).execute((sender, args) -> {
-                            String name = args.getArg("name", Path.class).getFileName().toString();
+                        ).execute(ctx -> {
+                            String name = ctx.getArguments().getArg("name", Path.class).getFileName().toString();
                             try {
-                                new DataManager(sender).loadData(name);
+                                new DataManager(ctx.getSender()).loadData(name);
                             } catch (IOException e) {
                                 throw new CommandException(e);
                             }
-                            sender.send("§euse "+name+" texture");
+                            ctx.getSender().send("§euse "+name+" texture");
                         })
                     )
                 );

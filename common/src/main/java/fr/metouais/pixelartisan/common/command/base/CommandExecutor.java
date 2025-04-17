@@ -1,14 +1,12 @@
 package fr.metouais.pixelartisan.common.command.base;
 
-import fr.metouais.pixelartisan.common.util.MessageSender;
-
 public interface CommandExecutor {
-    default void exec(MessageSender sender, CommandArgumentsWrapper args) {
+    default void exec(CommandContext ctx) {
         try {
-            __exec(sender, args);
+            __exec(ctx);
         } catch (CommandException e) {
-            sender.send("§c"+e.getMessage());
+            ctx.getSender().send("§c"+e.getMessage());
         }
     }
-    void __exec(MessageSender sender, CommandArgumentsWrapper args);
+    void __exec(CommandContext ctx);
 }

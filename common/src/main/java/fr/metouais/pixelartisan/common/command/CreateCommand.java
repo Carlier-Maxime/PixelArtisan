@@ -1,8 +1,9 @@
 package fr.metouais.pixelartisan.common.command;
 
 import fr.metouais.pixelartisan.common.PixelArtisan;
+import fr.metouais.pixelartisan.common.block.BlockPos;
 import fr.metouais.pixelartisan.common.command.base.Command;
-import fr.metouais.pixelartisan.common.command.base.CommandArgumentsWrapper;
+import fr.metouais.pixelartisan.common.command.base.CommandContext;
 import fr.metouais.pixelartisan.common.command.base.CommandFactory;
 import fr.metouais.pixelartisan.common.util.MessageSender;
 import org.jetbrains.annotations.NotNull;
@@ -23,15 +24,16 @@ public class CreateCommand {
     private final String direction;
     private final Path filepath;
     private final int size;
-    //private final Location pos;
+    //private final BlockPos pos;
     private final int nbThreads;
 
-    private CreateCommand(@NotNull MessageSender sender, @NotNull CommandArgumentsWrapper args) {
-        this.sender = sender;
+    private CreateCommand(@NotNull CommandContext ctx) {
+        this.sender = ctx.getSender();
+        var args = ctx.getArguments();
         direction = args.getArg("direction", String.class);
         filepath = args.getArg("filename", Path.class);
         size = args.getArg("size", Integer.class);
-        //pos = args.getArg("pos", Location.class);
+        //pos = args.getArg("pos", BlockPos.class);
         nbThreads = args.getArg("nbThreads", Integer.class, 4);
     }
 
@@ -46,9 +48,9 @@ public class CreateCommand {
                             .argument(argsFactory.integerArgument("size", 1)
                                 .argument(argsFactory.wordArgument("pos")
                                     .argument(argsFactory.integerArgument("nbThreads", 1)
-                                        .execute((sender, args) -> new CreateCommand(sender, args).exec())
+                                        .execute(ctx -> new CreateCommand(ctx).exec())
                                     )
-                                    .execute((sender, args) -> new CreateCommand(sender, args).exec())
+                                    .execute(ctx -> new CreateCommand(ctx).exec())
                                 )
                             )
                         )
@@ -65,13 +67,10 @@ public class CreateCommand {
         byte face = getFace(direction);
         BufferedImage img = resizeImg(filepath, size);
         if (img==null) return;
-        //TODO
-        sender.send("pixel art make");
-        /*Location startLocation = pos;
-        if (startLocation==null) return;
+        //if (pos==null) return;
         sender.send("§ecreate pixel art..");
         sender.send("paint size : "+img.getWidth()+" "+img.getHeight());
-        PixelArtisan.getInstance().getExecutorService().submit(new CreateCommandInstance(sender, startLocation, dirH, dirW, face, img, nbThreads));*/
+        //TODO PixelArtisan.getInstance().getExecutorService().submit(new CreateCommandInstance(sender, pos, dirH, dirW, face, img, nbThreads));
     }
 
     private BufferedImage resizeImg(Path originalImgPath, int size){

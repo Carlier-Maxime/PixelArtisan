@@ -21,9 +21,9 @@ public class CommandCustomArgument<S, T> implements CommandArgument<T> {
         var child = argument;
         while (child != null) {
             final var executor = child.getExecutor();
-            child.execute((sender, args) -> {
-                args.addCustomCast(getName(), toT, clazzS);
-                if (executor != null) executor.exec(sender, args);
+            child.execute((ctx) -> {
+                ctx.getArguments().addCustomCast(getName(), toT, clazzS);
+                if (executor != null) executor.exec(ctx);
                 else throw new CommandException("Incomplete or incorrect command");
             });
             child = child.getChild();
@@ -34,9 +34,9 @@ public class CommandCustomArgument<S, T> implements CommandArgument<T> {
 
     @Override
     public CommandArgument<T> execute(CommandExecutor executor) {
-        baseArgument.execute((sender, args) -> {
-            args.addCustomCast(getName(), toT, clazzS);
-            executor.exec(sender, args);
+        baseArgument.execute((ctx) -> {
+            ctx.getArguments().addCustomCast(getName(), toT, clazzS);
+            executor.exec(ctx);
         });
         return this;
     }

@@ -14,15 +14,15 @@ public class CommandSpigot implements Command {
     private final List<CommandExecutor> executors = Lists.newArrayList();
 
     public CommandSpigot(String name) {
-        CommandExecutor executor = (sender, args) -> {
-            var nbArgs = args.size();
+        CommandExecutor executor = (ctx) -> {
+            var nbArgs = ctx.getArguments().size();
             if (nbArgs >= executors.size())  throw new CommandException("Incomplete or invalid command");
             var execFunc = executors.get((int) nbArgs);
             if (execFunc == null) throw new CommandException("no such executor of this number of args");
-            execFunc.exec(sender, args);
+            execFunc.exec(ctx);
         } ;
         command = new CommandAPICommand(name).executes((cmdSender, cmdArgs) -> {
-            executor.exec(MessageSenderSpigot.of(cmdSender), CommandArgumentsSpigot.of(cmdArgs).wrapper());
+            executor.exec(CommandContext.of(MessageSenderSpigot.of(cmdSender), CommandArgumentsSpigot.of(cmdArgs)));
         });
     }
 
