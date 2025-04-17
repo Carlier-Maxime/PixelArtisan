@@ -19,7 +19,6 @@ import java.util.Objects;
 
 public class DataManager {
     private record Element(int color, String id) {
-        public static final int BYTES = Integer.BYTES+Short.BYTES;
     }
 
     public static final String DEFAULT_DATA = "default";
@@ -31,7 +30,7 @@ public class DataManager {
 
     public DataManager(MessageSender sender) {
         this.sender = sender;
-        this.buf = ByteBuffer.allocate(Element.BYTES);
+        this.buf = ByteBuffer.allocate(Integer.BYTES*2+128);
         if (db==null) {
             try {
                 loadData();
@@ -59,7 +58,7 @@ public class DataManager {
         loadData(DEFAULT_DATA);
     }
 
-    private void writeOneData(Element e){
+    private boolean writeOneData(Element e){
         try {
             buf.clear();
             buf.putInt(e.color);
@@ -68,19 +67,28 @@ public class DataManager {
             buf.put(bytes);
             buf.flip();
             while (buf.hasRemaining()) if (f.write(buf) <= 0) throw new IOException("write failed");
+            return true;
         } catch (Exception exception){
-            PixelArtisan.LOGGER.error("Failed write Element", exception);
+            PixelArtisan.LOGGER.error("Failed write Element : {}", e.id, exception);
+            return false;
         }
     }
 
     private Element readOneData(){
         try {
             buf.clear();
+            buf.limit(Integer.BYTES*2);
             while (buf.hasRemaining()) if (f.read(buf)==-1) return null;
             buf.flip();
-            byte[] bytes = new byte[buf.getInt()];
+            int color = buf.getInt();
+            int strLen = buf.getInt();
+            var bytes = new byte[strLen];
+            buf.clear();
+            buf.limit(strLen);
+            while (buf.hasRemaining()) if (f.read(buf)==-1) return null;
+            buf.flip();
             buf.get(bytes);
-            return new Element(buf.getInt(), new String(bytes, StandardCharsets.UTF_8));
+            return new Element(color, new String(bytes, StandardCharsets.UTF_8));
         } catch (Exception e){
             sender.send("§cError in readOneData");
             PixelArtisan.LOGGER.error("Failed readOneData", e);
@@ -129,6 +137,7 @@ public class DataManager {
     private void saveCustomData(ArrayList<Data> data, @NotNull String name){
         sender.send("§esave custom data on "+name+"...");
         Path folder = PixelArtisan.PATH_DATA.resolve(name);
+        int nbError=0;
         try {
             Files.createDirectories(folder);
             for (int i=0; i<6; i++){
@@ -139,16 +148,20 @@ public class DataManager {
                         StandardOpenOption.CREATE
                 );
                 for (int k : data.get(i).keySet()){
-                    writeOneData(new Element(k,data.get(i).get(k)));
+                    if (!writeOneData(new Element(k,data.get(i).get(k)))) nbError++;
                 }
                 f.close();
             }
+            if (nbError>0) {
+                PixelArtisan.LOGGER.error("error occured during saving : {}", nbError);
+                sender.send("§c"+nbError+" element cannot be saved");
+            }
         } catch (IOException e) {
             PixelArtisan.LOGGER.error("Failed save custom data of face", e);
-            sender.send("§adata save has been failed");
+            sender.send("§c data save has been failed");
             return;
         }
-        sender.send("§adata saved");
+        sender.send("§a data saved");
     }
 
     public void loadData(String name) throws IOException {
