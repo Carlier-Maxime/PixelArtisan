@@ -11,8 +11,8 @@ public interface CommandArguments {
             return defaultValue;
         }
     }
-    default CommandArgumentsWrapper wrapper() {
-        return CommandArgumentsWrapper.of(this);
+    default CommandArgumentsWrapper wrapper(CommandContext ctx) {
+        return CommandArgumentsWrapper.of(ctx, this);
     }
     long size();
 }

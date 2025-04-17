@@ -81,7 +81,7 @@ public class CommandFabric implements Command {
 
     public static com.mojang.brigadier.Command<ServerCommandSource> toBrigadierExecutor(CommandExecutor executor) {
         return ctx -> {
-            executor.exec(CommandContext.of(MessageSenderFabric.of(ctx.getSource()), CommandArgumentsFabric.of(ctx).wrapper()));
+            executor.exec(CommandContext.of(MessageSenderFabric.of(ctx.getSource()), CommandArgumentsFabric.of(ctx)));
             return 1;
         };
     }

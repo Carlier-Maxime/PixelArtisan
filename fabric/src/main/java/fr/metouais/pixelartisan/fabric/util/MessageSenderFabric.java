@@ -19,4 +19,13 @@ public class MessageSenderFabric implements MessageSender {
     public void send(String msg) {
         source.sendFeedback(() -> Text.literal(PREFIX_WITH_COLOR+msg), false);
     }
+
+    public ServerCommandSource getSource() {
+        return source;
+    }
+
+    public static MessageSenderFabric cast(MessageSender sender) {
+        if (sender instanceof MessageSenderFabric senderFabric) return senderFabric;
+        throw new ClassCastException();
+    }
 }

@@ -8,6 +8,7 @@ import fr.metouais.pixelartisan.common.command.base.CommandArgument;
 import fr.metouais.pixelartisan.common.command.base.CommandArgumentFactory;
 import fr.metouais.pixelartisan.common.command.base.CommandCustomArgument;
 import fr.metouais.pixelartisan.fabric.block.BlockPosFabric;
+import fr.metouais.pixelartisan.fabric.util.MessageSenderFabric;
 import net.minecraft.command.argument.BlockPosArgumentType;
 import net.minecraft.command.argument.PosArgument;
 import net.minecraft.server.command.CommandManager;
@@ -31,8 +32,8 @@ public class CommandArgumentFactoryFabric implements CommandArgumentFactory {
     public CommandArgument<BlockPos> blockPosArgument(String name) {
         return new CommandCustomArgument<>(
             arg(name, BlockPosArgumentType.blockPos()),
-            input -> BlockPosFabric.of(new net.minecraft.util.math.BlockPos(0, 0, 0)), //TODO
-            pos -> null,
+                (ctx, input) -> BlockPosFabric.of(input.toAbsoluteBlockPos(MessageSenderFabric.cast(ctx.getSender()).getSource())),
+                (ctx, pos) -> null,
             PosArgument.class
         );
     }

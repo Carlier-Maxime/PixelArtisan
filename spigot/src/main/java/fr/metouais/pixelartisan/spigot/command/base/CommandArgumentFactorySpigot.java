@@ -26,10 +26,10 @@ public class CommandArgumentFactorySpigot implements CommandArgumentFactory {
     @Override
     public CommandArgument<BlockPos> blockPosArgument(String name) {
         return new CommandCustomArgument<>(
-            arg(new LocationArgument(name, LocationType.BLOCK_POSITION)),
-            BlockPosSpigot::of,
-            pos -> BlockPosSpigot.cast(pos).getLocation(),
-            Location.class
+                arg(new LocationArgument(name, LocationType.BLOCK_POSITION)),
+                (ctx, pos) -> BlockPosSpigot.of(pos),
+                (ctx, pos) -> BlockPosSpigot.cast(pos).getLocation(),
+                Location.class
         );
     }
 }

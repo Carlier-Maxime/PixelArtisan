@@ -1,15 +1,16 @@
 package fr.metouais.pixelartisan.common.command.base;
 
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class CommandCustomArgument<S, T> implements CommandArgument<T> {
     private final CommandArgument<S> baseArgument;
-    private final Function<S, T> toT;
-    private final Function<T, S> toS;
+    private final BiFunction<CommandContext, S, T> toT;
+    private final BiFunction<CommandContext, T, S> toS;
     private final Class<S> clazzS;
 
-    public CommandCustomArgument(CommandArgument<S> baseArgument, Function<S, T> toT, Function<T, S> toS, Class<S> clazzS) {
+    public CommandCustomArgument(CommandArgument<S> baseArgument, BiFunction<CommandContext, S, T> toT, BiFunction<CommandContext, T, S> toS, Class<S> clazzS) {
         this.baseArgument = baseArgument;
         this.toT = toT;
         this.toS = toS;
@@ -43,13 +44,13 @@ public class CommandCustomArgument<S, T> implements CommandArgument<T> {
 
     @Override
     public CommandArgument<T> suggests(List<T> suggests) {
-        baseArgument.suggests(suggests.stream().map(toS).toList());
+        baseArgument.suggests(suggests.stream().map(input -> toS.apply(null, input)).toList());
         return this;
     }
 
     @Override
     public CommandArgument<T> suggests(Function<String, List<T>> suggestsProvider) {
-        baseArgument.suggests(input -> suggestsProvider.apply(input).stream().map(toS).toList());
+        baseArgument.suggests(input -> suggestsProvider.apply(input).stream().map(in -> toS.apply(null, in)).toList());
         return this;
     }
 
