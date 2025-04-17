@@ -14,6 +14,10 @@ public class Block {
         protected List<IBlock> _all() {
             throw new UnsupportedOperationException();
         }
+        @Override
+        protected IBlock _air() {
+            throw new UnsupportedOperationException();
+        }
     };
     private Block(IBlockManager manager){
         this.manager = manager;
@@ -28,10 +32,16 @@ public class Block {
     public static List<IBlock> all() {
         return instance._all();
     }
+    public static IBlock air() {
+        return instance._air();
+    }
     protected IBlock _of(@NotNull String id) {
         return manager.of(id);
     }
     protected List<IBlock> _all() {
         return manager.all();
+    }
+    protected IBlock _air() {
+        return manager.air();
     }
 }

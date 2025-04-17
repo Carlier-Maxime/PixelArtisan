@@ -23,4 +23,9 @@ public class BlockManagerSpigot implements IBlockManager {
     public List<IBlock> all() {
         return blocks;
     }
+
+    @Override
+    public IBlock air() {
+        return BlockSpigot.of(Material.AIR);
+    }
 }

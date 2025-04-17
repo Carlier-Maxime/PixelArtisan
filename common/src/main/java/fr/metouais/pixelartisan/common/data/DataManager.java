@@ -171,7 +171,7 @@ public class DataManager {
         }
     }
 
-    public IBlock getBestMaterial(int colorObjective, byte face, boolean flat){
+    public IBlock getBestBlock(int colorObjective, byte face, boolean flat){
         var tree = db.get(face);
         Color goal = new Color(colorObjective,true);
         Color bestColor = new Color(tree.firstKey(),true);

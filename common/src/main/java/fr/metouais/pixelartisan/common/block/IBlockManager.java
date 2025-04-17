@@ -7,4 +7,5 @@ import java.util.List;
 public interface IBlockManager {
     IBlock of(@NotNull String id);
     List<IBlock> all();
+    IBlock air();
 }

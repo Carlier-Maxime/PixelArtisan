@@ -5,6 +5,7 @@ import fr.metouais.pixelartisan.common.block.IBlockManager;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
+import net.minecraft.block.Blocks;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,5 +21,10 @@ public class BlockManagerFabric implements IBlockManager {
     @Override
     public List<IBlock> all() {
         return blocks;
+    }
+
+    @Override
+    public IBlock air() {
+        return BlockFabric.of(Blocks.AIR);
     }
 }
