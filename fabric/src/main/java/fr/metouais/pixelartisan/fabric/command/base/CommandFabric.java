@@ -5,6 +5,7 @@ import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.metouais.pixelartisan.common.command.base.*;
 import fr.metouais.pixelartisan.fabric.util.MessageSenderFabric;
+import fr.metouais.pixelartisan.fabric.util.WorldFabric;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -81,7 +82,7 @@ public class CommandFabric implements Command {
 
     public static com.mojang.brigadier.Command<ServerCommandSource> toBrigadierExecutor(CommandExecutor executor) {
         return ctx -> {
-            executor.exec(CommandContext.of(MessageSenderFabric.of(ctx.getSource()), CommandArgumentsFabric.of(ctx)));
+            executor.exec(CommandContext.of(MessageSenderFabric.of(ctx.getSource()), CommandArgumentsFabric.of(ctx), WorldFabric.of(ctx.getSource().getWorld())));
             return 1;
         };
     }

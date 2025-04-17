@@ -30,4 +30,13 @@ public class BlockFabric implements IBlock {
     public String getId() {
         return Registries.BLOCK.getId(block).toString();
     }
+
+    public static BlockFabric cast(IBlock block) {
+        if (block instanceof BlockFabric blockFabric) return blockFabric;
+        throw new ClassCastException(block.getClass().getName());
+    }
+
+    public Block getBlock() {
+        return block;
+    }
 }

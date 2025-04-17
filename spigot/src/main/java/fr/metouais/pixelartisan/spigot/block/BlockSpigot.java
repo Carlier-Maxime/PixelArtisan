@@ -27,4 +27,13 @@ public class BlockSpigot implements IBlock {
     public String getId() {
         return material.name();
     }
+
+    public Material getMaterial() {
+        return material;
+    }
+
+    public static BlockSpigot cast(IBlock block) {
+        if (block instanceof BlockSpigot blockSpigot) return blockSpigot;
+        throw new ClassCastException(block.getClass().getName());
+    }
 }

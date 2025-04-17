@@ -5,6 +5,7 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandPermission;
 import fr.metouais.pixelartisan.common.command.base.*;
 import fr.metouais.pixelartisan.spigot.util.MessageSenderSpigot;
+import fr.metouais.pixelartisan.spigot.util.WorldSpigot;
 
 import java.util.List;
 
@@ -21,8 +22,8 @@ public class CommandSpigot implements Command {
             if (execFunc == null) throw new CommandException("no such executor of this number of args");
             execFunc.exec(ctx);
         } ;
-        command = new CommandAPICommand(name).executes((cmdSender, cmdArgs) -> {
-            executor.exec(CommandContext.of(MessageSenderSpigot.of(cmdSender), CommandArgumentsSpigot.of(cmdArgs)));
+        command = new CommandAPICommand(name).executesNative((sender, args) -> {
+            executor.exec(CommandContext.of(MessageSenderSpigot.of(sender), CommandArgumentsSpigot.of(args), WorldSpigot.of(sender.getWorld())));
         });
     }
 
