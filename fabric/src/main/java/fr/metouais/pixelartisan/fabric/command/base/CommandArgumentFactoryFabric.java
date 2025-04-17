@@ -1,22 +1,39 @@
 package fr.metouais.pixelartisan.fabric.command.base;
 
+import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.suggestion.SuggestionProvider;
+import fr.metouais.pixelartisan.common.block.BlockPos;
 import fr.metouais.pixelartisan.common.command.base.CommandArgument;
 import fr.metouais.pixelartisan.common.command.base.CommandArgumentFactory;
+import fr.metouais.pixelartisan.common.command.base.CommandCustomArgument;
+import fr.metouais.pixelartisan.fabric.block.BlockPosFabric;
+import net.minecraft.command.argument.BlockPosArgumentType;
+import net.minecraft.command.argument.PosArgument;
 import net.minecraft.server.command.CommandManager;
 
-import java.util.List;
-
 public class CommandArgumentFactoryFabric implements CommandArgumentFactory {
-    @Override
-    public CommandArgument<String> wordArgument(String name) {
-        return CommandArgumentFabric.of(CommandManager.argument(name, StringArgumentType.word()));
+    private <T> CommandArgumentFabric<T> arg(String name, ArgumentType<T> type) {
+        return CommandArgumentFabric.of(CommandManager.argument(name, type));
     }
 
     @Override
-    public CommandArgument<Integer> integerArgument(String name, int min, int max) {
-        return CommandArgumentFabric.of(CommandManager.argument(name, IntegerArgumentType.integer(min, max)));
+    public CommandArgumentFabric<String> wordArgument(String name) {
+        return arg(name, StringArgumentType.word());
+    }
+
+    @Override
+    public CommandArgumentFabric<Integer> integerArgument(String name, int min, int max) {
+        return arg(name, IntegerArgumentType.integer(min, max));
+    }
+
+    @Override
+    public CommandArgument<BlockPos> blockPosArgument(String name) {
+        return new CommandCustomArgument<>(
+            arg(name, BlockPosArgumentType.blockPos()),
+            input -> BlockPosFabric.of(new net.minecraft.util.math.BlockPos(0, 0, 0)), //TODO
+            pos -> null,
+            PosArgument.class
+        );
     }
 }

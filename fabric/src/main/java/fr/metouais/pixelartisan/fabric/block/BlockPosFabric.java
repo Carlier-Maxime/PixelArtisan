@@ -13,7 +13,7 @@ public class BlockPosFabric implements BlockPos {
         return new BlockPosFabric(pos);
     }
 
-    private BlockPosFabric cast(BlockPos pos) {
+    public static BlockPosFabric cast(BlockPos pos) {
         if (pos instanceof BlockPosFabric posFabric) return posFabric;
         throw new IllegalArgumentException(BlockPos.class.getSimpleName()+" is not a "+BlockPosFabric.class.getSimpleName());
     }
@@ -47,5 +47,9 @@ public class BlockPosFabric implements BlockPos {
     @Override
     public int getZ() {
         return pos.getZ();
+    }
+
+    public net.minecraft.util.math.BlockPos getPos() {
+        return pos;
     }
 }

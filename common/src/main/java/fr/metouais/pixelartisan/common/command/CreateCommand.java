@@ -24,7 +24,7 @@ public class CreateCommand {
     private final String direction;
     private final Path filepath;
     private final int size;
-    //private final BlockPos pos;
+    private final BlockPos pos;
     private final int nbThreads;
 
     private CreateCommand(@NotNull CommandContext ctx) {
@@ -33,7 +33,7 @@ public class CreateCommand {
         direction = args.getArg("direction", String.class);
         filepath = args.getArg("filename", Path.class);
         size = args.getArg("size", Integer.class);
-        //pos = args.getArg("pos", BlockPos.class);
+        pos = args.getArg("pos", BlockPos.class);
         nbThreads = args.getArg("nbThreads", Integer.class, 4);
     }
 
@@ -46,7 +46,7 @@ public class CreateCommand {
                         .argument(argsFactory.fileArgument("filename", PixelArtisan.PATH_IMAGES,
                                 List.of(Files::exists, Files::isRegularFile, Files::isReadable))
                             .argument(argsFactory.integerArgument("size", 1)
-                                .argument(argsFactory.wordArgument("pos")
+                                .argument(argsFactory.blockPosArgument("pos")
                                     .argument(argsFactory.integerArgument("nbThreads", 1)
                                         .execute(ctx -> new CreateCommand(ctx).exec())
                                     )
@@ -67,9 +67,10 @@ public class CreateCommand {
         byte face = getFace(direction);
         BufferedImage img = resizeImg(filepath, size);
         if (img==null) return;
-        //if (pos==null) return;
+        if (pos==null) return;
         sender.send("§ecreate pixel art..");
         sender.send("paint size : "+img.getWidth()+" "+img.getHeight());
+        sender.send("pos : "+pos.getX()+" "+pos.getY()+" "+pos.getZ());
         //TODO PixelArtisan.getInstance().getExecutorService().submit(new CreateCommandInstance(sender, pos, dirH, dirW, face, img, nbThreads));
     }
 

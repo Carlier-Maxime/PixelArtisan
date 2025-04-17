@@ -19,7 +19,7 @@ public class BlockPosSpigot implements BlockPos {
         return BlockPosSpigot.of(location);
     }
 
-    private BlockPosSpigot cast(BlockPos pos) {
+    public static BlockPosSpigot cast(BlockPos pos) {
         if (pos instanceof BlockPosSpigot posSpigot) return posSpigot;
         throw new IllegalArgumentException(BlockPos.class.getSimpleName()+" is not a "+BlockPosSpigot.class.getSimpleName());
     }
@@ -48,5 +48,9 @@ public class BlockPosSpigot implements BlockPos {
     @Override
     public int getZ() {
         return location.getBlockZ();
+    }
+
+    public Location getLocation() {
+        return location;
     }
 }

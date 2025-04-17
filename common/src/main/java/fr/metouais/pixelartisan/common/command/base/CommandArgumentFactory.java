@@ -1,5 +1,7 @@
 package fr.metouais.pixelartisan.common.command.base;
 
+import fr.metouais.pixelartisan.common.block.BlockPos;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,6 +19,7 @@ public interface CommandArgumentFactory {
         return integerArgument(name, min, Integer.MAX_VALUE);
     }
     CommandArgument<Integer> integerArgument(String name, int min, int max);
+    CommandArgument<BlockPos> blockPosArgument(String name);
     default CommandArgument<Path> fileArgument(String name, Path folder, List<Predicate<Path>> conditions) {
         if (!Files.isDirectory(folder)) throw new IllegalArgumentException("Folder does not exist or not directory: "+folder.toAbsolutePath());
         return new CommandCustomArgument<>(wordArgument(name), input -> {
