@@ -22,6 +22,6 @@ public class WorldSpigot implements World {
 
     @Override
     public void setBlock(BlockPos pos, IBlock block) {
-        world.getBlockAt(pos.getX(), pos.getY(), pos.getZ()).setType(BlockSpigot.cast(block).getMaterial());
+        world.getBlockAt(pos.getX(), pos.getY(), pos.getZ()).setType(BlockSpigot.cast(block).getMaterial(), false);
     }
 }
