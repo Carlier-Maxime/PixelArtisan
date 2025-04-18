@@ -12,6 +12,9 @@ public class BlockPosFabric implements BlockPos {
     public static BlockPosFabric of(net.minecraft.util.math.BlockPos pos) {
         return new BlockPosFabric(pos);
     }
+    public static BlockPosFabric of(int x, int y, int z) {
+        return BlockPosFabric.of(new net.minecraft.util.math.BlockPos(x, y, z));
+    }
 
     public static BlockPosFabric cast(BlockPos pos) {
         if (pos instanceof BlockPosFabric posFabric) return posFabric;
