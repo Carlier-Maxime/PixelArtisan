@@ -20,6 +20,14 @@ public class DebugCommand {
             command = CommandFactory.builder("debug")
                 .subcommand(CommandFactory.builder("listBlocks")
                     .execute(ctx -> listAllBlocks(ctx.getSender()))
+                )
+                .subcommand(CommandFactory.builder("properties")
+                    .argument(CommandFactory.argsFactory().wordArgument("blockId")
+                        .execute(ctx -> {
+                            var b = Block.of(ctx.getArguments().getArg("blockId", String.class));
+                            ctx.getSender().send(b.getId()+"{hasGravity: "+b.hasGravity()+"; isFullBlock: "+b.isFullBlock()+"}");
+                        })
+                    )
                 );
         }
         return command;
