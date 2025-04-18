@@ -1,15 +1,12 @@
-package fr.metouais.pixelartisan.spigot.command;
+package fr.metouais.pixelartisan.common.command;
 
-import fr.metouais.pixelartisan.common.util.MessageSender;
-import fr.metouais.pixelartisan.spigot.PixelArtisanSpigot;
+import fr.metouais.pixelartisan.common.PixelArtisan;
+import fr.metouais.pixelartisan.common.block.Block;
+import fr.metouais.pixelartisan.common.block.BlockPos;
+import fr.metouais.pixelartisan.common.block.IBlock;
+import fr.metouais.pixelartisan.common.command.base.CommandContext;
+import fr.metouais.pixelartisan.common.util.*;
 import fr.metouais.pixelartisan.common.data.DataManager;
-import fr.metouais.pixelartisan.common.util.Misc;
-import fr.metouais.pixelartisan.spigot.util.TaskUtils;
-import fr.metouais.pixelartisan.common.util.TimeUtils;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.image.BufferedImage;
@@ -25,9 +22,10 @@ public class CreateCommandInstance implements Runnable{
     private final boolean flat;
     private int blockPlaced;
     private long timeForMsg;
-    private Location location;
-    private final byte[] directionW;
-    private final byte[] directionH;
+    private final World world;
+    private BlockPos pos;
+    private final BlockPos directionW;
+    private final BlockPos directionH;
     private final DataManager dataManager;
     private final BufferedImage img;
     private final byte face;
@@ -37,31 +35,29 @@ public class CreateCommandInstance implements Runnable{
     private final BlockingQueue<Runnable> jobQueue;
     private CountDownLatch latch;
     private final Semaphore semChunkLimitInOneTick;
-    private final BukkitTask taskTimerOneTick;
+    private final Runnable taskTimerOneTick;
 
-    public CreateCommandInstance(@NotNull MessageSender sender, Location start, byte[] dirH, byte[] dirW, byte face, BufferedImage img, int nbThreads) {
-        this.sender = sender;
+    public CreateCommandInstance(@NotNull CommandContext ctx, BlockPos start, BlockPos dirH, BlockPos dirW, byte face, BufferedImage img, int nbThreads) {
+        sender = ctx.getSender();
+        world = ctx.getWorld();
         dataManager = new DataManager(sender);
-        location = start.clone();
+        pos = start.clone();
         directionW = dirW;
         directionH = dirH;
         this.face = face;
         this.img = img;
-        this.flat = dirH[1]==0 && dirW[1]==0;
+        this.flat = dirH.getY()==0 && dirW.getY()==0;
         this.nbThreads = nbThreads;
         executor = Executors.newFixedThreadPool(nbThreads);
         jobQueue = new LinkedBlockingQueue<>();
         int chunkLimitInOneTick = nbThreads<<2;
         semChunkLimitInOneTick = new Semaphore(chunkLimitInOneTick, true);
-        taskTimerOneTick = new BukkitRunnable(){
-            @Override
-            public void run() {
-                synchronized (semChunkLimitInOneTick) {
-                    semChunkLimitInOneTick.drainPermits();
-                    semChunkLimitInOneTick.release(chunkLimitInOneTick);
-                }
+        taskTimerOneTick = TaskScheduler.get().runTaskSyncEveryTick(() -> {
+            synchronized (semChunkLimitInOneTick) {
+                semChunkLimitInOneTick.drainPermits();
+                semChunkLimitInOneTick.release(chunkLimitInOneTick);
             }
-        }.runTaskTimer(PixelArtisanSpigot.getInstance(), 1, 1);
+        });
     }
 
     private void launchWorkers() {
@@ -90,7 +86,7 @@ public class CreateCommandInstance implements Runnable{
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        taskTimerOneTick.cancel();
+        TaskScheduler.get().stopTaskSyncEveryTick(taskTimerOneTick);
         executor.shutdownNow();
     }
 
@@ -107,20 +103,20 @@ public class CreateCommandInstance implements Runnable{
         blockPlaced=0;
         launchWorkers();
         for (int i=img.getHeight()-1; i>=0; i-= Misc.CHUNK_LENGTH){
-            Location loc2 = new Location(location.getWorld(),location.getBlockX(),location.getBlockY(),location.getBlockZ());
+            var pos2 = pos.clone();
             for (int j=0; j<img.getWidth(); j+=Misc.CHUNK_LENGTH){
                 int finalI = i;
                 int finalJ = j;
-                Location finalLoc = location.clone();
-                jobQueue.add(() -> buildChunk(finalLoc,finalI,finalJ));
-                location.add(directionW[0]<<Misc.CHUNK_POWER,directionW[1]<<Misc.CHUNK_POWER,directionW[2]<<Misc.CHUNK_POWER);
+                var finalPos = pos.clone();
+                jobQueue.add(() -> buildChunk(finalPos,finalI,finalJ));
+                pos.add(directionW.shl(Misc.CHUNK_POWER));
             }
-            location = new Location(loc2.getWorld(),loc2.getBlockX(),loc2.getBlockY(),loc2.getBlockZ());
-            location.add(directionH[0]<<Misc.CHUNK_POWER,directionH[1]<<Misc.CHUNK_POWER,directionH[2]<<Misc.CHUNK_POWER);
+            pos = pos2.clone();
+            pos.add(directionH.shl(Misc.CHUNK_POWER));
         }
         stopWorkers();
         String duration = TimeUtils.formatDuration(System.nanoTime() - startTime);
-        TaskUtils.runTaskInMainThreadAndWait(() -> {
+        TaskScheduler.get().runTaskInMainThreadAndWait(() -> {
             MessageSender.CONSOLE.send("finish in "+duration+". ("+blockPlaced+" block placed)");
             sender.send("§2pixel art created in "+duration+"! ("+blockPlaced+" block placed)");
         });
@@ -137,30 +133,30 @@ public class CreateCommandInstance implements Runnable{
         }
     }
 
-    private void buildChunk(Location loc, int i, int j){
+    private void buildChunk(BlockPos pos, int i, int j){
         class Entry {
-            public Location loc;
-            public Material material = Material.AIR;
+            public BlockPos pos;
+            public IBlock block = Block.air();
         }
         List<Entry> states = new ArrayList<>(Misc.CHUNK_SIZE);
         for (int k = 0; k < Misc.CHUNK_SIZE; k++) {
             states.add(new Entry());
         }
-        Location locBase = loc.clone();
-        Location locH;
+        var posBase = pos.clone();
+        BlockPos posH;
         int index=0;
         for (int y = i; y > i-Misc.CHUNK_LENGTH; y--){
             if (y < 0) break;
-            locH = locBase.clone();
+            posH = posBase.clone();
             for (int x = j; x < j+Misc.CHUNK_LENGTH; x++){
                 if (x >= img.getWidth()) break;
-                states.get(index).loc=locBase.clone();
-                //TODO states.get(index).material = Misc.MATERIALS[dataManager.getBestMaterial(img.getRGB(x, y), face, flat)];
-                locBase.add(directionW[0],directionW[1],directionW[2]);
+                states.get(index).pos =posBase.clone();
+                states.get(index).block = dataManager.getBestBlock(img.getRGB(x, y), face, flat);
+                posBase.add(directionW);
                 incNbBlockPlaced();
                 index++;
             }
-            locBase = locH.clone().add(directionH[0],directionH[1],directionH[2]);
+            posBase = posH.clone().add(directionH);
         }
         int finalIndex = index;
         try {
@@ -168,11 +164,11 @@ public class CreateCommandInstance implements Runnable{
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        TaskUtils.runTaskInMainThreadAndWait(() -> {
+        TaskScheduler.get().runTaskInMainThreadAndWait(() -> {
             for (int ind = 0; ind< finalIndex; ind++) {
-                var localLoc = states.get(ind).loc;
-                if (!localLoc.getChunk().isLoaded()) localLoc.getChunk().load();
-                localLoc.getBlock().setType(states.get(ind).material, false);
+                var localPos = states.get(ind).pos;
+                world.ensureChunkIsLoaded(localPos);
+                world.setBlock(localPos, states.get(ind).block);
             }
             progressMessage();
         });

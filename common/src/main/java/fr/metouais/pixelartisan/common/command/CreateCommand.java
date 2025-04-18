@@ -2,6 +2,7 @@ package fr.metouais.pixelartisan.common.command;
 
 import fr.metouais.pixelartisan.common.PixelArtisan;
 import fr.metouais.pixelartisan.common.block.BlockPos;
+import fr.metouais.pixelartisan.common.block.BlockPosMaker;
 import fr.metouais.pixelartisan.common.command.base.Command;
 import fr.metouais.pixelartisan.common.command.base.CommandContext;
 import fr.metouais.pixelartisan.common.command.base.CommandFactory;
@@ -26,9 +27,11 @@ public class CreateCommand {
     private final int size;
     private final BlockPos pos;
     private final int nbThreads;
+    private final CommandContext ctx;
 
     private CreateCommand(@NotNull CommandContext ctx) {
-        this.sender = ctx.getSender();
+        this.ctx = ctx;
+        sender = ctx.getSender();
         var args = ctx.getArguments();
         direction = args.getArg("direction", String.class);
         filepath = args.getArg("filename", Path.class);
@@ -61,8 +64,8 @@ public class CreateCommand {
 
     private void exec() {
         sender.send("§ecalculation of direction, face and position");
-        byte[] dirH = getDirectionH(direction);
-        byte[] dirW = getDirectionW(direction);
+        var dirH = getDirectionH(direction);
+        var dirW = getDirectionW(direction);
         if (dirH==null || dirW==null) return;
         byte face = getFace(direction);
         BufferedImage img = resizeImg(filepath, size);
@@ -71,7 +74,7 @@ public class CreateCommand {
         sender.send("§ecreate pixel art..");
         sender.send("paint size : "+img.getWidth()+" "+img.getHeight());
         sender.send("pos : "+pos.getX()+" "+pos.getY()+" "+pos.getZ());
-        //TODO PixelArtisan.getInstance().getExecutorService().submit(new CreateCommandInstance(sender, pos, dirH, dirW, face, img, nbThreads));
+        PixelArtisan.getInstance().getExecutorService().submit(new CreateCommandInstance(ctx, pos, dirH, dirW, face, img, nbThreads));
     }
 
     private BufferedImage resizeImg(Path originalImgPath, int size){
@@ -103,16 +106,15 @@ public class CreateCommand {
         return img;
     }
 
-    private byte[] getDirectionH(String direction){
-        // "North","East","South","West","FlatNorthEast","FlatEastSouth","FlatSouthWest","FlatWestNorth"
+    private BlockPos getDirectionH(String direction){
         for (int i=0; i<CreateCommand.ALL_DIRECTION.size(); i++){
             if (Objects.equals(CreateCommand.ALL_DIRECTION.get(i), direction)){
                 return switch (i) {
-                    case 0, 1, 2, 3 -> new byte[]{0, 1, 0};
-                    case 4 -> new byte[]{0, 0, -1};
-                    case 5 -> new byte[]{1, 0, 0};
-                    case 6 -> new byte[]{0, 0, 1};
-                    case 7 -> new byte[]{-1, 0, 0};
+                    case 0, 1, 2, 3 -> BlockPosMaker.make(0, 1, 0);
+                    case 4 -> BlockPosMaker.make(0, 0, -1);
+                    case 5 -> BlockPosMaker.make(1, 0, 0);
+                    case 6 -> BlockPosMaker.make(0, 0, 1);
+                    case 7 -> BlockPosMaker.make(-1, 0, 0);
                     default -> null;
                 };
             }
@@ -120,15 +122,14 @@ public class CreateCommand {
         return null;
     }
 
-    private byte[] getDirectionW(String direction){
-        // "North","East","South","West","FlatNorthEast","FlatEastSouth","FlatSouthWest","FlatWestNorth"
+    private BlockPos getDirectionW(String direction){
         for (int i=0; i<CreateCommand.ALL_DIRECTION.size(); i++){
             if (Objects.equals(CreateCommand.ALL_DIRECTION.get(i), direction)){
                 return switch (i) {
-                    case 0,4 -> new byte[]{1, 0, 0};
-                    case 1,5 -> new byte[]{0, 0, 1};
-                    case 2,6 -> new byte[]{-1, 0, 0};
-                    case 3,7 -> new byte[]{0, 0, -1};
+                    case 0,4 -> BlockPosMaker.make(1, 0, 0);
+                    case 1,5 -> BlockPosMaker.make(0, 0, 1);
+                    case 2,6 -> BlockPosMaker.make(-1, 0, 0);
+                    case 3,7 -> BlockPosMaker.make(0, 0, -1);
                     default -> null;
                 };
             }
@@ -137,7 +138,6 @@ public class CreateCommand {
     }
 
     private byte getFace(String direction){
-        // "North","East","South","West","FlatNorthEast","FlatEastSouth","FlatSouthWest","FlatWestNorth"
         return switch (direction){
             case "North" -> (byte) 1;
             case "East" -> (byte) 2;
