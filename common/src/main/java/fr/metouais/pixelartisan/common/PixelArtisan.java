@@ -22,7 +22,7 @@ public class PixelArtisan {
     public static final Path PATH_DATA = PATH_PREFIX.resolve("data");
     public static final Path PATH_DEBUG = PATH_PREFIX.resolve("debug");
     public static final Path[] PATHS = {PATH_INPUT_TEXTURE, PATH_IMAGES, PATH_DATA, PATH_DEBUG};
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    private ExecutorService executorService = null;
 
     private PixelArtisan() {
         try {
@@ -46,6 +46,10 @@ public class PixelArtisan {
 
     public ExecutorService getExecutorService() {
         return executorService;
+    }
+
+    public void start() {
+        executorService = Executors.newCachedThreadPool();
     }
 
     public void shutdownNow(){

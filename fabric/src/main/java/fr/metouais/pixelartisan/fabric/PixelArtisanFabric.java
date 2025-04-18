@@ -14,7 +14,6 @@ import fr.metouais.pixelartisan.fabric.util.TaskSchedulerFabric;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.SharedConstants;
-import net.minecraft.server.MinecraftServer;
 
 public class PixelArtisanFabric implements ModInitializer {
     private PixelArtisan common;
@@ -27,10 +26,7 @@ public class PixelArtisanFabric implements ModInitializer {
         CommandFactory.setFactory(CommandFabric::new, new CommandArgumentFactoryFabric());
         Block.setManager(new BlockManagerFabric());
         common = PixelArtisan.getInstance();
-        ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
-    }
-
-    private void onServerStopping(MinecraftServer server) {
-        common.shutdownNow();
+        ServerLifecycleEvents.SERVER_STARTING.register(s -> common.start());
+        ServerLifecycleEvents.SERVER_STOPPING.register(s -> common.shutdownNow());
     }
 }

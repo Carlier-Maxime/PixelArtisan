@@ -34,6 +34,7 @@ public class PixelArtisanSpigot extends JavaPlugin {
         CommandFactory.setFactory(CommandSpigot::new, new CommandArgumentFactorySpigot());
         Block.setManager(new BlockManagerSpigot());
         common = PixelArtisan.getInstance();
+        common.start();
     }
 
     @Override
