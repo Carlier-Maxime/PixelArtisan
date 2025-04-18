@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class BlockManagerSpigot implements IBlockManager {
@@ -14,7 +15,7 @@ public class BlockManagerSpigot implements IBlockManager {
 
     @Override
     public IBlock of(@NotNull String id) {
-        var mat = Material.matchMaterial(id);
+        var mat = Material.matchMaterial(id.toUpperCase(Locale.ROOT));
         if (mat == null) return null;
         return BlockSpigot.of(mat);
     }

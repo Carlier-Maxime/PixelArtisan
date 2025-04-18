@@ -90,9 +90,8 @@ public class DataGenerator {
         if (name.equals("big_dripleaf_tip")) name = "big_dripleaf";
         if (name.equals("mushroom_block")) name = "brown_"+name;
         if (name.equals("mangrove_propagule_hanging")) name = "mangrove_propagule";
-        name = name.toUpperCase(Locale.ROOT);
         IBlock m = Block.of(name);
-        if (m==null) {
+        if (m==null || m.getId().equals(Block.air().getId())) {
             MessageSender.CONSOLE.send(textureName+" alias "+name+" not found correspondance !");
             return null;
         }
