@@ -2,7 +2,7 @@ package fr.metouais.pixelartisan.fabric.block;
 
 import fr.metouais.pixelartisan.common.block.IBlock;
 import net.minecraft.block.Block;
-import net.minecraft.block.FallingBlock;
+import net.minecraft.block.Falling;
 import net.minecraft.registry.Registries;
 
 public class BlockFabric implements IBlock {
@@ -18,7 +18,7 @@ public class BlockFabric implements IBlock {
 
     @Override
     public boolean hasGravity() {
-        return block instanceof FallingBlock;
+        return block instanceof Falling;
     }
 
     @Override
