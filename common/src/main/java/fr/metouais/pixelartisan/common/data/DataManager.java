@@ -192,7 +192,7 @@ public class DataManager {
             Color color = new Color(clr,true);
             Color tmp = getBestMatchColor(goal,bestColor,color);
             IBlock b = Block.of(tree.get(tmp.getRGB()));
-            if (!b.isOpaque() && bestColor.getAlpha()==255) continue;
+            if (!b.isFullBlock() && bestColor.getAlpha()==255) continue;
             if (flat && b.hasGravity()) continue;
             bestColor = tmp;
         }

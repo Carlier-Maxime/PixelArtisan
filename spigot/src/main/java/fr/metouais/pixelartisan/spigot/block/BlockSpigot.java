@@ -19,7 +19,7 @@ public class BlockSpigot implements IBlock {
     }
 
     @Override
-    public boolean isOpaque() {
+    public boolean isFullBlock() {
         return material.isOccluding();
     }
 

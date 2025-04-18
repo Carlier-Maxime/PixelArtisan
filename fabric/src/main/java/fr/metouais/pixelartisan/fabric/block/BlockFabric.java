@@ -22,8 +22,8 @@ public class BlockFabric implements IBlock {
     }
 
     @Override
-    public boolean isOpaque() {
-        return block.getDefaultState().isOpaque();
+    public boolean isFullBlock() {
+        return block.getDefaultState().isFullCube(null, null);
     }
 
     @Override

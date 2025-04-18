@@ -2,6 +2,6 @@ package fr.metouais.pixelartisan.common.block;
 
 public interface IBlock {
     boolean hasGravity();
-    boolean isOpaque();
+    boolean isFullBlock();
     String getId();
 }
