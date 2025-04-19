@@ -27,7 +27,7 @@ public class WorldFabric implements World {
         world.setBlockState(
             BlockPosFabric.cast(pos).getPos(),
             BlockFabric.cast(block).getBlock().getDefaultState(),
-            Block.FORCE_STATE | Block.SKIP_DROPS | Block.NOTIFY_LISTENERS
+            Block.FORCE_STATE_AND_SKIP_CALLBACKS_AND_DROPS | Block.NOTIFY_LISTENERS
         );
     }
 }
